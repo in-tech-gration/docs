@@ -1,15 +1,14 @@
 ---
 title: ChatAnthropic
+description: Get started using Anthropic [chat models](/oss/python/langchain/models) in LangChain.
 ---
-
-This guide provides a quick overview for getting started with Claude [chat models](/oss/python/langchain/models).
 
 You can find information about Anthropic's latest models, their costs, context windows, and supported input types in the [Claude](https://docs.claude.com/en/docs/about-claude/models/overview) docs.
 
 <Tip>
     **API Reference**
 
-    For detailed documentation of all features and configuration options, head to the [`ChatAnthropic`](https://reference.langchain.com/python/integrations/langchain_anthropic/ChatAnthropic/) API reference.
+    For detailed documentation of all features and configuration options, head to the [`ChatAnthropic`](https://reference.langchain.com/python/integrations/langchain_anthropic/ChatAnthropic) API reference.
 </Tip>
 
 <Info>
@@ -24,7 +23,7 @@ You can find information about Anthropic's latest models, their costs, context w
 
 | Class | Package | <Tooltip tip="Can run on local hardware" cta="Learn more" href="/oss/python/langchain/models#local-models">Local</Tooltip> | Serializable | JS/TS Support | Downloads | Latest Version |
 | :--- | :--- | :---: | :---: |  :---: | :---: | :---: |
-| [`ChatAnthropic`](https://reference.langchain.com/python/integrations/langchain_anthropic/ChatAnthropic/) | [`langchain-anthropic`](https://reference.langchain.com/python/integrations/langchain_anthropic) | ❌ | beta | ✅ [(npm)](https://js.langchain.com/docs/integrations/chat/anthropic) | <a href="https://pypi.org/project/langchain-anthropic/" target="_blank"><img src="https://static.pepy.tech/badge/langchain-anthropic/month" alt="Downloads per month" noZoom height="100" class="rounded" /></a> | <a href="https://pypi.org/project/langchain-anthropic/" target="_blank"><img src="https://img.shields.io/pypi/v/langchain-anthropic?style=flat-square&label=%20&color=orange" alt="PyPI - Latest version" noZoom height="100" class="rounded" /></a> |
+| [`ChatAnthropic`](https://reference.langchain.com/python/integrations/langchain_anthropic/ChatAnthropic) | [`langchain-anthropic`](https://reference.langchain.com/python/integrations/langchain_anthropic) | ❌ | beta | ✅ [(npm)](https://js.langchain.com/docs/integrations/chat/anthropic) | <a href="https://pypi.org/project/langchain-anthropic/" target="_blank"><img src="https://static.pepy.tech/badge/langchain-anthropic/month" alt="Downloads per month" noZoom height="100" class="rounded" /></a> | <a href="https://pypi.org/project/langchain-anthropic/" target="_blank"><img src="https://img.shields.io/pypi/v/langchain-anthropic?style=flat-square&label=%20&color=orange" alt="PyPI - Latest version" noZoom height="100" class="rounded" /></a> |
 
 ### Model features
 
@@ -49,7 +48,7 @@ To access Anthropic (Claude) models you'll need to install the `langchain-anthro
 
 ### Credentials
 
-Head to [console.anthropic.com/](https://console.anthropic.com) to sign up for Anthropic and generate an API key. Once you've done this set the `ANTHROPIC_API_KEY` environment variable:
+Head to the [Claude console](https://console.anthropic.com) to sign up and generate a Claude API key. Once you've done this set the `ANTHROPIC_API_KEY` environment variable:
 
 ```python
 import getpass
@@ -145,7 +144,7 @@ response.content
   'type': 'tool_use'}]
 ```
 
-Using `content_blocks` will render the content in a standard format that is consistent across other model providers:
+Using `content_blocks` will render the content in a standard format that is consistent across other model providers. Read more about [content blocks](/oss/python/langchain/messages#standard-content-blocks).
 
 ```python
 response.content_blocks
@@ -254,7 +253,7 @@ Some Claude models support an [extended thinking](https://docs.claude.com/en/doc
 
 See compatible models in the [Claude documentation](https://docs.claude.com/en/docs/build-with-claude/extended-thinking#supported-models).
 
-To use extended thinking, specify the `thinking` parameter when initializing [`ChatAnthropic`](https://reference.langchain.com/python/integrations/langchain_anthropic/ChatAnthropic/). If needed, it can also be passed in as a parameter during invocation.
+To use extended thinking, specify the `thinking` parameter when initializing [`ChatAnthropic`](https://reference.langchain.com/python/integrations/langchain_anthropic/ChatAnthropic). If needed, it can also be passed in as a parameter during invocation.
 
 You will need to specify a token budget to use this feature. See usage example below:
 
@@ -306,7 +305,7 @@ print(json.dumps(response.content_blocks, indent=2))
 
 ## Prompt caching
 
-Anthropic supports [caching](https://docs.claude.com/en/docs/build-with-claude/prompt-caching) of [elements of your prompts](https://docs.claude.com/en/docs/build-with-claude/prompt-caching#what-can-be-cached), including messages, tool definitions, tool results, images and documents. This allows you to re-use large documents, instructions, [few-shot documents](/langsmith/create-few-shot-evaluators), and other data to reduce latency and costs.
+Anthropic supports [caching](https://docs.claude.com/en/docs/build-with-claude/prompt-caching) of elements of your prompts, including messages, tool definitions, tool results, images and documents. This allows you to re-use large documents, instructions, [few-shot documents](/langsmith/create-few-shot-evaluators), and other data to reduce latency and costs.
 
 To enable caching on an element of a prompt, mark its associated content block using the `cache_control` key. See examples below:
 
@@ -400,7 +399,7 @@ Second:
 
 ### Tools
 
-```python
+```python expandable
 from langchain_anthropic import convert_to_anthropic_tool
 from langchain.tools import tool
 
@@ -1099,7 +1098,7 @@ I'd be happy to help you fix the syntax error in your primes.py file. First, let
 
 ## API reference
 
-For detailed documentation of all features and configuration options, head to the [`ChatAnthropic`](https://reference.langchain.com/python/integrations/langchain_anthropic/ChatAnthropic/) API reference.
+For detailed documentation of all features and configuration options, head to the [`ChatAnthropic`](https://reference.langchain.com/python/integrations/langchain_anthropic/ChatAnthropic) API reference.
 
 ---
 
