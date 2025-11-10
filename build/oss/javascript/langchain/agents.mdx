@@ -2,8 +2,6 @@
 title: Agents
 ---
 
-
-
 Agents combine language models with [tools](/oss/javascript/langchain/tools) to create systems that can reason about tasks, decide which tools to use, and iteratively work towards solutions.
 
 
@@ -62,7 +60,7 @@ The [model](/oss/javascript/langchain/models) is the reasoning engine of your ag
 
 Static models are configured once when creating the agent and remain unchanged throughout execution. This is the most common and straightforward approach.
 
-To initialize a static model from a <Tooltip tip="A string that follows the format `provider:model` (e.g. openai:gpt-5)" cta="See mappings" href="https://reference.langchain.com/python/langchain/models/#langchain.chat_models.init_chat_model(model_provider)">model identifier string</Tooltip>:
+To initialize a static model from a <Tooltip tip="A string that follows the format `provider:model` (e.g. openai:gpt-5)" cta="See mappings" href="https://reference.langchain.com/python/langchain/models/#langchain.chat_models.init_chat_model(model)">model identifier string</Tooltip>:
 
 
 ```ts wrap
@@ -365,7 +363,7 @@ await agent.invoke({
 
 For streaming steps and / or tokens from the agent, refer to the [streaming](/oss/javascript/langchain/streaming) guide.
 
-Otherwise, the agent follows the LangGraph [Graph API](/oss/javascript/langgraph/use-graph-api) and supports all associated methods.
+Otherwise, the agent follows the LangGraph [Graph API](/oss/javascript/langgraph/use-graph-api) and supports all associated methods, such as `stream` and `invoke`.
 
 ## Advanced concepts
 
@@ -407,7 +405,7 @@ console.log(result.structuredResponse);
 ```
 
 <Tip>
-To learn about structured output, see [Structured output](/oss/javascript/langchain/structured-output).
+    To learn about structured output, see [Structured output](/oss/javascript/langchain/structured-output).
 </Tip>
 
 ### Memory

@@ -15,7 +15,9 @@ At its core, LangGraph models agent workflows as graphs. You define the behavior
 
 3. [`Edges`](#edges): Functions that determine which `Node` to execute next based on the current state. They can be conditional branches or fixed transitions.
 
-By composing `Nodes` and `Edges`, you can create complex, looping workflows that evolve the state over time. The real power, though, comes from how LangGraph manages that state. To emphasize: `Nodes` and `Edges` are nothing more than functions - they can contain an LLM or just good ol' code.
+By composing `Nodes` and `Edges`, you can create complex, looping workflows that evolve the state over time. The real power, though, comes from how LangGraph manages that state.
+
+To emphasize: `Nodes` and `Edges` are nothing more than functions – they can contain an LLM or just good ol' code.
 
 In short: _nodes do the work, edges tell what to do next_.
 
@@ -41,7 +43,9 @@ graph = graph_builder.compile(...)
 
 
 
-You **MUST** compile your graph before you can use it.
+<Warning>
+    You **MUST** compile your graph before you can use it.
+</Warning>
 
 ## State
 
@@ -52,9 +56,9 @@ The first thing you do when you define a graph is define the `State` of the grap
 
 ### Schema
 
-The main documented way to specify the schema of a graph is by using a [`TypedDict`](https://docs.python.org/3/library/typing.html#typing.TypedDict). If you want to provide default values in your state, use a [`dataclass`](https://docs.python.org/3/library/dataclasses.html). We also support using a Pydantic [BaseModel](/oss/python/langgraph/use-graph-api#use-pydantic-models-for-graph-state) as your graph state if you want recursive data validation (though note that pydantic is less performant than a `TypedDict` or `dataclass`).
+The main documented way to specify the schema of a graph is by using a [`TypedDict`](https://docs.python.org/3/library/typing.html#typing.TypedDict). If you want to provide default values in your state, use a [`dataclass`](https://docs.python.org/3/library/dataclasses.html). We also support using a Pydantic [`BaseModel`](/oss/python/langgraph/use-graph-api#use-pydantic-models-for-graph-state) as your graph state if you want recursive data validation (though note that Pydantic is less performant than a `TypedDict` or `dataclass`).
 
-By default, the graph will have the same input and output schemas. If you want to change this, you can also specify explicit input and output schemas directly. This is useful when you have a lot of keys, and some are explicitly for input and others for output. See the [guide here](/oss/python/langgraph/use-graph-api#define-input-and-output-schemas) for how to use.
+By default, the graph will have the same input and output schemas. If you want to change this, you can also specify explicit input and output schemas directly. This is useful when you have a lot of keys, and some are explicitly for input and others for output. See the [guide](/oss/python/langgraph/use-graph-api#define-input-and-output-schemas) for more information.
 
 
 
@@ -121,7 +125,19 @@ There are two subtle and important points to note here:
 
 1. We pass `state: InputState` as the input schema to `node_1`. But, we write out to `foo`, a channel in `OverallState`. How can we write out to a state channel that is not included in the input schema? This is because a node _can write to any state channel in the graph state._ The graph state is the union of the state channels defined at initialization, which includes `OverallState` and the filters `InputState` and `OutputState`.
 
-2. We initialize the graph with `StateGraph(OverallState,input_schema=InputState,output_schema=OutputState)`. So, how can we write to `PrivateState` in `node_2`? How does the graph gain access to this schema if it was not passed in the `StateGraph` initialization? We can do this because _nodes can also declare additional state channels_ as long as the state schema definition exists. In this case, the `PrivateState` schema is defined, so we can add `bar` as a new state channel in the graph and write to it.
+2. We initialize the graph with:
+
+    ```python
+    StateGraph(
+        OverallState,
+        input_schema=InputState,
+        output_schema=OutputState
+    )
+    ```
+
+    So, how can we write to `PrivateState` in `node_2`? How does the graph gain access to this schema if it was not passed in the `StateGraph` initialization?
+
+    We can do this because `_nodes` can also declare additional state `channels_` as long as the state schema definition exists. In this case, the `PrivateState` schema is defined, so we can add `bar` as a new state channel in the graph and write to it.
 
 
 
@@ -134,9 +150,7 @@ Reducers are key to understanding how updates from nodes are applied to the `Sta
 
 These two examples show how to use the default reducer:
 
-**Example A:**
-
-```python
+```python Example A
 from typing_extensions import TypedDict
 
 class State(TypedDict):
@@ -155,9 +169,7 @@ In this example, no reducer functions are specified for any key. Let's assume th
 
 
 
-**Example B:**
-
-```python
+```python Example B
 from typing import Annotated
 from typing_extensions import TypedDict
 from operator import add
@@ -182,10 +194,9 @@ In some cases, you may want to bypass a reducer and directly overwrite a state v
 
 #### Why use messages?
 
-Most modern LLM providers have a chat model interface that accepts a list of messages as input. LangChain's [`ChatModel`](https://python.langchain.com/docs/concepts/#chat-models) in particular accepts a list of `Message` objects as inputs. These messages come in a variety of forms such as [`HumanMessage`](https://reference.langchain.com/python/langchain/messages/#langchain.messages.HumanMessage) (user input) or [`AIMessage`](https://reference.langchain.com/python/langchain/messages/#langchain.messages.AIMessage) (LLM response). To read more about what message objects are, please refer to [this](https://python.langchain.com/docs/concepts/#messages) conceptual guide.
+Most modern LLM providers have a chat model interface that accepts a list of messages as input. LangChain's [chat model interface](/oss/python/langchain/models) in particular accepts a list of message objects as inputs. These messages come in a variety of forms such as [`HumanMessage`](https://reference.langchain.com/python/langchain/messages/#langchain.messages.HumanMessage) (user input) or [`AIMessage`](https://reference.langchain.com/python/langchain/messages/#langchain.messages.AIMessage) (LLM response).
 
-
-
+To read more about what message objects are, please refer to the [Messages conceptual guide](/oss/python/langchain/messages).
 
 #### Using Messages in your Graph
 
@@ -198,7 +209,9 @@ However, you might also want to manually update messages in your graph state (e.
 
 #### Serialization
 
-In addition to keeping track of message IDs, the [`add_messages`](https://reference.langchain.com/python/langgraph/graphs/#langgraph.graph.message.add_messages) function will also try to deserialize messages into LangChain `Message` objects whenever a state update is received on the `messages` channel. See more information on LangChain serialization/deserialization [here](https://python.langchain.com/docs/how_to/serialization/). This allows sending graph inputs / state updates in the following format:
+In addition to keeping track of message IDs, the [`add_messages`](https://reference.langchain.com/python/langgraph/graphs/#langgraph.graph.message.add_messages) function will also try to deserialize messages into LangChain `Message` objects whenever a state update is received on the `messages` channel.
+
+See more information on LangChain serialization/deserialization [here](https://python.langchain.com/docs/how_to/serialization/). This allows sending graph inputs / state updates in the following format:
 
 ```python
 # this is supported
@@ -208,7 +221,9 @@ In addition to keeping track of message IDs, the [`add_messages`](https://refere
 {"messages": [{"type": "human", "content": "message"}]}
 ```
 
-Since the state updates are always deserialized into LangChain `Messages` when using [`add_messages`](https://reference.langchain.com/python/langgraph/graphs/#langgraph.graph.message.add_messages), you should use dot notation to access message attributes, like `state["messages"][-1].content`. Below is an example of a graph that uses [`add_messages`](https://reference.langchain.com/python/langgraph/graphs/#langgraph.graph.message.add_messages) as its reducer function.
+Since the state updates are always deserialized into LangChain `Messages` when using [`add_messages`](https://reference.langchain.com/python/langgraph/graphs/#langgraph.graph.message.add_messages), you should use dot notation to access message attributes, like `state["messages"][-1].content`.
+
+Below is an example of a graph that uses [`add_messages`](https://reference.langchain.com/python/langgraph/graphs/#langgraph.graph.message.add_messages) as its reducer function.
 
 ```python
 from langchain.messages import AnyMessage
@@ -241,9 +256,9 @@ class State(MessagesState):
 
 In LangGraph, nodes are Python functions (either synchronous or asynchronous) that accept the following arguments:
 
-1. `state`: The [state](#state) of the graph
-2. `config`: A [`RunnableConfig`](https://reference.langchain.com/python/langchain_core/runnables/#langchain_core.runnables.RunnableConfig) object that contains configuration information like `thread_id` and tracing information like `tags`
-3. `runtime`: A `Runtime` object that contains [runtime `context`](#runtime-context) and other information like `store` and `stream_writer`
+1. `state` – The [state](#state) of the graph
+2. `config` – A [`RunnableConfig`](https://reference.langchain.com/python/langchain_core/runnables/#langchain_core.runnables.RunnableConfig) object that contains configuration information like `thread_id` and tracing information like `tags`
+3. `runtime` – A `Runtime` object that contains [runtime `context`](#runtime-context) and other information like `store` and `stream_writer`
 
 Similar to `NetworkX`, you add these nodes to a graph using the [`add_node`](https://reference.langchain.com/python/langgraph/graphs/#langgraph.graph.state.StateGraph.add_node) method:
 
@@ -287,7 +302,7 @@ builder.add_node("node_with_config", node_with_config)
 
 
 
-Behind the scenes, functions are converted to [RunnableLambda](https://python.langchain.com/api_reference/core/runnables/langchain_core.runnables.base.RunnableLambda.html)s, which add batch and async support to your function, along with native tracing and debugging.
+Behind the scenes, functions are converted to [`RunnableLambda`](https://python.langchain.com/api_reference/core/runnables/langchain_core.runnables.base.RunnableLambda.html), which add batch and async support to your function, along with native tracing and debugging.
 
 If you add a node to a graph without specifying a name, it will be given a default name equivalent to the function name.
 
@@ -388,7 +403,7 @@ Edges define how the logic is routed and how the graph decides to stop. This is 
 - Entry Point: Which node to call first when user input arrives.
 - Conditional Entry Point: Call a function to determine which node(s) to call first when user input arrives.
 
-A node can have MULTIPLE outgoing edges. If a node has multiple out-going edges, **all** of those destination nodes will be executed in parallel as a part of the next superstep.
+A node can have multiple outgoing edges. If a node has multiple outgoing edges, **all** of those destination nodes will be executed in parallel as a part of the next superstep.
 
 ### Normal Edges
 
@@ -430,7 +445,7 @@ Use [`Command`](#command) instead of conditional edges if you want to combine st
 
 </Tip>
 
-### Entry Point
+### Entry point
 
 The entry point is the first node(s) that are run when the graph starts. You can use the [`add_edge`](https://reference.langchain.com/python/langgraph/graphs/#langgraph.graph.state.StateGraph.add_edge) method from the virtual [`START`](https://reference.langchain.com/python/langgraph/constants/#langgraph.constants.START) node to the first node to execute to specify where to enter the graph.
 
@@ -444,7 +459,7 @@ graph.add_edge(START, "node_a")
 
 
 
-### Conditional Entry Point
+### Conditional entry point
 
 A conditional entry point lets you start at different nodes depending on custom logic. You can use [`add_conditional_edges`](https://reference.langchain.com/python/langgraph/graphs/#langgraph.graph.state.StateGraph.add_conditional_edges) from the virtual [`START`](https://reference.langchain.com/python/langgraph/constants/#langgraph.constants.START) node to accomplish this.
 
@@ -565,7 +580,7 @@ Refer to [this guide](/oss/python/langgraph/use-graph-api#use-inside-tools) for 
 
 
 
-## Graph Migrations
+## Graph migrations
 
 LangGraph can easily handle migrations of graph definitions (nodes, edges, and state) even when using a checkpointer to track state.
 
@@ -575,7 +590,7 @@ LangGraph can easily handle migrations of graph definitions (nodes, edges, and s
 - State keys that are renamed lose their saved state in existing threads
 - State keys whose types change in incompatible ways could currently cause issues in threads with state from before the change -- if this is a blocker please reach out and we can prioritize a solution.
 
-## Runtime Context
+## Runtime context
 
 When creating a graph, you can specify a `context_schema` for runtime context passed to nodes. This is useful for passing
 information to nodes that is not part of the graph state. For example, you might want to pass dependencies such as model name or a database connection.
@@ -618,7 +633,7 @@ See [this guide](/oss/python/langgraph/use-graph-api#add-runtime-configuration) 
 
 
 
-### Recursion Limit
+### Recursion limit
 
 The recursion limit sets the maximum number of [super-steps](#graphs) the graph can execute during a single execution. Once the limit is reached, LangGraph will raise `GraphRecursionError`. By default this value is set to 25 steps. The recursion limit can be set on any graph at runtime, and is passed to `invoke`/`stream` via the config dictionary. Importantly, `recursion_limit` is a standalone `config` key and should not be passed inside the `configurable` key as all other user-defined configuration. See the example below:
 
