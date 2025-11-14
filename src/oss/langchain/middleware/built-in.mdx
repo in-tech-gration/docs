@@ -2092,8 +2092,24 @@ const agent = createAgent({
 :::
 
 :::js
+<ParamField body="enableCaching" type="boolean" default="true">
+    Whether to enable prompt caching. Can be overridden at runtime via `middleware_context`.
+</ParamField>
+
 <ParamField body="ttl" type="string" default="5m">
     Time to live for cached content. Valid values: `'5m'` or `'1h'`
+</ParamField>
+
+<ParamField body="minMessagesToCache" type="number" default="3">
+    Minimum number of messages required before caching is applied. Caching is skipped if the total message count (including system prompt) is below this threshold.
+</ParamField>
+
+<ParamField body="unsupportedModelBehavior" type="string" default="warn">
+    Behavior when using non-Anthropic models. Options:
+
+    - `'ignore'` - Ignore the unsupported model and continue without caching
+    - `'warn'` (default) - Warn the user and continue without caching
+    - `'raise'` - Throw an error and stop execution
 </ParamField>
 :::
 
@@ -2147,8 +2163,9 @@ Please be a helpful assistant.
 <Lots more context ...>
 `;
 
+// Basic usage with default settings
 const agent = createAgent({
-  model: "claude-sonnet-4-5-20250929",
+  model: "anthropic:claude-3-5-sonnet",
   prompt: LONG_PROMPT,
   middleware: [anthropicPromptCachingMiddleware({ ttl: "5m" })],
 });
@@ -2163,6 +2180,40 @@ await agent.invoke({
 const result = await agent.invoke({
   messages: [new HumanMessage("What's my name?")]
 });
+
+// Custom configuration for longer conversations
+const cachingMiddleware = anthropicPromptCachingMiddleware({
+  ttl: "1h",  // Cache for 1 hour instead of default 5 minutes
+  minMessagesToCache: 5  // Only cache after 5 messages
+});
+
+const agentWithCustomConfig = createAgent({
+  model: "anthropic:claude-3-5-sonnet",
+  prompt: LONG_PROMPT,
+  middleware: [cachingMiddleware],
+});
+
+// Conditional caching based on runtime context
+const conditionalAgent = createAgent({
+  model: "anthropic:claude-3-5-sonnet",
+  prompt: LONG_PROMPT,
+  middleware: [
+    anthropicPromptCachingMiddleware({
+      enableCaching: true,
+      ttl: "5m"
+    })
+  ],
+});
+
+// Disable caching for specific requests
+await conditionalAgent.invoke(
+  { messages: [new HumanMessage("Process this without caching")] },
+  {
+    configurable: {
+      middleware_context: { enableCaching: false }
+    }
+  }
+);
 ```
 :::
 
