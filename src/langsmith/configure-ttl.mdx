@@ -1,7 +1,6 @@
 ---
 title: How to add TTLs to your application
 sidebarTitle: Add TTLs to your application
-
 ---
 
 <Tip>
@@ -12,8 +11,6 @@ This guide assumes familiarity with [LangSmith](/langsmith/home), [Persistence](
 LangSmith persists both [checkpoints](/oss/langgraph/persistence#checkpoints) (thread state) and [cross-thread memories](/oss/langgraph/persistence#memory-store) (store items). Configure Time-to-Live (TTL) policies in `langgraph.json` to automatically manage the lifecycle of this data, preventing indefinite accumulation.
 
 ## Configuring checkpoint TTL
-
-
 
 Checkpoints capture the state of conversation threads. Setting a TTL ensures old checkpoints and threads are automatically deleted.
 
@@ -26,7 +23,7 @@ Add a `checkpointer.ttl` configuration to your `langgraph.json` file:
     "agent": "./agent.py:graph"
   },
   "checkpointer": {
-    "ttl": {c
+    "ttl": {
       "strategy": "delete",
       "sweep_interval_minutes": 60,
       "default_ttl": 43200
@@ -92,9 +89,9 @@ You can configure TTLs for both checkpoints and store items in the same `langgra
 }
 ```
 
-## Configuring Per-Thread TTL
+## Configure per-thread TTL
 
-From `langgraph-api` [v0.4.11](https://docs.langchain.com/langsmith/agent-server-changelog#v0-4-11) you are now able to apply TTL configurations per-thread via thread updates. Here is an example:
+You can apply [TTL configurations per-thread](https://reference.langchain.com/python/langsmith/deployment/sdk/#langgraph_sdk.client.ThreadsClient.create).
 
 ```python
 thread = await client.threads.create(
