@@ -2,7 +2,7 @@
 title: FireworksEmbeddings
 ---
 
-This will help you get started with FireworksEmbeddings [embedding models](/oss/concepts/embedding_models) using LangChain. For detailed documentation on `FireworksEmbeddings` features and configuration options, please refer to the [API reference](https://api.js.langchain.com/classes/langchain_community_embeddings_fireworks.FireworksEmbeddings.html).
+This will help you get started with FireworksEmbeddings [embedding models](/oss/integrations/text_embedding) using LangChain. For detailed documentation on `FireworksEmbeddings` features and configuration options, please refer to the [API reference](https://api.js.langchain.com/classes/langchain_community_embeddings_fireworks.FireworksEmbeddings.html).
 
 ## Overview
 
@@ -35,14 +35,17 @@ If you want to get automated tracing of your model calls you can also set your [
 
 The LangChain `FireworksEmbeddings` integration lives in the `@langchain/community` package:
 
-```{=mdx}
-import IntegrationInstallTooltip from "@mdx_components/integration_install_tooltip.mdx";
-<IntegrationInstallTooltip></IntegrationInstallTooltip>
-
-<Npm2Yarn>
-  @langchain/community @langchain/core
-</Npm2Yarn>
+<CodeGroup>
+```bash npm
+npm install @langchain/community @langchain/core
 ```
+```bash yarn
+yarn add @langchain/community @langchain/core
+```
+```bash pnpm
+pnpm add @langchain/community @langchain/core
+```
+</CodeGroup>
 
 ## Instantiation
 
@@ -64,7 +67,7 @@ Below, see how to index and retrieve data using the `embeddings` object we initi
 
 ```typescript
 // Create a vector store with a sample text
-import { MemoryVectorStore } from "langchain/vectorstores/memory";
+import { MemoryVectorStore } from "@langchain/classic/vectorstores/memory";
 
 const text = "LangChain is the framework for building context-aware reasoning applications";
 
@@ -228,6 +231,8 @@ console.log(vectors[1].slice(0, 100));
      -0.0307159423828125
 ]
 ```
+
+---
 
 ## API reference
 

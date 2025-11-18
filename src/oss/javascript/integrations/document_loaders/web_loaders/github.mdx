@@ -15,9 +15,23 @@ npm install @langchain/community @langchain/core ignore
 
 ## Usage
 
-import Github from "/snippets/javascript-integrations/examples/document_loaders/github.mdx";
+```typescript
+import { GithubRepoLoader } from "@langchain/community/document_loaders/web/github";
 
-<Github />
+export const run = async () => {
+  const loader = new GithubRepoLoader(
+    "https://github.com/langchain-ai/langchainjs",
+    {
+      branch: "main",
+      recursive: false,
+      unknown: "warn",
+      maxConcurrency: 5, // Defaults to 2
+    }
+  );
+  const docs = await loader.load();
+  console.log({ docs });
+};
+```
 
 The loader will ignore binary files like images.
 
@@ -25,9 +39,19 @@ The loader will ignore binary files like images.
 
 To ignore specific files, you can pass in an `ignorePaths` array into the constructor:
 
-import GithubIgnorePaths from "/snippets/javascript-integrations/examples/document_loaders/github_ignore_paths.mdx";
+```typescript
+import { GithubRepoLoader } from "@langchain/community/document_loaders/web/github";
 
-<GithubIgnorePaths />
+export const run = async () => {
+  const loader = new GithubRepoLoader(
+    "https://github.com/langchain-ai/langchainjs",
+    { branch: "main", recursive: false, unknown: "warn", ignorePaths: ["*.md"] }
+  );
+  const docs = await loader.load();
+  console.log({ docs });
+  // Will not include any .md files
+};
+```
 
 ### Using a Different GitHub Instance
 
@@ -37,18 +61,48 @@ For this you need two additional parameters:
 - `baseUrl` - the base URL of your GitHub instance, so the githubUrl matches `<baseUrl>/<owner>/<repo>/...`
 - `apiUrl` - the URL of the API endpoint of your GitHub instance
 
-import GithubCustomInstance from "/snippets/javascript-integrations/examples/document_loaders/github_custom_instance.mdx";
+```typescript
+import { GithubRepoLoader } from "@langchain/community/document_loaders/web/github";
 
-<GithubCustomInstance />
+export const run = async () => {
+  const loader = new GithubRepoLoader(
+    "https://github.your.company/org/repo-name",
+    {
+      baseUrl: "https://github.your.company",
+      apiUrl: "https://github.your.company/api/v3",
+      accessToken: "ghp_A1B2C3D4E5F6a7b8c9d0",
+      branch: "main",
+      recursive: true,
+      unknown: "warn",
+    }
+  );
+  const docs = await loader.load();
+  console.log({ docs });
+};
+```
 
 ### Dealing with Submodules
 
 In case your repository has submodules, you have to decide if the loader should follow them or not. You can control this with the boolean `processSubmodules` parameter. By default, submodules are not processed.
 Note that processing submodules works only in conjunction with setting the `recursive` parameter to true.
 
-import GithubSubmodules from "/snippets/javascript-integrations/examples/document_loaders/github_submodules.mdx";
+```typescript
+import { GithubRepoLoader } from "@langchain/community/document_loaders/web/github";
 
-<GithubSubmodules />
+export const run = async () => {
+  const loader = new GithubRepoLoader(
+    "https://github.com/langchain-ai/langchainjs",
+    {
+      branch: "main",
+      recursive: true,
+      processSubmodules: true,
+      unknown: "warn",
+    }
+  );
+  const docs = await loader.load();
+  console.log({ docs });
+};
+```
 
 Note, that the loader will not follow submodules which are located on another GitHub instance than the one of the current repository.
 
@@ -56,6 +110,25 @@ Note, that the loader will not follow submodules which are located on another Gi
 
 For situations where processing large repositories in a memory-efficient manner is required. You can use the `loadAsStream` method to asynchronously streams documents from the entire GitHub repository.
 
-import GithubStream from "/snippets/javascript-integrations/examples/document_loaders/github_stream.mdx";
+```typescript
+import { GithubRepoLoader } from "@langchain/community/document_loaders/web/github";
 
-<GithubStream />
+export const run = async () => {
+  const loader = new GithubRepoLoader(
+    "https://github.com/langchain-ai/langchainjs",
+    {
+      branch: "main",
+      recursive: false,
+      unknown: "warn",
+      maxConcurrency: 3, // Defaults to 2
+    }
+  );
+
+  const docs = [];
+  for await (const doc of loader.loadAsStream()) {
+    docs.push(doc);
+  }
+
+  console.log({ docs });
+};
+```

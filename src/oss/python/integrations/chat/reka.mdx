@@ -2,7 +2,7 @@
 title: ChatReka
 ---
 
-This guide provides a quick overview for getting started with Reka [chat models](../../concepts/chat_models).
+This guide provides a quick overview for getting started with Reka [chat models](/oss/langchain/models).
 
 Reka has several chat models. You can find information about their latest models and their costs, context windows, and supported input types in the [Reka docs](https://docs.reka.ai/available-models).
 
@@ -16,7 +16,7 @@ Reka has several chat models. You can find information about their latest models
 
 ### Model features
 
-| [Tool calling](/oss/langchain/tools) | [Structured output](/oss/langchain/structured-output) | JSON mode | [Image input](/oss/how-to/multimodal_inputs/) | Audio input | Video input | [Token-level streaming](/oss/langchain/streaming/) | Native async | [Token usage](/oss/how-to/chat_token_usage_tracking/) | [Logprobs](/oss/how-to/logprobs/) |
+| [Tool calling](/oss/langchain/tools) | [Structured output](/oss/langchain/structured-output) | JSON mode | [Image input](/oss/langchain/messages#multimodal) | Audio input | Video input | [Token-level streaming](/oss/langchain/streaming/) | Native async | [Token usage](/oss/langchain/models#token-usage) | [Logprobs](/oss/langchain/models#log-probabilities) |
 | :---: | :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: | :---: |
 | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
 
@@ -33,7 +33,7 @@ Head to [platform.reka.ai/](https://platform.reka.ai/) to sign up for Reka and g
 The LangChain __ModuleName__ integration lives in the `langchain_community` package:
 
 ```python
-%pip install -qU langchain_community reka-api
+pip install -qU langchain_community reka-api
 ```
 
 ```output
@@ -78,7 +78,7 @@ AIMessage(content=' Hello! How can I help you today? If you have a question, nee
 # Images input
 
 ```python
-from langchain_core.messages import HumanMessage
+from langchain.messages import HumanMessage
 
 image_url = "https://v0.docs.reka.ai/_images/000000245576.jpg"
 
@@ -199,7 +199,7 @@ model_with_tools = model.bind_tools(tools)
 We can now call the model. Let's first call it with a normal message, and see how it responds. We can look at both the content field as well as the tool_calls field.
 
 ```python
-from langchain_core.messages import HumanMessage
+from langchain.messages import HumanMessage
 
 response = model_with_tools.invoke([HumanMessage(content="Hi!")])
 
@@ -238,10 +238,11 @@ Now that we have defined the tools and the LLM, we can create the agent. We will
 
 Now, we can initialize the agent with the LLM and the tools.
 
-Note that we are passing in the model, not model_with_tools. That is because `create_agent` will call `.bind_tools` for us under the hood.
+Note that we are passing in the model, not model_with_tools. That is because @[`create_agent`] will call `.bind_tools` for us under the hood.
 
 ```python
 from langchain.agents import create_agent
+
 
 agent_executor = create_agent(model, tools)
 ```
@@ -279,7 +280,7 @@ We can check out the LangSmith trace to make sure it's calling the search tool e
 
 [smith.langchain.com/public/013ef704-654b-4447-8428-637b343d646e/r](https://smith.langchain.com/public/013ef704-654b-4447-8428-637b343d646e/r)
 
-We've seen how the agent can be called with `.invoke` to get a final response. If the agent executes multiple steps, this may take a while. To show intermediate progress, we can stream back messages as they occur.
+We've seen how the agent can be called with `invoke` to get a final response. If the agent executes multiple steps, this may take a while. To show intermediate progress, we can stream back messages as they occur.
 
 ```python
 for chunk in agent_executor.stream(
@@ -297,6 +298,8 @@ for chunk in agent_executor.stream(
 {'agent': {'messages': [AIMessage(content=' The current weather in San Francisco is misty with a temperature of 11.4°C (52.5°F). The wind is blowing at 2.2 mph (3.6 kph) from the WSW direction. The humidity is at 100%, and the visibility is 2.8 km (1.0 miles). The monthly forecast shows average temperatures ranging from 55°F to 66°F (13°C to 19°C) with some precipitation expected.\n\n', additional_kwargs={}, response_metadata={}, id='run-99ccf444-d286-4244-a5a5-7b1b511153a6-0')]}}
 ----
 ```
+
+---
 
 ## API reference
 

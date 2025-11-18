@@ -8,7 +8,7 @@ This notebook goes over how to use an LLM hosted on an `Azure ML Online Endpoint
 
 ```python
 ##Installing the langchain packages needed to use the integration
-%pip install -qU langchain-community
+pip install -qU langchain-community
 ```
 
 ```python
@@ -44,7 +44,7 @@ from langchain_community.llms.azureml_endpoint import (
     AzureMLEndpointApiType,
     CustomOpenAIContentFormatter,
 )
-from langchain_core.messages import HumanMessage
+from langchain.messages import HumanMessage
 
 llm = AzureMLOnlineEndpoint(
     endpoint_url="https://<your-endpoint>.<your_region>.inference.ml.azure.com/score",
@@ -71,7 +71,7 @@ from langchain_community.llms.azureml_endpoint import (
     AzureMLEndpointApiType,
     CustomOpenAIContentFormatter,
 )
-from langchain_core.messages import HumanMessage
+from langchain.messages import HumanMessage
 
 llm = AzureMLOnlineEndpoint(
     endpoint_url="https://<your-endpoint>.<your_region>.inference.ml.azure.com/v1/completions",

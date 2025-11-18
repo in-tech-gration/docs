@@ -10,17 +10,39 @@ In order to use HyDE, we therefore need to provide a base embedding model, as we
 
 ## Usage
 
-import Hyde from "/snippets/javascript-integrations/examples/retrievers/hyde.mdx";
+```typescript
+import { OpenAI, OpenAIEmbeddings } from "@langchain/openai";
+import { MemoryVectorStore } from "@langchain/classic/vectorstores/memory";
+import { HydeRetriever } from "@langchain/classic/retrievers/hyde";
+import { Document } from "@langchain/core/documents";
 
-import IntegrationInstallTooltip from '/snippets/javascript-integrations/integration-install-tooltip.mdx';
+const embeddings = new OpenAIEmbeddings();
+const vectorStore = new MemoryVectorStore(embeddings);
+const llm = new OpenAI();
+const retriever = new HydeRetriever({
+  vectorStore,
+  llm,
+  k: 1,
+});
 
-<IntegrationInstallTooltip/>
+await vectorStore.addDocuments(
+  [
+    "My name is John.",
+    "My name is Bob.",
+    "My favourite food is pizza.",
+    "My favourite food is pasta.",
+  ].map((pageContent) => new Document({ pageContent }))
+);
 
-```bash npm
-npm install @langchain/openai @langchain/core
+const results = await retriever.invoke("What is my favourite food?");
+
+console.log(results);
+/*
+[
+  Document { pageContent: 'My favourite food is pasta.', metadata: {} }
+]
+*/
 ```
-
-<Hyde />
 
 ## Related
 

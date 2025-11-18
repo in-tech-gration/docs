@@ -1,10 +1,10 @@
 ---
-title: ChatSambaNovaCloud
+title: ChatSambaNova
 ---
 
-This will help you get started with SambaNovaCloud [chat models](/oss/langchain/models/). For detailed documentation of all ChatSambaNovaCloud features and configurations head to the [API reference](https://docs.sambanova.ai/cloud/docs/get-started/overview).
+This will help you get started with SambaNova [chat models](/oss/langchain/models/). For detailed documentation of all `ChatSambaNova` features and configurations head to the [API reference](https://docs.sambanova.ai/cloud/docs/get-started/overview).
 
-**[SambaNova](https://sambanova.ai/)'s** [SambaNova Cloud](https://cloud.sambanova.ai/) is a platform for performing inference with open-source models
+**[SambaNova](https://sambanova.ai/)'s** [SambaCloud](http://cloud.sambanova.ai?utm_source=langchain&utm_medium=external&utm_campaign=cloud_signup) is a cloud platform for performing inference with open-source models
 
 ## Overview
 
@@ -12,17 +12,17 @@ This will help you get started with SambaNovaCloud [chat models](/oss/langchain/
 
 | Class | Package | Local | Serializable | JS support | Downloads | Version |
 | :--- | :--- | :---: | :---: |  :---: | :---: | :---: |
-| [ChatSambaNovaCloud](https://docs.sambanova.ai/cloud/docs/get-started/overview) | [langchain-sambanova](https://python.langchain.com/docs/integrations/providers/sambanova/) | ❌ | ❌ | ❌ | ![PyPI - Downloads](https://img.shields.io/pypi/dm/langchain_sambanova?style=flat-square&label=%20) | ![PyPI - Version](https://img.shields.io/pypi/v/langchain_sambanova?style=flat-square&label=%20) |
+| [`ChatSambaNova`](https://docs.sambanova.ai/cloud/docs/get-started/overview) | [`langchain-sambanova`](/oss/integrations/providers/sambanova/) | ❌ | beta | ❌ | ![PyPI - Downloads](https://img.shields.io/pypi/dm/langchain_sambanova?style=flat-square&label=%20) | ![PyPI - Version](https://img.shields.io/pypi/v/langchain_sambanova?style=flat-square&label=%20) |
 
 ### Model features
 
-| [Tool calling](/oss/langchain/tools) | [Structured output](/oss/langchain/structured-output) | JSON mode | [Image input](//docs/how_to/multimodal_inputs/) | Audio input | Video input | [Token-level streaming](/oss/langchain/streaming/) | Native async | [Token usage](/oss/how-to/chat_token_usage_tracking/) | [Logprobs](/oss/how-to/logprobs/) |
+| [Tool calling](/oss/langchain/tools) | [Structured output](/oss/langchain/structured-output) | JSON mode | [Image input](/oss/langchain/messages#multimodal) | Audio input | Video input | [Token-level streaming](/oss/langchain/streaming/) | Native async | [Token usage](/oss/langchain/models#token-usage) | [Logprobs](/oss/langchain/models#log-probabilities) |
 | :---: | :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: | :---: |
 | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ❌ |
 
 ## Setup
 
-To access ChatSambaNovaCloud models you will need to create a [SambaNovaCloud](https://cloud.sambanova.ai/) account, get an API key, install the `langchain_sambanova` integration package.
+To access SambaNova models you will need to create a [SambaCloud](http://cloud.sambanova.ai?utm_source=langchain&utm_medium=external&utm_campaign=cloud_signup) account, get an API key, install the `langchain_sambanova` integration package.
 
 ```bash
 pip install langchain-sambanova
@@ -30,11 +30,7 @@ pip install langchain-sambanova
 
 ### Credentials
 
-Get an API Key from [cloud.sambanova.ai](https://cloud.sambanova.ai/apis) and add it to your environment variables:
-
-``` bash
-export SAMBANOVA_API_KEY="your-api-key-here"
-```
+Get an API Key from [cloud.sambanova.ai](http://cloud.sambanova.ai/apis?utm_source=langchain&utm_medium=external&utm_campaign=cloud_signupapis) Once you've done this set the SAMBANOVA_API_KEY environment variable:
 
 ```python
 import getpass
@@ -42,23 +38,23 @@ import os
 
 if not os.getenv("SAMBANOVA_API_KEY"):
     os.environ["SAMBANOVA_API_KEY"] = getpass.getpass(
-        "Enter your SambaNova Cloud API key: "
+        "Enter your SambaNova API key: "
     )
 ```
 
-If you want to get automated tracing of your model calls you can also set your [LangSmith](https://docs.smith.langchain.com/) API key by uncommenting below:
+To enable automated tracing of your model calls, set your [LangSmith](https://docs.smith.langchain.com/) API key:
 
 ```python
-# os.environ["LANGSMITH_TRACING"] = "true"
-# os.environ["LANGSMITH_API_KEY"] = getpass.getpass("Enter your LangSmith API key: ")
+os.environ["LANGSMITH_TRACING"] = "true"
+os.environ["LANGSMITH_API_KEY"] = getpass.getpass("Enter your LangSmith API key: ")
 ```
 
 ### Installation
 
-The LangChain **SambaNovaCloud** integration lives in the `langchain_sambanova` package:
+The LangChain **SambaNova** integration lives in the `langchain_sambanova` package:
 
 ```python
-%pip install -qU langchain-sambanova
+pip install -qU langchain-sambanova
 ```
 
 ## Instantiation
@@ -66,13 +62,14 @@ The LangChain **SambaNovaCloud** integration lives in the `langchain_sambanova` 
 Now we can instantiate our model object and generate chat completions:
 
 ```python
-from langchain_sambanova import ChatSambaNovaCloud
+from langchain_sambanova import ChatSambaNova
 
-llm = ChatSambaNovaCloud(
+llm = ChatSambaNova(
     model="Meta-Llama-3.3-70B-Instruct",
     max_tokens=1024,
     temperature=0.7,
     top_p=0.01,
+    # other params...
 )
 ```
 
@@ -101,38 +98,6 @@ print(ai_msg.content)
 
 ```output
 J'adore la programmation.
-```
-
-## Chaining
-
-We can [chain](/oss/how-to/sequence/) our model with a prompt template like so:
-
-```python
-from langchain_core.prompts import ChatPromptTemplate
-
-prompt = ChatPromptTemplate(
-    [
-        (
-            "system",
-            "You are a helpful assistant that translates {input_language} "
-            "to {output_language}.",
-        ),
-        ("human", "{input}"),
-    ]
-)
-
-chain = prompt | llm
-chain.invoke(
-    {
-        "input_language": "English",
-        "output_language": "German",
-        "input": "I love programming.",
-    }
-)
-```
-
-```output
-AIMessage(content='Ich liebe das Programmieren.', additional_kwargs={}, response_metadata={'finish_reason': 'stop', 'usage': {'acceptance_rate': 2.3333333333333335, 'completion_tokens': 6, 'completion_tokens_after_first_per_sec': 106.06729752831038, 'completion_tokens_after_first_per_sec_first_ten': 204.92722183833433, 'completion_tokens_per_sec': 26.32497272023831, 'end_time': 1731535339.9997504, 'is_last_response': True, 'prompt_tokens': 50, 'start_time': 1731535339.7539687, 'time_to_first_token': 0.19864177703857422, 'total_latency': 0.22792046410696848, 'total_tokens': 56, 'total_tokens_per_sec': 245.6997453888909}, 'model_name': 'Meta-Llama-3.1-70B-Instruct', 'system_fingerprint': 'fastcoe', 'created': 1731535339}, id='dfe0bee6-b297-472e-ac9d-29906d162dcb')
 ```
 
 ## Streaming
@@ -215,8 +180,8 @@ Quantum computers use quantum bits (qubits) to process info, leveraging superpos
 ```python
 from datetime import datetime
 
-from langchain_core.messages import HumanMessage, ToolMessage
-from langchain_core.tools import tool
+from langchain.messages import HumanMessage, ToolMessage
+from langchain.tools import tool
 
 
 @tool
@@ -304,8 +269,8 @@ Joke(setup='Why did the cat join a band?', punchline='Because it wanted to be th
 ## Input Image
 
 ```python
-multimodal_llm = ChatSambaNovaCloud(
-    model="Llama-3.2-11B-Vision-Instruct",
+multimodal_llm = ChatSambaNova(
+    model="Llama-4-Maverick-17B-128E-Instruct",
     max_tokens=1024,
     temperature=0.7,
     top_p=0.01,
@@ -339,6 +304,8 @@ print(response.content)
 The weather in this image is a serene and peaceful atmosphere, with a blue sky and white clouds, suggesting a pleasant day with mild temperatures and gentle breezes.
 ```
 
+---
+
 ## API reference
 
-For detailed documentation of all SambaNovaCloud features and configurations head to the API reference: [docs.sambanova.ai/cloud/docs/get-started/overview](https://docs.sambanova.ai/cloud/docs/get-started/overview)
+For detailed documentation of all SambaNova features and configurations head to the API reference: [docs.sambanova.ai/cloud/docs/get-started/overview](https://docs.sambanova.ai/cloud/docs/get-started/overview)

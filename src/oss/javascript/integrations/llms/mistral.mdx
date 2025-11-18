@@ -2,20 +2,15 @@
 title: MistralAI
 ---
 
-```{=mdx}
-
 <Tip>
 **Want to run Mistral's models locally? Check out our [Ollama integration](/oss/integrations/chat/ollama).**
-
-:::
-
-</Tip>caution
-You are currently on a page documenting the use of Mistral models as [text completion models](/oss/concepts/text_llms). Many popular models available on Mistral are [chat completion models](/oss/langchain/models).
+</Tip>
+<Warning>
+You are currently on a page documenting the use of Mistral models as text completion models. Many popular models available on Mistral are [chat completion models](/oss/langchain/models).
 
 You may be looking for [this page instead](/oss/integrations/chat/mistral/).
-:::
+</Warning>
 
-```
 
 [Mistral AI](https://mistral.ai/) is a platform that offers hosting for their powerful [open source models](https://docs.mistral.ai/getting-started/models/).
 
@@ -52,15 +47,17 @@ If you want to get automated tracing of your model calls you can also set your [
 
 The LangChain MistralAI integration lives in the `@langchain/mistralai` package:
 
-```{=mdx}
-import IntegrationInstallTooltip from "@mdx_components/integration_install_tooltip.mdx";
-<IntegrationInstallTooltip></IntegrationInstallTooltip>
-
-<Npm2Yarn>
-  @langchain/mistralai @langchain/core
-</Npm2Yarn>
-
+<CodeGroup>
+```bash npm
+npm install @langchain/mistralai @langchain/core
 ```
+```bash yarn
+yarn add @langchain/mistralai @langchain/core
+```
+```bash pnpm
+pnpm add @langchain/mistralai @langchain/core
+```
+</CodeGroup>
 
 ## Instantiation
 
@@ -97,80 +94,6 @@ Mistral 7B has been trained on a diverse and high-quality dataset, which has ena
 Mistral 7B is also a highly efficient model, capable of processing text at a fast pace. This makes it well-suited for applications that require real-time responses, such as chatbots and virtual assistants.
 
 Overall, Mistral 7B is a powerful and versatile large language model that is open-source and available for commercial use. Its ability to perform well on a variety of tasks, its efficiency, and its permissive license make it a popular choice for businesses and organizations that want to leverage the power of large language models.
-```
-
-## Chaining
-
-We can [chain](/oss/how-to/sequence/) our completion model with a prompt template like so:
-
-```typescript
-import { PromptTemplate } from "@langchain/core/prompts"
-
-const prompt = PromptTemplate.fromTemplate("How to say {input} in {output_language}:\n")
-
-const chain = prompt.pipe(llm);
-await chain.invoke(
-  {
-    output_language: "German",
-    input: "I love programming.",
-  }
-)
-```
-
-```output
-I love programming.
-
-Ich liebe Programmieren.
-
-In German, the phrase "I love programming" is translated as "Ich liebe Programmieren." The word "programming" is translated to "Programmieren," and "I love" is translated to "Ich liebe."
-```
-
-Since the Mistral LLM is a completions model, they also allow you to insert a `suffix` to the prompt. Suffixes can be passed via the call options when invoking a model like so:
-
-```typescript
-const suffixResponse = await llm.invoke(
-  "You can print 'hello world' to the console in javascript like this:\n\`\`\`javascript", {
-    suffix: "\`\`\`"
-  }
-);
-console.log(suffixResponse);
-```
-
-```output
-console.log('hello world');
-\`\`\`
-```
-
-As seen in the first example, the model generated the requested `console.log('hello world')` code snippet, but also included extra unwanted text. By adding a suffix, we can constrain the model to only complete the prompt up to the suffix (in this case, three backticks). This allows us to easily parse the completion and extract only the desired response without the suffix using a custom output parser.
-
-```typescript
-import { MistralAI } from "@langchain/mistralai";
-
-const llmForFillInCompletion = new MistralAI({
-  model: "codestral-latest",
-  temperature: 0,
-});
-
-const suffix = "\`\`\`";
-
-const customOutputParser = (input: string) => {
-  if (input.includes(suffix)) {
-    return input.split(suffix)[0];
-  }
-  throw new Error("Input does not contain suffix.")
-};
-
-const resWithParser = await llmForFillInCompletion.invoke(
-  "You can print 'hello world' to the console in javascript like this:\n\`\`\`javascript", {
-    suffix,
-  }
-);
-
-console.log(customOutputParser(resWithParser));
-```
-
-```output
-console.log('hello world');
 ```
 
 ## Hooks
@@ -235,6 +158,8 @@ model.removeHookFromHttpClient(beforeRequestHook);
 
 model.removeAllHooksFromHttpClient();
 ```
+
+---
 
 ## API reference
 

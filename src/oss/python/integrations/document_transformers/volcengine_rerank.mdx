@@ -7,15 +7,15 @@ This notebook shows how to use Volcengine Reranker for document compression and 
 Volcengine's Rerank Service supports reranking up to 50 documents with a maximum of 4000 tokens. For more, please visit [here](https://www.volcengine.com/docs/84313/1254474) and [here](https://www.volcengine.com/docs/84313/1254605).
 
 ```python
-%pip install -qU  volcengine
+pip install -qU  volcengine
 ```
 
 ```python
-%pip install -qU  faiss
+pip install -qU  faiss
 
 # OR  (depending on Python version)
 
-%pip install -qU  faiss-cpu
+pip install -qU  faiss-cpu
 ```
 
 ```python
@@ -295,7 +295,7 @@ To disable this warning, you can either:
 Now let's wrap our base retriever with a `ContextualCompressionRetriever`. We'll use the `VolcengineRerank` to rerank the returned results.
 
 ```python
-from langchain.retrievers import ContextualCompressionRetriever
+from langchain_classic.retrievers.contextual_compression import ContextualCompressionRetriever
 from langchain_community.document_compressors.volcengine_rerank import VolcengineRerank
 
 compressor = VolcengineRerank()

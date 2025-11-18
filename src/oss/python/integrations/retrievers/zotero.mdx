@@ -15,8 +15,8 @@ This will help you get started with the Zotero [retriever](/oss/langchain/retrie
 If you want to get automated tracing from individual queries, you can also set your [LangSmith](https://docs.smith.langchain.com/) API key by uncommenting below:
 
 ```python
-# os.environ["LANGSMITH_API_KEY"] = getpass.getpass("Enter your LangSmith API key: ")
-# os.environ["LANGSMITH_TRACING"] = "true"
+os.environ["LANGSMITH_API_KEY"] = getpass.getpass("Enter your LangSmith API key: ")
+os.environ["LANGSMITH_TRACING"] = "true"
 ```
 
 ### Installation
@@ -24,7 +24,7 @@ If you want to get automated tracing from individual queries, you can also set y
 This retriever lives in the `langchain-zotero-retriever` package. We also require the `pyzotero` dependency:
 
 ```python
-%pip install -qU langchain-zotero-retriever pyzotero
+pip install -qU langchain-zotero-retriever pyzotero
 ```
 
 ## Instantiation
@@ -78,13 +78,13 @@ retriever.invoke("", tag=tags)
 
 ## Use within a chain
 
-Due to the way the Zotero API search operates, directly passing a user question to the ZoteroRetriever will often not return satisfactory results. For use in chains or agentic frameworks, it is recommended to turn the ZoteroRetriever into a [tool](https://python.langchain.com/docs/how_to/custom_tools/#creating-tools-from-functions). This way, the LLM can turn the user query into a more concise search query for the API. Furthermore, this allows the LLM to fill in additional search parameters, such as tag or item type.
+Due to the way the Zotero API search operates, directly passing a user question to the ZoteroRetriever will often not return satisfactory results. For use in chains or agentic frameworks, it is recommended to turn the ZoteroRetriever into a [tool](/oss/langchain/tools). This way, the LLM can turn the user query into a more concise search query for the API. Furthermore, this allows the LLM to fill in additional search parameters, such as tag or item type.
 
 ```python
 from typing import List, Optional, Union
 
 from langchain_core.output_parsers import PydanticToolsParser
-from langchain_core.tools import StructuredTool, tool
+from langchain.tools import StructuredTool, tool
 from langchain_openai import ChatOpenAI
 
 
@@ -137,6 +137,8 @@ chain = llm_with_tools | PydanticToolsParser(tools=[retrieve])
 
 chain.invoke(q)
 ```
+
+---
 
 ## API reference
 

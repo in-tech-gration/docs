@@ -30,13 +30,13 @@ def chat_pipeline(question: str):
     messages = [
         { "role": "user", "content": f"Question: {question}\nContext: {context}"}
     ]
-    chat_completion = client.messages.create(
-      model="claude-sonnet-4-20250514",
+    messages = client.messages.create(
+      model="claude-sonnet-4-5-20250929",
       messages=messages,
-      max_tokens=3,
+      max_tokens=1024,
       system="You are a helpful assistant. Please respond to the user's request only based on the given context."
     )
-    return chat_completion.choices[0].message.content
+    return messages
 
 chat_pipeline("Can you summarize this morning's meetings?")
 ```

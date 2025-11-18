@@ -2,7 +2,7 @@
 title: RedisStore
 ---
 
-This will help you get started with Redis [key-value stores](/oss/concepts/key_value_stores). For detailed documentation of all `RedisStore` features and configurations head to the [API reference](https://python.langchain.com/api_reference/community/storage/langchain_community.storage.redis.RedisStore.html).
+This will help you get started with Redis [key-value stores](/oss/integrations/stores). For detailed documentation of all `RedisStore` features and configurations head to the [API reference](https://python.langchain.com/api_reference/community/storage/langchain_community.storage.redis.RedisStore.html).
 
 ## Overview
 
@@ -23,7 +23,7 @@ To create a Redis byte store, you'll need to set up a Redis instance. You can do
 The LangChain `RedisStore` integration lives in the `langchain-community` package:
 
 ```python
-%pip install -qU langchain-community redis
+pip install -qU langchain-community redis
 ```
 
 ## Instantiation
@@ -81,6 +81,8 @@ kv_store.mget(
 ```output
 [None, None]
 ```
+
+---
 
 ## API reference
 

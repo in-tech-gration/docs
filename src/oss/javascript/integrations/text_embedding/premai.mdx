@@ -10,9 +10,9 @@ In order to use the Prem API you'll need an API key. You can sign up for a Prem 
 
 You'll first need to install the [`@langchain/community`](https://www.npmjs.com/package/@langchain/community) package:
 
-import IntegrationInstallTooltip from '/snippets/javascript-integrations/integration-install-tooltip.mdx';
-
-<IntegrationInstallTooltip/>
+<Tip>
+See [this section for general instructions on installing LangChain packages](/oss/langchain/install).
+</Tip>
 
 ```bash npm
 npm install @langchain/community @langchain/core
@@ -20,11 +20,24 @@ npm install @langchain/community @langchain/core
 
 ## Usage
 
-import Premai from "/snippets/javascript-integrations/examples/embeddings/premai.mdx";
+```typescript
+import { PremEmbeddings } from "@langchain/community/embeddings/premai";
 
-<Premai />
+const embeddings = new PremEmbeddings({
+  // In Node.js defaults to process.env.PREM_API_KEY
+  apiKey: "YOUR-API-KEY",
+  // In Node.js defaults to process.env.PREM_PROJECT_ID
+  project_id: "YOUR-PROJECT_ID",
+  model: "@cf/baai/bge-small-en-v1.5", // The model to generate the embeddings
+});
+
+const res = await embeddings.embedQuery(
+  "What would be a good company name a company that makes colorful socks?"
+);
+console.log({ res });
+```
 
 ## Related
 
-- Embedding model [conceptual guide](/oss/concepts/embedding_models)
-- Embedding model [how-to guides](/oss/how-to/#embedding-models)
+- Embedding model [conceptual guide](/oss/integrations/text_embedding)
+- Embedding model [how-to guides](/oss/integrations/text_embedding)

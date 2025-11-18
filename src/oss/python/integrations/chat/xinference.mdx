@@ -15,7 +15,7 @@ speech recognition models, and multimodal models, even on your laptop. It suppor
 
 ### Model features
 
-| [Tool calling](/oss/langchain/tools/) | [Structured output](/oss/langchain/structured-output) | JSON mode | [Image input](/oss/how-to/multimodal_inputs/) | Audio input | Video input | [Token-level streaming](/oss/langchain/streaming/) | Native async | [Token usage](/oss/how-to/chat_token_usage_tracking/) | [Logprobs](/oss/how-to/logprobs/) |
+| [Tool calling](/oss/langchain/tools/) | [Structured output](/oss/langchain/structured-output) | JSON mode | [Image input](/oss/langchain/messages#multimodal) | Audio input | Video input | [Token-level streaming](/oss/langchain/streaming/) | Native async | [Token usage](/oss/langchain/models#token-usage) | [Logprobs](/oss/langchain/models#log-probabilities) |
 | :---: |:----------------------------------------------------:| :---: | :---: |  :---: | :---: | :---: | :---: | :---: | :---: |
 | ✅ |                          ✅                           | ✅ | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ | ❌ |
 
@@ -24,7 +24,7 @@ speech recognition models, and multimodal models, even on your laptop. It suppor
 Install `Xinference` through PyPI:
 
 ```python
-%pip install -qU  "xinference[all]"
+pip install -qU  "xinference[all]"
 ```
 
 ### Deploy Xinference Locally or in a Distributed Cluster
@@ -56,7 +56,7 @@ A model UID is returned for you to use. Now you can use Xinference with LangChai
 The LangChain Xinference integration lives in the `langchain-xinference` package:
 
 ```python
-%pip install -qU langchain-xinference
+pip install -qU langchain-xinference
 ```
 
 Make sure you're using the latest Xinference version for structured outputs.
@@ -81,7 +81,7 @@ llm.invoke(
 ## Invocation
 
 ```python
-from langchain_core.messages import HumanMessage, SystemMessage
+from langchain.messages import HumanMessage, SystemMessage
 from langchain_xinference.chat_models import ChatXinference
 
 llm = ChatXinference(
@@ -94,26 +94,7 @@ human_message = "I love programming."
 llm.invoke([HumanMessage(content=human_message), SystemMessage(content=system_message)])
 ```
 
-## Chaining
-
-We can [chain](/oss/how-to/sequence/) our model with a prompt template like so:
-
-```python
-from langchain.prompts import PromptTemplate
-from langchain_xinference.chat_models import ChatXinference
-
-prompt = PromptTemplate(
-    input=["country"], template="Q: where can we visit in the capital of {country}? A:"
-)
-
-llm = ChatXinference(
-    server_url="your_server_url", model_uid="7167b2b0-2a04-11ee-83f0-d29396a3f064"
-)
-
-chain = prompt | llm
-chain.invoke(input={"country": "France"})
-chain.stream(input={"country": "France"})
-```
+---
 
 ## API reference
 

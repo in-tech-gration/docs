@@ -2,64 +2,43 @@
 title: Connery Toolkit
 ---
 
-import ConneryMrkl from "/snippets/javascript-integrations/examples/agents/connery_mrkl.mdx";
+```typescript
+import { ConneryService } from "@langchain/community/tools/connery";
+import { ConneryToolkit } from "@langchain/community/agents/toolkits/connery";
+import { ChatOpenAI } from "@langchain/openai";
+import { initializeAgentExecutorWithOptions } from "@langchain/classic/agents";
 
-import IntegrationInstallTooltip from "/snippets/javascript-integrations/integration-install-tooltip.mdx";
+// Specify your Connery Runner credentials.
+process.env.CONNERY_RUNNER_URL = "";
+process.env.CONNERY_RUNNER_API_KEY = "";
 
-Using this toolkit, you can integrate Connery Actions into your LangChain agent.
+// Specify OpenAI API key.
+process.env.OPENAI_API_KEY = "";
 
-<Note>
-**If you want to use only one particular Connery Action in your agent,**
+// Specify your email address to receive the emails from examples below.
+const recepientEmail = "test@example.com";
 
-check out the [Connery Action Tool](/oss/integrations/tools/connery) documentation.
-</Note>
+// Create a Connery Toolkit with all the available actions from the Connery Runner.
+const conneryService = new ConneryService();
+const conneryToolkit = await ConneryToolkit.createInstance(conneryService);
 
-## What is Connery?
-
-Connery is an open-source plugin infrastructure for AI.
-
-With Connery, you can easily create a custom plugin with a set of actions and seamlessly integrate them into your LangChain agent.
-Connery will take care of critical aspects such as runtime, authorization, secret management, access management, audit logs, and other vital features.
-
-Furthermore, Connery, supported by our community, provides a diverse collection of ready-to-use open-source plugins for added convenience.
-
-Learn more about Connery:
-
-- GitHub: https://github.com/connery-io/connery
-- Documentation: https://docs.connery.io
-
-## Prerequisites
-
-To use Connery Actions in your LangChain agent, you need to do some preparation:
-
-1. Set up the Connery runner using the [Quickstart](https://docs.connery.io/docs/runner/quick-start/) guide.
-2. Install all the plugins with the actions you want to use in your agent.
-3. Set environment variables `CONNERY_RUNNER_URL` and `CONNERY_RUNNER_API_KEY` so the toolkit can communicate with the Connery Runner.
-
-## Example of using Connery Toolkit
-
-### Setup
-
-To use the Connery Toolkit you need to install the following official peer dependency:
-
-```bash npm
-npm install @langchain/openai @langchain/community @langchain/core
+// Use OpenAI Functions agent to execute the prompt using actions from the Connery Toolkit.
+const llm = new ChatOpenAI({ model: "gpt-4o-mini", temperature: 0 });
+const agent = await initializeAgentExecutorWithOptions(
+  conneryToolkit.tools,
+  llm,
+  {
+    agentType: "openai-functions",
+    verbose: true,
+  }
+);
+const result = await agent.invoke({
+  input:
+    `Make a short summary of the webpage http://www.paulgraham.com/vb.html in three sentences ` +
+    `and send it to ${recepientEmail}. Include the link to the webpage into the body of the email.`,
+});
+console.log(result.output);
 ```
-
-<IntegrationInstallTooltip/>
-
-### Usage
-
-In the example below, we create an agent that uses two Connery Actions to summarize a public webpage and send the summary by email:
-
-1. **Summarize public webpage** action from the Summarization plugin.
-2. **Send email** action from the [Gmail](https://github.com/connery-io/gmail) plugin.
-
-<Info>
-**You can see a LangSmith trace of this example [here](https://smith.langchain.com/public/5485cb37-b73d-458f-8162-43639f2b49e1/r).**
-</Info>
-
-<ConneryMrkl />
 
 <Info>
 Connery Action is a structured tool, so you can only use it in the agents supporting structured tools.

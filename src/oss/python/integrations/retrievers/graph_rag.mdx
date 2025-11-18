@@ -327,47 +327,9 @@ the query.
 
 ## Usage
 
-Following the examples above, `.invoke` is used to initiate retrieval on a query.
+Following the examples above, `invoke` is used to initiate retrieval on a query.
 
-## Use within a chain
-
-Like other retrievers, `GraphRetriever` can be incorporated into LLM applications
-via [chains](/oss/how-to/sequence/).
-
-<ChatModelTabs customVarName="llm" />
-
-```python
-from langchain_core.output_parsers import StrOutputParser
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.runnables import RunnablePassthrough
-
-prompt = ChatPromptTemplate.from_template(
-"""Answer the question based only on the context provided.
-
-Context: {context}
-
-Question: {question}"""
-)
-
-def format_docs(docs):
-    return "\n\n".join(f"text: {doc.page_content} metadata: {doc.metadata}" for doc in docs)
-
-chain = (
-    {"context": traversal_retriever | format_docs, "question": RunnablePassthrough()}
-    | prompt
-    | llm
-    | StrOutputParser()
-)
-```
-
-```python
-chain.invoke("what animals could be found near a capybara?")
-```
-
-```output
-Animals that could be found near a capybara include herons, crocodiles, frogs,
-and ducks, as they all inhabit wetlands.
-```
+---
 
 ## API reference
 

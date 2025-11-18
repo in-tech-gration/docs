@@ -38,8 +38,8 @@ For more information about the Authentication process, see [Nimble APIs Authenti
 If you want to get automated tracing for individual queries, you can set your [LangSmith](https://docs.smith.langchain.com/) API key by uncommenting below:
 
 ```python
-# os.environ["LANGSMITH_API_KEY"] = getpass.getpass("Enter your LangSmith API key: ")
-# os.environ["LANGSMITH_TRACING"] = "true"
+os.environ["LANGSMITH_API_KEY"] = getpass.getpass("Enter your LangSmith API key: ")
+os.environ["LANGSMITH_TRACING"] = "true"
 ```
 
 ### Installation
@@ -47,7 +47,7 @@ If you want to get automated tracing for individual queries, you can set your [L
 The retriever is part of langchain providers which is included in the langchain-nimble package available on pypi.
 
 ```python
-%pip install -U langchain-nimble langchain-openai
+pip install -U langchain-nimble langchain-openai
 ```
 
 ## Instantiation
@@ -128,51 +128,4 @@ retrieverMode2.invoke(input="")
 
 ```output
 [Document(metadata={'title': None, 'snippet': None, 'url': 'https://example.com', 'position': None, 'entity_type': 'HtmlContent'}, page_content='<!doctype html>\n<html>\n<head>\n    <title>Example Domain</title>\n\n    <meta charset="utf-8" />\n    <meta http-equiv="Content-type" content="text/html; charset=utf-8" />\n    <meta name="viewport" content="width=device-width, initial-scale=1" />\n    <style type="text/css">\n    body {\n        background-color: #f0f0f2;\n        margin: 0;\n        padding: 0;\n        font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;\n        \n    }\n    div {\n        width: 600px;\n        margin: 5em auto;\n        padding: 2em;\n        background-color: #fdfdff;\n        border-radius: 0.5em;\n        box-shadow: 2px 3px 7px 2px rgba(0,0,0,0.02);\n    }\n    a:link, a:visited {\n        color: #38488f;\n        text-decoration: none;\n    }\n    @media (max-width: 700px) {\n        div {\n            margin: 0 auto;\n            width: auto;\n        }\n    }\n    </style>    \n</head>\n\n<body>\n<div>\n    <h1>Example Domain</h1>\n    <p>This domain is for use in illustrative examples in documents. You may use this\n    domain in literature without prior coordination or asking for permission.</p>\n    <p><a href="https://www.iana.org/domains/example">More information...</a></p>\n</div>\n</body>\n</html>\n')]
-```
-
-## Use within a chain
-
-Like other retrievers, NimbleSearchRetriever can be incorporated into LLM applications via [chains](/oss/how-to/sequence/).
-
-We will need an LLM or chat model:
-
-```python
-from langchain_openai import ChatOpenAI
-
-os.environ["OPENAI_API_KEY"] = getpass.getpass()
-llm = ChatOpenAI(model="gpt-4o", temperature=0)
-```
-
-```python
-from langchain_core.output_parsers import StrOutputParser
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.runnables import RunnablePassthrough
-
-prompt = ChatPromptTemplate.from_template(
-    """Answer the question based only on the context provided.
-
-Context: {context}
-
-Question: {question}"""
-)
-
-
-def format_docs(docs):
-    return "\n\n".join(doc.page_content for doc in docs)
-
-
-chain = (
-    {"context": retriever | format_docs, "question": RunnablePassthrough()}
-    | prompt
-    | llm
-    | StrOutputParser()
-)
-```
-
-```python
-chain.invoke("Who is the CEO of Nimbleway?")
-```
-
-```output
-'The CEO of Nimble Way is Uriel Knorovich.'
 ```

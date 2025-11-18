@@ -13,7 +13,7 @@ head over to the [Riza Code Interpreter API documentation](https://docs.riza.io)
 Make sure you have the necessary dependencies installed.
 
 ```python
-%pip install -qU langchain-community rizaio
+pip install -qU langchain-community rizaio
 ```
 
 Set up your API keys as an environment variable.
@@ -42,7 +42,7 @@ tools = [ExecPython()]
 Initialize an agent using Anthropic's Claude Haiku model.
 
 ```python
-llm = ChatAnthropic(model="claude-3-haiku-20240307", temperature=0)
+llm = ChatAnthropic(model="claude-haiku-4-5-20251001", temperature=0)
 
 prompt_template = ChatPromptTemplate.from_messages(
     [

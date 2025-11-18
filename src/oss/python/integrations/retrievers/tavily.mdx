@@ -4,7 +4,7 @@ title: TavilySearchAPI
 
 >[Tavily's Search API](https://tavily.com) is a search engine built specifically for AI agents (LLMs), delivering real-time, accurate, and factual results at speed.
 
-We can use this as a [retriever](/oss/langchain/retrieval). It will show functionality specific to this integration. After going through, it may be useful to explore [relevant use-case pages](/docs/how_to#qa-with-rag) to learn how to use this vectorstore as part of a larger chain.
+We can use this as a [retriever](/oss/langchain/retrieval). It will show functionality specific to this integration. After going through, it may be useful to explore [relevant use-case pages](/oss/langchain/rag) to learn how to use this vectorstore as part of a larger chain.
 
 ### Integration details
 
@@ -15,8 +15,8 @@ We can use this as a [retriever](/oss/langchain/retrieval). It will show functio
 If you want to get automated tracing from individual queries, you can also set your [LangSmith](https://docs.smith.langchain.com/) API key by uncommenting below:
 
 ```python
-# os.environ["LANGSMITH_API_KEY"] = getpass.getpass("Enter your LangSmith API key: ")
-# os.environ["LANGSMITH_TRACING"] = "true"
+os.environ["LANGSMITH_API_KEY"] = getpass.getpass("Enter your LangSmith API key: ")
+os.environ["LANGSMITH_TRACING"] = "true"
 ```
 
 ### Installation
@@ -24,7 +24,7 @@ If you want to get automated tracing from individual queries, you can also set y
 The integration lives in the `langchain-community` package. We also need to install the `tavily-python` package itself.
 
 ```python
-%pip install -qU langchain-community tavily-python
+pip install -qU langchain-community tavily-python
 ```
 
 We also need to set our Tavily API key.
@@ -100,6 +100,8 @@ chain.invoke("how many units did bretch of the wild sell in 2020")
 ```output
 'As of August 2020, The Legend of Zelda: Breath of the Wild had sold over 20.1 million copies worldwide on Nintendo Switch and Wii U.'
 ```
+
+---
 
 ## API reference
 

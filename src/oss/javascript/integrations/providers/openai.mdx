@@ -7,8 +7,8 @@ All functionality related to OpenAI
 > [OpenAI](https://en.wikipedia.org/wiki/OpenAI) is American artificial intelligence (AI) research laboratory
 > consisting of the non-profit `OpenAI Incorporated`
 > and its for-profit subsidiary corporation `OpenAI Limited Partnership`.
-> `OpenAI` conducts AI research with the declared intention of promoting and developing a friendly AI.
-> `OpenAI` systems run on an `Azure`-based supercomputing platform from `Microsoft`.
+> OpenAI conducts AI research with the declared intention of promoting and developing a friendly AI.
+> OpenAI systems run on an `Azure`-based supercomputing platform from `Microsoft`.
 
 > The [OpenAI API](https://platform.openai.com/docs/models) is powered by a diverse set of models with different capabilities and price points.
 >
@@ -30,9 +30,9 @@ import { ChatOpenAI } from "@langchain/openai";
 
 See a [usage example](/oss/integrations/llms/openai).
 
-import IntegrationInstallTooltip from '/snippets/javascript-integrations/integration-install-tooltip.mdx';
-
-<IntegrationInstallTooltip/>
+<Tip>
+See [this section for general instructions on installing LangChain packages](/oss/langchain/install).
+</Tip>
 
 ```bash npm
 npm install @langchain/openai @langchain/core
@@ -52,5 +52,5 @@ import { OpenAIEmbeddings } from "@langchain/openai";
 ## Chain
 
 ```typescript
-import { OpenAIModerationChain } from "langchain/chains";
+import { OpenAIModerationChain } from "@langchain/classic/chains";
 ```

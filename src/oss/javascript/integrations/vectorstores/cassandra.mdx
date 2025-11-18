@@ -16,9 +16,9 @@ The [latest version](<https://cwiki.apache.org/confluence/display/CASSANDRA/CEP-
 
 First, install the Cassandra Node.js driver:
 
-import IntegrationInstallTooltip from '/snippets/javascript-integrations/integration-install-tooltip.mdx';
-
-<IntegrationInstallTooltip/>
+<Tip>
+See [this section for general instructions on installing LangChain packages](/oss/langchain/install).
+</Tip>
 
 ```bash npm
 npm install cassandra-driver @langchain/community @langchain/openai @langchain/core
@@ -62,7 +62,7 @@ Instead of `endpoint:`, you many provide property `datacenterID:` and optionally
 ## Indexing docs
 
 ```typescript
-import { CassandraStore } from "langchain/vectorstores/cassandra";
+import { CassandraStore } from "@langchain/classic/vectorstores/cassandra";
 import { OpenAIEmbeddings } from "@langchain/openai";
 
 // The configConnection document is defined above
@@ -211,5 +211,5 @@ In the configuration document, further optional parameters are provided; their d
 
 ## Related
 
-- Vector store [conceptual guide](/oss/concepts/#vectorstores)
-- Vector store [how-to guides](/oss/how-to/#vectorstores)
+- Vector store [conceptual guide](/oss/integrations/vectorstores)
+- Vector store [how-to guides](/oss/integrations/vectorstores)

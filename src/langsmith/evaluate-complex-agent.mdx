@@ -296,9 +296,10 @@ For the lookup (i.e. question-answering) agent, we'll use a simple ReACT archite
 
 ```python
 from langchain.embeddings import init_embeddings
-from langchain_core.tools import tool
+from langchain.tools import tool
 from langchain_core.vectorstores import InMemoryVectorStore
-from langgraph.prebuilt import create_react_agent
+from langchain.agents import create_agent
+
 
 # Our SQL queries will only work if we filter on the exact string values that are in the DB.
 # To ensure this, we'll create vectorstore indexes for all of the artists, tracks and albums
@@ -321,10 +322,10 @@ def lookup_album( ...
 def lookup_artist( ...
 
 # Agent model
-qa_llm = init_chat_model("claude-3-5-sonnet-latest")
+qa_llm = init_chat_model("claude-sonnet-4-5-20250929")
 # The prebuilt ReACT agent only expects State to have a 'messages' key, so the
 # state we defined for the refund agent can also be passed to our lookup agent.
-qa_graph = create_react_agent(qa_llm, [lookup_track, lookup_artist, lookup_album])
+qa_graph = create_agent(qa_llm, tools=[lookup_track, lookup_artist, lookup_album])
 ```
 
 ```
@@ -339,7 +340,7 @@ Now let's define a parent agent that combines our two task-specific agents. The 
 
 ```python
 # Schema for routing user intent.
-# We'll use structured outputs to enforce that the model returns only
+# We'll use structured output to enforce that the model returns only
 # the desired output.
 class UserIntent(TypedDict):
     """The user's current intent in the conversation"""
@@ -720,16 +721,17 @@ from typing import Literal
 from langchain.chat_models import init_chat_model
 from langchain.embeddings import init_embeddings
 from langchain_core.runnables import RunnableConfig
-from langchain_core.tools import tool
+from langchain.tools import tool
 from langchain_core.vectorstores import InMemoryVectorStore
 from langgraph.graph import END, StateGraph
 from langgraph.graph.message import AnyMessage, add_messages
-from langgraph.prebuilt import create_react_agent
+from langchain.agents import create_agent
 from langgraph.types import Command, interrupt
 from langsmith import Client
 import requests
 from tabulate import tabulate
 from typing_extensions import Annotated, TypedDict
+
 
 url = "https://storage.googleapis.com/benchmarks-artifacts/chinook/Chinook.db"
 
@@ -1258,14 +1260,14 @@ def lookup_artist(
 
 
 # Agent model
-qa_llm = init_chat_model("claude-3-5-sonnet-latest")
+qa_llm = init_chat_model("claude-sonnet-4-5-20250929")
 # The prebuilt ReACT agent only expects State to have a 'messages' key, so the
 # state we defined for the refund agent can also be passed to our lookup agent.
-qa_graph = create_react_agent(qa_llm, [lookup_track, lookup_artist, lookup_album])
+qa_graph = create_agent(qa_llm, [lookup_track, lookup_artist, lookup_album])
 
 
 # Schema for routing user intent.
-# We'll use structured outputs to enforce that the model returns only
+# We'll use structured output to enforce that the model returns only
 # the desired output.
 class UserIntent(TypedDict):
     """The user's current intent in the conversation"""

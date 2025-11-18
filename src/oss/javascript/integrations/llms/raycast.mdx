@@ -10,9 +10,9 @@ You can utilize the LangChain's RaycastAI class within the [Raycast Environment]
 
 - There is a rate limit of approx 10 requests per minute for each Raycast Pro user. If you exceed this limit, you will receive an error. You can set your desired rpm limit by passing `rateLimitPerMinute` to the `RaycastAI` constructor as shown in the example, as this rate limit may change in the future.
 
-import IntegrationInstallTooltip from '/snippets/javascript-integrations/integration-install-tooltip.mdx';
-
-<IntegrationInstallTooltip/>
+<Tip>
+See [this section for general instructions on installing LangChain packages](/oss/langchain/install).
+</Tip>
 
 ```bash npm
 npm install @langchain/community @langchain/core
@@ -31,5 +31,5 @@ const model = new RaycastAI({
 
 ## Related
 
-- LLM [conceptual guide](/oss/concepts/text_llms)
-- LLM [how-to guides](/oss/how-to/#llms)
+
+- [Models guide](/oss/langchain/models)

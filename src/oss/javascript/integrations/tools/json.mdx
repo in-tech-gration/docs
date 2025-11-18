@@ -4,9 +4,9 @@ title: JSON Agent Toolkit
 
 This example shows how to load and use an agent with a JSON toolkit.
 
-import IntegrationInstallTooltip from '/snippets/javascript-integrations/integration-install-tooltip.mdx';
-
-<IntegrationInstallTooltip/>
+<Tip>
+See [this section for general instructions on installing LangChain packages](/oss/langchain/install).
+</Tip>
 
 ```bash npm
 npm install @langchain/openai @langchain/core
@@ -15,8 +15,8 @@ npm install @langchain/openai @langchain/core
 import * as fs from "fs";
 import * as yaml from "js-yaml";
 import { OpenAI } from "@langchain/openai";
-import { JsonSpec, JsonObject } from "langchain/tools";
-import { JsonToolkit, createJsonAgent } from "langchain/agents";
+import { JsonSpec, JsonObject } from "@langchain/classic/tools";
+import { JsonToolkit, createJsonAgent } from "@langchain/classic/agents";
 
 export const run = async () => {
   let data: JsonObject;

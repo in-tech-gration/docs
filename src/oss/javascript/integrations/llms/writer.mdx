@@ -13,9 +13,9 @@ Next, you'll need to install the official package as a peer dependency:
 ```bash npm
 yarn add @writerai/writer-sdk
 ```
-import IntegrationInstallTooltip from '/snippets/javascript-integrations/integration-install-tooltip.mdx';
-
-<IntegrationInstallTooltip/>
+<Tip>
+See [this section for general instructions on installing LangChain packages](/oss/langchain/install).
+</Tip>
 
 ```bash npm
 npm install @langchain/community @langchain/core
@@ -23,11 +23,21 @@ npm install @langchain/community @langchain/core
 
 ## Usage
 
-import Writer from "/snippets/javascript-integrations/examples/models/llm/writer.mdx";
+```typescript
+import { Writer } from "@langchain/community/llms/writer";
 
-<Writer />
+const model = new Writer({
+  maxTokens: 20,
+  apiKey: "YOUR-API-KEY", // In Node.js defaults to process.env.WRITER_API_KEY
+  orgId: "YOUR-ORGANIZATION-ID", // In Node.js defaults to process.env.WRITER_ORG_ID
+});
+const res = await model.invoke(
+  "What would be a good company name a company that makes colorful socks?"
+);
+console.log({ res });
+```
 
 ## Related
 
-- LLM [conceptual guide](/oss/concepts/text_llms)
-- LLM [how-to guides](/oss/how-to/#llms)
+
+- [Models guide](/oss/langchain/models)

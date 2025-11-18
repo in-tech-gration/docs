@@ -28,7 +28,7 @@ For more information about Cerebras Cloud, visit [cloud.cerebras.ai](https://clo
 
 ### Model features
 
-| [Tool calling](/oss/langchain/tools/) | [Structured output](/oss/langchain/structured-output) | JSON mode | [Image input](/oss/how-to/multimodal_inputs/) | Audio input | Video input | [Token-level streaming](/oss/langchain/streaming/) | Native async | [Token usage](/oss/how-to/chat_token_usage_tracking/) | [Logprobs](/oss/how-to/logprobs/) |
+| [Tool calling](/oss/langchain/tools/) | [Structured output](/oss/langchain/structured-output) | JSON mode | [Image input](/oss/langchain/messages#multimodal) | Audio input | Video input | [Token-level streaming](/oss/langchain/streaming/) | Native async | [Token usage](/oss/langchain/models#token-usage) | [Logprobs](/oss/langchain/models#log-probabilities) |
 | :---: | :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: | :---: |
 | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ✅ | ✅  | ✅ | ❌ |
 
@@ -61,8 +61,8 @@ Enter your Cerebras API key:  ········
 To enable automated tracing of your model calls, set your [LangSmith](https://docs.smith.langchain.com/) API key:
 
 ```python
-# os.environ["LANGSMITH_API_KEY"] = getpass.getpass("Enter your LangSmith API key: ")
-# os.environ["LANGSMITH_TRACING"] = "true"
+os.environ["LANGSMITH_API_KEY"] = getpass.getpass("Enter your LangSmith API key: ")
+os.environ["LANGSMITH_TRACING"] = "true"
 ```
 
 ### Installation
@@ -70,7 +70,7 @@ To enable automated tracing of your model calls, set your [LangSmith](https://do
 The LangChain Cerebras integration lives in the `langchain-cerebras` package:
 
 ```python
-%pip install -qU langchain-cerebras
+pip install -qU langchain-cerebras
 ```
 
 ## Instantiation
@@ -102,43 +102,6 @@ ai_msg
 
 ```output
 AIMessage(content='Je adore le programmation.', response_metadata={'token_usage': {'completion_tokens': 7, 'prompt_tokens': 35, 'total_tokens': 42}, 'model_name': 'llama3-8b-8192', 'system_fingerprint': 'fp_be27ec77ff', 'finish_reason': 'stop'}, id='run-e5d66faf-019c-4ac6-9265-71093b13202d-0', usage_metadata={'input_tokens': 35, 'output_tokens': 7, 'total_tokens': 42})
-```
-
-## Chaining
-
-We can [chain](/oss/how-to/sequence/) our model with a prompt template like so:
-
-```python
-from langchain_cerebras import ChatCerebras
-from langchain_core.prompts import ChatPromptTemplate
-
-llm = ChatCerebras(
-    model="llama-3.3-70b",
-    # other params...
-)
-
-prompt = ChatPromptTemplate.from_messages(
-    [
-        (
-            "system",
-            "You are a helpful assistant that translates {input_language} to {output_language}.",
-        ),
-        ("human", "{input}"),
-    ]
-)
-
-chain = prompt | llm
-chain.invoke(
-    {
-        "input_language": "English",
-        "output_language": "German",
-        "input": "I love programming.",
-    }
-)
-```
-
-```output
-AIMessage(content='Ich liebe Programmieren!\n\n(Literally: I love programming!)', response_metadata={'token_usage': {'completion_tokens': 14, 'prompt_tokens': 30, 'total_tokens': 44}, 'model_name': 'llama3-8b-8192', 'system_fingerprint': 'fp_be27ec77ff', 'finish_reason': 'stop'}, id='run-e1d2ebb8-76d1-471b-9368-3b68d431f16a-0', usage_metadata={'input_tokens': 30, 'output_tokens': 14, 'total_tokens': 44})
 ```
 
 ## Streaming
@@ -239,6 +202,8 @@ As the centuries passed, astronomers from across the galaxy became increasingly 
 
 As Dr. Vex delved deeper into her research, she began to experience strange and vivid dreams, visions that seemed to transport her to the very heart of the blackhole itself. In these dreams, she saw ancient beings, their faces twisted in agony as they were consumed by the void. She saw stars and galaxies, their light warped and distorted by the blackhole's gravitational pull. And she saw the Eclipse of Eternity itself, its swirling vortex of darkness pulsing with an otherworldly energy that seemed to be calling to her. As the dreams grew more vivid and more frequent, Dr. Vex became convinced that she was being drawn into the heart of the blackhole, and that the secrets of the universe lay waiting for her on the other side.
 ```
+
+---
 
 ## API reference
 

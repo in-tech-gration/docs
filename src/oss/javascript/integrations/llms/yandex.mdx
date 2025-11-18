@@ -17,19 +17,23 @@ Next, you have two authentication options:
 
 ## Usage
 
-import IntegrationInstallTooltip from '/snippets/javascript-integrations/integration-install-tooltip.mdx';
-
-<IntegrationInstallTooltip/>
+<Tip>
+See [this section for general instructions on installing LangChain packages](/oss/langchain/install).
+</Tip>
 
 ```bash npm
 npm install @langchain/yandex @langchain/core
 ```
 
-import Yandex from "/snippets/javascript-integrations/examples/models/llm/yandex.mdx";
+```typescript
+import { YandexGPT } from "@langchain/yandex/llms";
 
-<Yandex />
+const model = new YandexGPT();
+const res = await model.invoke(['Translate "I love programming" into French.']);
+console.log({ res });
+```
 
 ## Related
 
-- LLM [conceptual guide](/oss/concepts/text_llms)
-- LLM [how-to guides](/oss/how-to/#llms)
+
+- [Models guide](/oss/langchain/models)

@@ -2,11 +2,13 @@
 
 This repository includes configuration files to ensure consistent formatting across different editors and IDEs used by documentation writers.
 
+Ensure the following steps are taken and configurations are in place before making substantial docs changes.
+
 ## Automatic Configuration
 
 ### VSCode
 
-If you're using Visual Studio Code, the settings in `.vscode/settings.json` will be automatically applied when you open this project. No additional setup required.
+If you're using Visual Studio Code, the settings in `.vscode/settings.json` should be automatically applied when you open this project. No additional setup required.
 
 ### Other IDEs
 

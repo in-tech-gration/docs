@@ -2,10 +2,8 @@
 title: Azure OpenAI
 ---
 
-```{=mdx}
-
 <Warning>
-**You are currently on a page documenting the use of Azure OpenAI [text completion models](/oss/concepts/text_llms). The latest and most popular Azure OpenAI models are [chat completion models](/oss/langchain/models).**
+**You are currently on a page documenting the use of Azure OpenAI text completion models. The latest and most popular Azure OpenAI models are [chat completion models](/oss/langchain/models).**
 
 
 Unless you are specifically using `gpt-3.5-turbo-instruct`, you are probably looking for [this page instead](/oss/integrations/chat/azure/).
@@ -19,7 +17,6 @@ If you are using Azure OpenAI with the deprecated SDK, see the [migration guide]
 
 </Info>
 
-```
 
 [Azure OpenAI](https://learn.microsoft.com/en-us/azure/ai-services/openai/) is a Microsoft Azure service that provides powerful language models from OpenAI.
 
@@ -67,15 +64,17 @@ If you want to get automated tracing of your model calls you can also set your [
 
 The LangChain AzureOpenAI integration lives in the `@langchain/openai` package:
 
-```{=mdx}
-import IntegrationInstallTooltip from "@mdx_components/integration_install_tooltip.mdx";
-<IntegrationInstallTooltip></IntegrationInstallTooltip>
-
-<Npm2Yarn>
-  @langchain/openai @langchain/core
-</Npm2Yarn>
-
+<CodeGroup>
+```bash npm
+npm install @langchain/openai @langchain/core
 ```
+```bash yarn
+yarn add @langchain/openai @langchain/core
+```
+```bash pnpm
+pnpm add @langchain/openai @langchain/core
+```
+</CodeGroup>
 
 ## Instantiation
 
@@ -109,31 +108,6 @@ completion
 
 ```output
 provides AI solutions to businesses. They offer a range of services including natural language processing, computer vision, and machine learning. Their solutions are designed to help businesses automate processes, gain insights from data, and improve decision-making. AzureOpenAI also offers consulting services to help businesses identify and implement the best AI solutions for their specific needs. They work with a variety of industries, including healthcare, finance, and retail. With their expertise in AI and their partnership with Microsoft Azure, AzureOpenAI is a trusted provider of AI solutions for businesses looking to stay ahead in the rapidly evolving world of technology.
-```
-
-## Chaining
-
-We can [chain](/oss/how-to/sequence/) our completion model with a prompt template like so:
-
-```typescript
-import { PromptTemplate } from "@langchain/core/prompts"
-
-const prompt = new PromptTemplate({
-  template: "How to say {input} in {output_language}:\n",
-  inputVariables: ["input", "output_language"],
-})
-
-const chain = prompt.pipe(llm);
-await chain.invoke(
-  {
-    output_language: "German",
-    input: "I love programming.",
-  }
-)
-```
-
-```output
-Ich liebe Programmieren.
 ```
 
 ## Using Azure Managed Identity
@@ -191,13 +165,13 @@ If you are using the deprecated Azure OpenAI SDK with the `@langchain/azure-open
    npm uninstall @langchain/azure-openai
    ```
 
-2. Update your imports to use the new `AzureOpenAI` and `AzureChatOpenAI` classes from the `@langchain/openai` package:
+2. Update your imports to use the new `AzureOpenAI` and @[`AzureChatOpenAI`] classes from the `@langchain/openai` package:
 
    ```typescript
    import { AzureOpenAI } from "@langchain/openai";
    ```
 
-3. Update your code to use the new `AzureOpenAI` and `AzureChatOpenAI` classes and pass the required parameters:
+3. Update your code to use the new `AzureOpenAI` and @[`AzureChatOpenAI`] classes and pass the required parameters:
 
    ```typescript
    const model = new AzureOpenAI({
@@ -213,6 +187,8 @@ If you are using the deprecated Azure OpenAI SDK with the `@langchain/azure-open
    - If you were using Azure Managed Identity, you now need to use the `azureADTokenProvider` parameter to the constructor instead of `credentials`, see the [Azure Managed Identity](#using-azure-managed-identity) section for more details.
 
    - If you were using environment variables, you now have to set the `AZURE_OPENAI_API_INSTANCE_NAME` environment variable instead of `AZURE_OPENAI_API_ENDPOINT`, and add the `AZURE_OPENAI_API_VERSION` environment variable to specify the API version.
+
+---
 
 ## API reference
 

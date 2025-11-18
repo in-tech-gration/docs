@@ -6,19 +6,33 @@ LangChain.js supports AlephAlpha's Luminous family of models. You'll need to sig
 
 Here's an example:
 
-import IntegrationInstallTooltip from '/snippets/javascript-integrations/integration-install-tooltip.mdx';
-
-<IntegrationInstallTooltip/>
+<Tip>
+See [this section for general instructions on installing LangChain packages](/oss/langchain/install).
+</Tip>
 
 ```bash npm
 npm install @langchain/community @langchain/core
 ```
 
-import AlephAlpha from "/snippets/javascript-integrations/examples/models/llm/aleph_alpha.mdx";
+```typescript
+import { AlephAlpha } from "@langchain/community/llms/aleph_alpha";
 
-<AlephAlpha />
+const model = new AlephAlpha({
+  aleph_alpha_api_key: "YOUR_ALEPH_ALPHA_API_KEY", // Or set as process.env.ALEPH_ALPHA_API_KEY
+});
+
+const res = await model.invoke(`Is cereal soup?`);
+
+console.log({ res });
+
+/*
+  {
+    res: "\nIs soup a cereal? I don’t think so, but it is delicious."
+  }
+ */
+```
 
 ## Related
 
-- LLM [conceptual guide](/oss/concepts/text_llms)
-- LLM [how-to guides](/oss/how-to/#llms)
+
+- [Models guide](/oss/langchain/models)

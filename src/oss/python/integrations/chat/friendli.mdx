@@ -34,13 +34,12 @@ chat = ChatFriendli(model="meta-llama-3.1-8b-instruct", max_tokens=100, temperat
 
 ## Usage
 
-`FrienliChat` supports all methods of [`ChatModel`](/docs/how_to#chat-models) including async APIs.
+`FrienliChat` supports all methods of [`ChatModel`](/oss/langchain/models) including async APIs.
 
 You can also use functionality of  `invoke`, `batch`, `generate`, and `stream`.
 
 ```python
-from langchain_core.messages.human import HumanMessage
-from langchain_core.messages.system import SystemMessage
+from langchain.messages import HumanMessage, SystemMessage
 
 system_message = SystemMessage(content="Answer questions as short as you can.")
 human_message = HumanMessage(content="Tell me a joke.")

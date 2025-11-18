@@ -1,9 +1,9 @@
 [project]
 name = "docs-monorepo"
-version = "0.0.1"
-description = "LangChain docs build pipeline."
+version = "0.1.0"
+description = "Consolidated LangChain documentation monorepo"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.13.0,<4.0.0"
 dependencies = [
     "watchdog>=3.0.0",
     "tqdm>=4.66.0",
@@ -12,32 +12,42 @@ dependencies = [
     "nbconvert>=7.16.6",
 ]
 
+
 [dependency-groups]
 test = [
-    "mypy>=1.17",
+    "requests",
+    "ruamel-yaml>=0.18.15",
+    "mypy>=1.17.0,<2.0.0",
+    "ruff>=0.13.0,<1.0.0",
     "pytest>=8.3.4",
     "pytest-asyncio>=0.25.3",
     "pytest-cov>=6.0.0",
     "pytest-mock>=3.14.0",
     "pytest-socket>=0.7.0",
     "pytest-timeout>=2.3.1",
-    "ruff>=0.12",
     "types-pyyaml>=6.0.12.20250516",
     "types-tqdm>=4.67.0.20250516",
-    "requests",
+    "types-requests>=2.32.4.20250913",
 ]
+
 
 [project.scripts]
 docs = "pipeline.cli:main"
 
+
 [project.urls]
 repository = "https://github.com/langchain-ai/docs"
+
 
 [tool.setuptools]
 packages = ["pipeline"]
 
+
 [tool.uv]
 package = true
+override-dependencies = [
+    "pytest-codspeed>=3.1.0,<4.0.0",
+]
 
 
 [tool.pytest.ini_options]
@@ -58,16 +68,17 @@ asyncio_default_fixture_loop_scope = "function"
 
 [tool.ruff]
 line-length = 88
-target-version = "py310"
 extend-exclude = [
-    "update_mdx.py",
+    "scripts/update_mdx.py",
     "pipeline/tools/notebook/convert.py"
 ]
+
 
 [tool.ruff.lint]
 select = [
     "ALL",
 ]
+
 ignore = [
     "COM812",
     "C901",
@@ -75,19 +86,28 @@ ignore = [
     "PLR0912"
 ]
 
+
 [tool.ruff.lint.extend-per-file-ignores]
 
+".github/**/*.py" = []
+
+"pipeline/**/*.py" = [
+    "TD002",  # Comments are fine
+    "TD003",  # Comments are fine
+    "FIX002", # Comments are fine
+    "D103",   # Missing docstring in simple function
+]
+
 "pipeline/preprocessors/link_map.py" = [
-    # Just contains long links
-    "E501",
+    "E501",  # Line length
 ]
 
 "tests/**/*.py" = [
-    # at least this three should be fine in tests:
     "S101", # asserts allowed in tests...
     "ARG", # Unused function args -> fixtures nevertheless are functionally relevant...
     "FBT", # Don't care about booleans as positional arguments in tests, e.g. via @pytest.mark.parametrize()
     "D104",
+
     # The below are debatable
     "PLR2004", # Magic value used in comparison, ...
     "S311", # Standard pseudo-random generators are not suitable for cryptographic purposes
@@ -96,18 +116,12 @@ ignore = [
     "W293", # Test files may have blank lines with whitespace intentionally
 ]
 
-
-"scripts/filter_broken_links.py" = [
-    "T201",    # print() is expected in a CLI script
+"scripts/**/*.py" = [
+    "INP001",  # Not a package
+    "T201",    # Print statements
     "PLW2901", # Overwriting loop variable is intentional
-    "ANN",     # Type annotations not critical for scripts
-    "FBT002",  # Boolean defaults are fine for CLI scripts
-    "E501",    # Long lines in docstrings are ok
-]
-
-"pipeline/tools/partner_pkg_table.py" = [
-    "TD002", "TD003", "FIX002",  # TODO comments are fine
-    "D103",  # Missing docstring in simple function
+    "ANN",     # Type annotations
+    "FBT002",  # Boolean defaults are fine
 ]
 
 [tool.ruff.lint.pydocstyle]

@@ -33,20 +33,6 @@ oss:
       - src/oss/**
       - src/oss/**/*
 
-# Label for LangGraph Platform documentation changes
-langgraph-platform:
-  - changed-files:
-    - any-glob-to-any-file:
-      - src/langgraph-platform/**
-      - src/langgraph-platform/**/*
-
-# Label for Labs documentation changes
-labs:
-  - changed-files:
-    - any-glob-to-any-file:
-      - src/labs/**
-      - src/labs/**/*
-
 # Label for Python-specific documentation
 python:
   - changed-files:

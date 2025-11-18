@@ -84,7 +84,7 @@ llm_chain.run(question)
 
 ```python
 from langchain_community.utilities import GoogleSearchAPIWrapper
-from langchain_core.tools import Tool
+from langchain.tools import Tool
 
 search = GoogleSearchAPIWrapper()
 
@@ -96,7 +96,7 @@ tool = Tool(
 ```
 
 ```python
-from langchain import hub
+from langchain_classic import hub
 from langchain.agents import (
     AgentExecutor,
     create_agent,

@@ -44,9 +44,9 @@ export default defineSchema({
 
 ## Usage
 
-import IntegrationInstallTooltip from '/snippets/javascript-integrations/integration-install-tooltip.mdx';
-
-<IntegrationInstallTooltip/>
+<Tip>
+See [this section for general instructions on installing LangChain packages](/oss/langchain/install).
+</Tip>
 
 ```bash npm
 npm install @langchain/openai @langchain/community @langchain/core
@@ -54,21 +54,48 @@ npm install @langchain/openai @langchain/community @langchain/core
 
 ### Ingestion
 
-import Fromtexts from "/snippets/javascript-integrations/examples/indexes/vector_stores/convex/fromTexts.mdx";
+```typescript
+import { ConvexVectorStore } from "@langchain/community/vectorstores/convex";
+import { OpenAIEmbeddings } from "@langchain/openai";
+import { action } from "./_generated/server.js";
 
-<CodeBlock language="typescript" title="convex/myActions.ts">
-  {Ingestion}
-</CodeBlock>
+export const ingest = action({
+  args: {},
+  handler: async (ctx) => {
+    await ConvexVectorStore.fromTexts(
+      ["Hello world", "Bye bye", "What's this?"],
+      [{ prop: 2 }, { prop: 1 }, { prop: 3 }],
+      new OpenAIEmbeddings(),
+      { ctx }
+    );
+  },
+});
+```
 
 ### Search
 
-import Search from "/snippets/javascript-integrations/examples/indexes/vector_stores/convex/search.mdx";
+```typescript
+"use node";
 
-<CodeBlock language="typescript" title="convex/myActions.ts">
-  {Search}
-</CodeBlock>
+import { ConvexVectorStore } from "@langchain/community/vectorstores/convex";
+import { OpenAIEmbeddings } from "@langchain/openai";
+import { v } from "convex/values";
+import { action } from "./_generated/server.js";
+
+export const search = action({
+  args: {
+    query: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const vectorStore = new ConvexVectorStore(new OpenAIEmbeddings(), { ctx });
+
+    const resultOne = await vectorStore.similaritySearch(args.query, 1);
+    console.log(resultOne);
+  },
+});
+```
 
 ## Related
 
-- Vector store [conceptual guide](/oss/concepts/#vectorstores)
-- Vector store [how-to guides](/oss/how-to/#vectorstores)
+- Vector store [conceptual guide](/oss/integrations/vectorstores)
+- Vector store [how-to guides](/oss/integrations/vectorstores)

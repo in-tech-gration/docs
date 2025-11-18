@@ -38,7 +38,7 @@ if not os.getenv("MODELSCOPE_SDK_TOKEN"):
 The LangChain ModelScope integration lives in the `langchain-modelscope-integration` package:
 
 ```python
-%pip install -qU langchain-modelscope-integration
+pip install -qU langchain-modelscope-integration
 ```
 
 ## Instantiation
@@ -84,36 +84,7 @@ print(ai_msg.content)
 我喜欢编程。
 ```
 
-## Chaining
-
-We can [chain](/oss/how-to/sequence/) our model with a prompt template like so:
-
-```python
-from langchain_core.prompts import ChatPromptTemplate
-
-prompt = ChatPromptTemplate(
-    [
-        (
-            "system",
-            "You are a helpful assistant that translates {input_language} to {output_language}.",
-        ),
-        ("human", "{input}"),
-    ]
-)
-
-chain = prompt | llm
-chain.invoke(
-    {
-        "input_language": "English",
-        "output_language": "Chinese",
-        "input": "I love programming.",
-    }
-)
-```
-
-```output
-AIMessage(content='我喜欢编程。', additional_kwargs={'refusal': None}, response_metadata={'token_usage': {'completion_tokens': 3, 'prompt_tokens': 28, 'total_tokens': 31, 'completion_tokens_details': None, 'prompt_tokens_details': None}, 'model_name': 'qwen2.5-coder-32b-instruct', 'system_fingerprint': None, 'finish_reason': 'stop', 'logprobs': None}, id='run-9f011a3a-9a11-4759-8d16-5b1843a78862-0', usage_metadata={'input_tokens': 28, 'output_tokens': 3, 'total_tokens': 31, 'input_token_details': {}, 'output_token_details': {}})
-```
+---
 
 ## API reference
 

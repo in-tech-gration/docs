@@ -31,7 +31,7 @@ The integration is set up in the `langchain-community` package.
 
 ```python
 from langchain_community.chat_models.symblai_nebula import ChatNebula
-from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
+from langchain.messages import AIMessage, HumanMessage, SystemMessage
 ```
 
 ```python
@@ -101,6 +101,8 @@ chain.invoke({"topic": "cows"})
 ```output
 AIMessage(content=[{'role': 'human', 'text': 'Tell me a joke about cows'}, {'role': 'assistant', 'text': "Sure, here's a joke about cows:\n\nWhy did the cow cross the road?\n\nTo get to the udder side!"}])
 ```
+
+---
 
 ## API reference
 

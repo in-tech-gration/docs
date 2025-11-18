@@ -2,7 +2,7 @@
 title: ByteDanceDoubaoEmbeddings
 ---
 
-This will help you get started with ByteDanceDoubao [embedding models](/oss/concepts/embedding_models) using LangChain.  For detailed documentation on `ByteDanceDoubaoEmbeddings` features and configuration options, please refer to the [API reference](https://api.js.langchain.com/classes/_langchain_community.embeddings_bytedance_doubao.ByteDanceDoubaoEmbeddings.html).
+This will help you get started with ByteDanceDoubao [embedding models](/oss/integrations/text_embedding) using LangChain.  For detailed documentation on `ByteDanceDoubaoEmbeddings` features and configuration options, please refer to the [API reference](https://api.js.langchain.com/classes/_langchain_community.embeddings_bytedance_doubao.ByteDanceDoubaoEmbeddings.html).
 
 ## Overview
 
@@ -31,14 +31,17 @@ If you want to get automated tracing of your model calls you can also set your [
 
 The LangChain ByteDanceDoubaoEmbeddings integration lives in the `@langchain/community` package:
 
-```{=mdx}
-import IntegrationInstallTooltip from "@mdx_components/integration_install_tooltip.mdx";
-<IntegrationInstallTooltip></IntegrationInstallTooltip>
-
-<Npm2Yarn>
-  @langchain/community
-</Npm2Yarn>
+<CodeGroup>
+```bash npm
+npm install @langchain/community
 ```
+```bash yarn
+yarn add @langchain/community
+```
+```bash pnpm
+pnpm add @langchain/community
+```
+</CodeGroup>
 
 ## Instantiation
 
@@ -60,7 +63,7 @@ Below, see how to index and retrieve data using the `embeddings` object we initi
 
 ```typescript
 // Create a vector store with a sample text
-import { MemoryVectorStore } from "langchain/vectorstores/memory";
+import { MemoryVectorStore } from "@langchain/classic/vectorstores/memory";
 
 const text = "LangChain is the framework for building context-aware reasoning applications";
 
@@ -185,8 +188,10 @@ console.log(vectors[1].slice(0, 100));
 
 ## Related
 
-- Embedding model [conceptual guide](/oss/concepts/embedding_models)
-- Embedding model [how-to guides](/oss/how-to/#embedding-models)
+- Embedding model [conceptual guide](/oss/integrations/text_embedding)
+- Embedding model [how-to guides](/oss/integrations/text_embedding)
+
+---
 
 ## API reference
 

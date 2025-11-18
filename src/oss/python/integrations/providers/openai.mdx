@@ -1,126 +1,76 @@
 ---
-title: Overview
+title: OpenAI
 ---
 
-All functionality related to OpenAI
+This page covers all LangChain integrations with [OpenAI](https://en.wikipedia.org/wiki/OpenAI)
 
-> [OpenAI](https://en.wikipedia.org/wiki/OpenAI) is American artificial intelligence (AI) research laboratory
-> consisting of the non-profit **OpenAI Incorporated**
-> and its for-profit subsidiary corporation **OpenAI Limited Partnership**.
-> **OpenAI** conducts AI research with the declared intention of promoting and developing a friendly AI.
-> **OpenAI** systems run on an **Azure**-based supercomputing platform from **Microsoft**.
->
-> The [OpenAI API](https://platform.openai.com/docs/models) is powered by a diverse set of models with different capabilities and price points.
->
-> [ChatGPT](https://chat.openai.com) is the Artificial Intelligence (AI) chatbot developed by `OpenAI`.
-
-## Installation and Setup
-
-Install the integration package with:
+{/* ## Installation and setup
 
 <CodeGroup>
-```bash pip
-pip install langchain-openai
-```
+    ```bash pip
+    pip install langchain-openai
+    ```
 
-```bash uv
-uv add langchain-openai
-```
+    ```bash uv
+    uv add langchain-openai
+    ```
 </CodeGroup>
 
-Get an OpenAI api key and set it as an environment variable (`OPENAI_API_KEY`)
+Get an [OpenAI Platform](https://platform.openai.com/docs/overview) API key and set it as the environment variable `OPENAI_API_KEY`. */}
 
-## Chat model
+## Model interfaces
 
-See a [usage example](/oss/integrations/chat/openai).
+<Columns cols={2}>
+    <Card title="ChatOpenAI" href="/oss/integrations/chat/openai" cta="Get started" icon="message" arrow>
+        OpenAI chat models.
+    </Card>
+    <Card title="AzureChatOpenAI" href="/oss/integrations/chat/azure_chat_openai" cta="Get started" icon="microsoft" arrow>
+        Wrapper for OpenAI chat models hosted on Azure.
+    </Card>
+    <Card title="OpenAI" href="/oss/integrations/llms/openai" cta="Get started" icon="i-cursor" arrow>
+        (Legacy) OpenAI text completion models.
+    </Card>
+    <Card title="AzureOpenAI" href="/oss/integrations/llms/azure_openai" cta="Get started" icon="microsoft" arrow>
+        Wrapper for (legacy) OpenAI text completion models hosted on Azure.
+    </Card>
+    <Card title="OpenAIEmbeddings" href="/oss/integrations/text_embedding/openai" cta="Get started" icon="layer-group" arrow>
+        OpenAI embedding models.
+    </Card>
+    <Card title="AzureOpenAIEmbeddings" href="/oss/integrations/text_embedding/azure_openai" cta="Get started" icon="microsoft" arrow>
+        Wrapper for OpenAI embedding models hosted on Azure.
+    </Card>
+</Columns>
 
-```python
-from langchain_openai import ChatOpenAI
-```
+## Tools and toolkits
+<Columns cols={2}>
+    <Card title="Dall-E Image Generator" href="/oss/integrations/tools/dalle_image_generator" cta="Get started" icon="image" arrow>
+        Text-to-image generation using OpenAI's Dall-E models.
+    </Card>
+</Columns>
 
-If you are using a model hosted on `Azure`, you should use different wrapper for that:
-```python
-from langchain_openai import AzureChatOpenAI
-```
-For a more detailed walkthrough of the `Azure` wrapper, see [here](/oss/integrations/chat/azure_chat_openai).
+## Retrievers
 
-## LLM
+<Columns cols={2}>
+    <Card title="ChatGPTPluginRetriever" href="/oss/integrations/retrievers/chatgpt-plugin" cta="Get started" icon="download" arrow>
+        Retrieve real-time information; e.g., sports scores, stock prices, the latest news, etc.
+    </Card>
+</Columns>
 
-See a [usage example](/oss/integrations/llms/openai).
+## Document loaders
 
-```python
-from langchain_openai import OpenAI
-```
+<Columns cols={2}>
+    <Card title="ChatGPTLoader" href="/oss/integrations/document_loaders/chatgpt_loader" cta="Get started" icon="file" arrow>
+        Load `conversations.json` from your ChatGPT data export folder.
+    </Card>
+</Columns>
 
-If you are using a model hosted on `Azure`, you should use different wrapper for that:
-```python
-from langchain_openai import AzureOpenAI
-```
-For a more detailed walkthrough of the `Azure` wrapper, see [here](/oss/integrations/llms/azure_openai).
+## Other
 
-## Embedding Model
-
-See a [usage example](/oss/integrations/text_embedding/openai)
-
-```python
-from langchain_openai import OpenAIEmbeddings
-```
-
-## Document Loader
-
-See a [usage example](/oss/integrations/document_loaders/chatgpt_loader).
-
-```python
-from langchain_community.document_loaders.chatgpt import ChatGPTLoader
-```
-
-## Retriever
-
-See a [usage example](/oss/integrations/retrievers/chatgpt-plugin).
-
-```python
-from langchain.retrievers import ChatGPTPluginRetriever
-```
-
-## Tools
-
-### Dall-E Image Generator
-
->[OpenAI Dall-E](https://openai.com/dall-e-3) are text-to-image models developed by `OpenAI`
-> using deep learning methodologies to generate digital images from natural language descriptions,
-> called "prompts".
-
-
-See a [usage example](/oss/integrations/tools/dalle_image_generator).
-
-```python
-from langchain_community.utilities.dalle_image_generator import DallEAPIWrapper
-```
-
-## Adapter
-
-See a [usage example](/oss/integrations/adapters/openai).
-
-```python
-from langchain.adapters import openai as lc_openai
-```
-
-## Tokenizer
-
-There are several places you can use the `tiktoken` tokenizer. By default, it is used to count tokens
-for OpenAI LLMs.
-
-You can also use it to count tokens when splitting documents with
-```python
-from langchain.text_splitter import CharacterTextSplitter
-CharacterTextSplitter.from_tiktoken_encoder(...)
-```
-For a more detailed walkthrough of this, see [this notebook](/oss/how-to/split_by_token/#tiktoken)
-
-## Chain
-
-See a [usage example](https://python.langchain.com/v0.1/docs/guides/productionization/safety/moderation).
-
-```python
-from langchain.chains import OpenAIModerationChain
-```
+<Columns cols={2}>
+    <Card title="Adapter" href="/oss/integrations/adapters/openai" cta="Get started" icon="arrows-left-right" arrow>
+        Adapt LangChain models to OpenAI APIs.
+    </Card>
+    <Card title="OpenAIModerationChain" href="https://python.langchain.com/v0.1/docs/guides/productionization/safety/moderation" cta="Get started" icon="link" arrow>
+        Detect text that could be hateful, violent, etc.
+    </Card>
+</Columns>

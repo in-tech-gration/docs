@@ -14,7 +14,7 @@ In your LangChain application, install the `langchain-robocorp` package:
 
 ```python
 # Install package
-%pip install -qU langchain-robocorp
+pip install -qU langchain-robocorp
 ```
 
 When you create the new `Action Server` following the above quickstart.
@@ -69,7 +69,7 @@ We started the local action server, above, running on `http://localhost:8080`.
 
 ```python
 from langchain.agents import AgentExecutor, OpenAIFunctionsAgent
-from langchain_core.messages import SystemMessage
+from langchain.messages import SystemMessage
 from langchain_openai import ChatOpenAI
 from langchain_robocorp import ActionServerToolkit
 

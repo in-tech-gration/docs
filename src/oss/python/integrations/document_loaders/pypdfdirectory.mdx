@@ -27,8 +27,8 @@ No credentials are needed for this loader.
 To enable automated tracing of your model calls, set your [LangSmith](https://docs.smith.langchain.com/) API key:
 
 ```python
-# os.environ["LANGSMITH_API_KEY"] = getpass.getpass("Enter your LangSmith API key: ")
-# os.environ["LANGSMITH_TRACING"] = "true"
+os.environ["LANGSMITH_API_KEY"] = getpass.getpass("Enter your LangSmith API key: ")
+os.environ["LANGSMITH_TRACING"] = "true"
 ```
 
 ### Installation
@@ -36,7 +36,7 @@ To enable automated tracing of your model calls, set your [LangSmith](https://do
 Install **langchain-community**.
 
 ```python
-%pip install -qU langchain-community pypdf pillow
+pip install -qU langchain-community pypdf pillow
 ```
 
 ```output
@@ -88,10 +88,8 @@ for doc in loader.lazy_load():
         page = []
 ```
 
+---
+
 ## API reference
 
 For detailed documentation of all PyPDFDirectoryLoader features and configurations head to the API reference: [python.langchain.com/api_reference/community/document_loaders/langchain_community.document_loaders.pdf.PyPDFDirectoryLoader.html](https://python.langchain.com/api_reference/community/document_loaders/langchain_community.document_loaders.pdf.PyPDFDirectoryLoader.html)
-
-```python
-
-```

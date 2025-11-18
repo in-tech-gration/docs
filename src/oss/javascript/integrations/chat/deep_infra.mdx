@@ -5,9 +5,9 @@ title: ChatDeepInfra
 LangChain supports chat models hosted by [Deep Infra](https://deepinfra.com/) through the `ChatDeepInfra` wrapper.
 First, you'll need to install the `@langchain/community` package:
 
-import IntegrationInstallTooltip from '/snippets/javascript-integrations/integration-install-tooltip.mdx';
-
-<IntegrationInstallTooltip/>
+<Tip>
+See [this section for general instructions on installing LangChain packages](/oss/langchain/install).
+</Tip>
 
 ```bash npm
 npm install @langchain/community @langchain/core
@@ -16,9 +16,25 @@ npm install @langchain/community @langchain/core
 You'll need to obtain an API key and set it as an environment variable named `DEEPINFRA_API_TOKEN`
 (or pass it into the constructor), then call the model as shown below:
 
-import IntegrationDeepinfra from "/snippets/javascript-integrations/examples/models/chat/integration_deepinfra.mdx";
+```typescript
+import { ChatDeepInfra } from "@langchain/community/chat_models/deepinfra";
+import { HumanMessage } from "@langchain/core/messages";
 
-<IntegrationDeepinfra />
+const apiKey = process.env.DEEPINFRA_API_TOKEN;
+
+const model = "meta-llama/Meta-Llama-3-70B-Instruct";
+
+const chat = new ChatDeepInfra({
+  model,
+  apiKey,
+});
+
+const messages = [new HumanMessage("Hello")];
+
+const res = await chat.invoke(messages);
+
+console.log(res);
+```
 
 ## Related
 

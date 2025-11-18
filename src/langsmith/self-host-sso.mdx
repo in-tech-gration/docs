@@ -21,7 +21,7 @@ LangSmith does not support moving from SSO to basic auth mode in self-hosted at 
 
 ## With Client Secret (Recommended)
 
-By default, LangSmith Self-Hosted supports the `Authorization Code` flow with `Client Secret`. In this version of the flow, your client secret is stored security in the LangSmith platform (not on the frontend) and used for authentication and establishing auth sessions.
+By default, LangSmith Self-Hosted supports the `Authorization Code` flow with `Client Secret`. In this version of the flow, your client secret is stored security in LangSmith (not on the frontend) and used for authentication and establishing auth sessions.
 
 ### Prerequisites
 
@@ -38,6 +38,7 @@ LangSmith SSO is only supported over `https`.
 
 * You will need to set the callback URL in your IdP to `https://<host>/api/v1/oauth/custom-oidc/callback`, where `host` is the domain or IP you have provisioned for your LangSmith instance. This is where your IdP will redirect the user after they have authenticated.
 * You will need to provide the `oauthClientId`, `oauthClientSecret`, `hostname`, and `oauthIssuerUrl` in your `values.yaml` file. This is where you will configure your LangSmith instance.
+* If you have **not** already configured Oauth with client secret or if you only have personal orgs, you must provide an email address to assign as the initial org admin for the newly provisioned SSO org. If you are upgrading from basic auth, your existing org will be reused instead.
 
 <CodeGroup>
 
@@ -45,6 +46,7 @@ LangSmith SSO is only supported over `https`.
 config:
   authType: mixed
   hostname: https://langsmith.example.com
+  initialOrgAdminEmail: test@email.com # Set this if required
   oauth:
     enabled: true
     oauthClientId: <YOUR CLIENT ID>
@@ -56,6 +58,7 @@ config:
 ```bash Docker
 # In your .env file
 AUTH_TYPE=mixed
+INITIAL_ORG_ADMIN_EMAIL=test@email.com
 LANGSMITH_URL=https://langsmith.example.com
 OAUTH_CLIENT_ID=your-client-id
 OAUTH_CLIENT_SECRET=your-client-secret
@@ -82,7 +85,6 @@ In some scenarios, it may be necessary to override which claim is used as the `s
 For example, in SCIM, the resolved `sub` claim and SCIM `externalId` must match in order for login to succeed.
 If there are restrictions on the source attribute of the `sub` claim and/or the SCIM `externalId`, set the `ISSUER_SUB_CLAIM_OVERRIDES` environment variable to select which OIDC JWT claim is used as the `sub`.
 
-
 If an issuer URL **starts with** one of the URLs in this configuration, the `sub` claim is taken from the field name specified.
 For example, with the following configuration, a token with the issuer `https://idp.yourdomain.com/application/uuid` would use the `customClaim` value as the `sub`:
 
@@ -93,7 +95,7 @@ ISSUER_SUB_CLAIM_OVERRIDES='{"https://idp.yourdomain.com": "customClaim"}'
 If unset, the default value for this configuration uses the `oid` claim when Azure Entra ID is used as the identity provider:
 
 ```
-ISSUER_SUB_CLAIM_OVERRIDES='{"https://login.microsoftonline.com/": "oid", "https://sts.windows.net/": "oid"}'
+ISSUER_SUB_CLAIM_OVERRIDES='{"https://login.microsoftonline.com/": "oid", "https://sts.windows.net/": "oid", "https://login.microsoftonline.us/": "oid", "https://login.partner.microsoftonline.cn/": "oid"}'
 ```
 
 ### Google Workspace IdP setup
@@ -141,10 +143,12 @@ You must have administrator-level access to your organization's Google Cloud Pla
 
 * IdP-initiated SSO
 * SP-initiated SSO
+* Just-In-Time provisioning
 
 #### Configuration steps
 
 For additional information, see Okta's [documentation](https://help.okta.com/en-us/content/topics/apps/apps_app_integration_wizard_oidc.htm).
+If you have any questions or issues, please reach out to [support@langchain.dev](mailto:support@langchain.dev).
 
 <div id="via-okta-integration-network">
     <b>Via Okta Integration Network (recommended)</b>
@@ -160,10 +164,10 @@ This method of configuration is required in order to use SCIM with Okta.
 1. Find and select the LangSmith application.
 1. On the application overview page, select Add Integration.
 1. Fill in `ApiUrlBase`:
-   * `https://<langsmith_url>/api/v1`, e.g., `https://langsmith.yourdomain.com/api/v1`.
-   * If your installation is configured with a subdomain / path prefix, include that in the URL, e.g., `https://langsmith.yourdomain.com/prefix/api/v1`.
-1. Fill in `AuthHost`: Same as `ApiUrlBase`.
-1. Fill in `LangSmithUrl`: The `<langsmith_url>` portion from above, e.g., `langsmith.yourdomain.com`.
+   * Your LangSmith API URL **without the protocol** (`https://`) formatted as `<langsmith_domain>/api/v1`, e.g., `langsmith.yourdomain.com/api/v1`.
+   * If your installation is configured with a subdomain / path prefix, include that in the URL, e.g., `langsmith.yourdomain.com/prefix/api/v1`.
+1. Leave `AuthHost` empty.
+1. (Optional, if planning to use [SCIM](/langsmith/user-management#set-up-scim-for-your-organization) as well) Fill in `LangSmithUrl`: The `<langsmith_url>` portion from above, e.g., `langsmith.yourdomain.com`.
 1. Under Application Visibility, keep the box unchecked.
 1. Select Next.
 1. Select `OpenID Connect`.
@@ -172,14 +176,35 @@ This method of configuration is required in order to use SCIM with Okta.
    * `Update application username on`: `Create and update`.
    * `Allow users to securely see their password`: leave **unchecked**.
 1. Click **Save**.
-1. Configure LangSmith to use this OAuth application. As an example, here are the `config` values that would be used for Kubernetes configuration:
+1. Configure LangSmith to use this OAuth application (see [general configuration section](#configuration) for details about `initialOrgAdminEmail`):
 
-    1. `oauthClientId`: `Client ID` (starts with `0o`)
-    2. `oauthClientSecret`: `Client secret`
-    3. `hostname`: the domain of your instance e.g. `https://langsmith.yourdomain.com` (no trailing slash)
-    4. `oauthIssuerUrl`: the URL of your Okta instance e.g. `https://company-7422949.okta.com`
-    5. `oauth.enabled`: `true`
-    6. `authType`: `mixed`
+<CodeGroup>
+
+```yaml Helm
+config:
+  authType: mixed
+  hostname: https://langsmith.example.com # the domain of your instance (note no trailing slash)
+  initialOrgAdminEmail: test@email.com # Set this if required
+  oauth:
+    enabled: true
+    oauthClientId: "Client ID" # (starts with `0o`)
+    oauthClientSecret: "Client secret"
+    oauthIssuerUrl: "https://company-7422949.okta.com" # the URL of your Okta instance
+    oauthScopes: "email,profile,openid"
+```
+
+```bash Docker
+# In your .env file
+AUTH_TYPE=mixed
+INITIAL_ORG_ADMIN_EMAIL=test@email.com # Set this if required
+LANGSMITH_URL=https://langsmith.example.com # the domain of your instance (note no trailing slash)
+OAUTH_CLIENT_ID="Client ID" # (starts with `0o`)
+OAUTH_CLIENT_SECRET="Client secret"
+OAUTH_ISSUER_URL="https://company-7422949.okta.com" # the URL of your Okta instance
+OAUTH_SCOPES=email,profile,openid
+```
+
+</CodeGroup>
 
 <div id="via-okta-custom-app-integration">
     <b>Via Custom App Integration</b>
@@ -205,14 +230,35 @@ SCIM is not compatible with this method of configuration. Refer to [**Via Okta I
 1. Under **Sign On > OpenID Connect ID Token** set **Issuer** to **Okta URL**.
 1. (Optional) Under **General > Login** set **Login initiated by** to `Either Okta or App` to enable IdP-initiated login.
 1. (Recommended) Under **General > Login > Email verification experience** fill in the **Callback URI** with the LangSmith URL, e.g., `https://langsmith.yourdomain.com`.
-1. Configure LangSmith to use this OAuth application. As an example, here are the `config` values that would be used for Kubernetes configuration:
+1. Configure LangSmith to use this OAuth application (see [general configuration section](#configuration) for details about `initialOrgAdminEmail`):
 
-    1. `oauthClientId`: `Client ID` (starts with `0o`)
-    2. `oauthClientSecret`: `Client secret`
-    3. `hostname`: the domain of your LangSmith instance e.g. `https://langsmith.yourdomain.com` (no trailing slash)
-    4. `oauthIssuerUrl`: the URL of your Okta instance e.g. `https://company-7422949.okta.com`
-    5. `oauth.enabled`: `true`
-    6. `authType`: `mixed`
+<CodeGroup>
+
+```yaml Helm
+config:
+  authType: mixed
+  hostname: https://langsmith.example.com # the domain of your instance (note no trailing slash)
+  initialOrgAdminEmail: test@email.com # Set this if required
+  oauth:
+    enabled: true
+    oauthClientId: "Client ID" # (starts with `0o`)
+    oauthClientSecret: "Client secret"
+    oauthIssuerUrl: "https://company-7422949.okta.com" # the URL of your Okta instance
+    oauthScopes: "email,profile,openid"
+```
+
+```bash Docker
+# In your .env file
+AUTH_TYPE=mixed
+INITIAL_ORG_ADMIN_EMAIL=test@email.com # Set this if required
+LANGSMITH_URL=https://langsmith.example.com # the domain of your instance (note no trailing slash)
+OAUTH_CLIENT_ID="Client ID" # (starts with `0o`)
+OAUTH_CLIENT_SECRET="Client secret"
+OAUTH_ISSUER_URL="https://company-7422949.okta.com" # the URL of your Okta instance
+OAUTH_SCOPES=email,profile,openid
+```
+
+</CodeGroup>
 
 #### SP-initiated SSO
 

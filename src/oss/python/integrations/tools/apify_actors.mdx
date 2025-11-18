@@ -13,7 +13,7 @@ This notebook walks you through using [Apify Actors](https://docs.apify.com/plat
 This integration lives in the [langchain-apify](https://pypi.org/project/langchain-apify/) package. The package can be installed using pip.
 
 ```python
-%pip install langchain-apify
+pip install langchain-apify
 ```
 
 ### Prerequisites
@@ -51,13 +51,14 @@ tool.invoke({"run_input": {"query": "what is apify?", "maxResults": 2}})
 We can provide the created tool to an [agent](https://python.langchain.com/docs/tutorials/agents/). When asked to search for information, the agent will call the Apify Actor, which will search the web, and then retrieve the search results.
 
 ```python
-%pip install langgraph langchain-openai
+pip install langgraph langchain-openai
 ```
 
 ```python
-from langchain_core.messages import ToolMessage
+from langchain.messages import ToolMessage
 from langchain_openai import ChatOpenAI
 from langchain.agents import create_agent
+
 
 model = ChatOpenAI(model="gpt-4o")
 tools = [tool]
@@ -110,10 +111,8 @@ Apify is a comprehensive platform for web scraping, browser automation, and data
 For more information, you can visit [Apify's official website](https://apify.com/) or their [GitHub page](https://github.com/apify) which contains their code repositories and further details about their projects.
 ```
 
+---
+
 ## API reference
 
 For more information on how to use this integration, see the [git repository](https://github.com/apify/langchain-apify) or the [Apify integration documentation](https://docs.apify.com/platform/integrations/langgraph).
-
-```python
-
-```

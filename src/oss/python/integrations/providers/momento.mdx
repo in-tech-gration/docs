@@ -46,16 +46,6 @@ cache_name = "langchain"
 set_llm_cache(MomentoCache(cache_client, cache_name))
 ```
 
-## Memory
-
-Momento can be used as a distributed memory store for LLMs.
-
-See [this notebook](/oss/integrations/memory/momento_chat_message_history) for a walkthrough of how to use Momento as a memory store for chat message history.
-
-```python
-from langchain.memory import MomentoChatMessageHistory
-```
-
 ## Vector Store
 
 Momento Vector Index (MVI) can be used as a vector store.

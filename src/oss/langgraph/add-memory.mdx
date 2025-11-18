@@ -1,12 +1,10 @@
 ---
-title: Add and manage memory
+title: Memory
 ---
 
-import AlphaCallout from '/snippets/alpha-lg-callout.mdx';
 
-<AlphaCallout />
 
-AI applications need [memory](/oss/memory) to share context across multiple interactions. In LangGraph, you can add two types of memory:
+AI applications need [memory](/oss/concepts/memory) to share context across multiple interactions. In LangGraph, you can add two types of memory:
 
 * [Add short-term memory](#add-short-term-memory) as a part of your agent's [state](/oss/langgraph/graph-api#state) to enable multi-turn conversations.
 * [Add long-term memory](#add-long-term-memory) to store user-specific or application-level data across sessions.
@@ -16,18 +14,18 @@ AI applications need [memory](/oss/memory) to share context across multiple inte
 **Short-term** memory (thread-level [persistence](/oss/langgraph/persistence)) enables agents to track multi-turn conversations. To add short-term memory:
 
 :::python
-```python {highlight={1,4,7,11}}
-from langgraph.checkpoint.memory import InMemorySaver
+```python
+from langgraph.checkpoint.memory import InMemorySaver  # [!code highlight]
 from langgraph.graph import StateGraph
 
-checkpointer = InMemorySaver()
+checkpointer = InMemorySaver()  # [!code highlight]
 
 builder = StateGraph(...)
-graph = builder.compile(checkpointer=checkpointer)
+graph = builder.compile(checkpointer=checkpointer)  # [!code highlight]
 
 graph.invoke(
     {"messages": [{"role": "user", "content": "hi! i am Bob"}]},
-    {"configurable": {"thread_id": "1"}},
+    {"configurable": {"thread_id": "1"}},  # [!code highlight]
 )
 ```
 :::
@@ -53,13 +51,13 @@ await graph.invoke(
 In production, use a checkpointer backed by a database:
 
 :::python
-```python {highlight={4,6}}
+```python
 from langgraph.checkpoint.postgres import PostgresSaver
 
 DB_URI = "postgresql://postgres:postgres@localhost:5442/postgres?sslmode=disable"
-with PostgresSaver.from_conn_string(DB_URI) as checkpointer:
+with PostgresSaver.from_conn_string(DB_URI) as checkpointer:  # [!code highlight]
     builder = StateGraph(...)
-    graph = builder.compile(checkpointer=checkpointer)
+    graph = builder.compile(checkpointer=checkpointer)  # [!code highlight]
 ```
 :::
 
@@ -87,15 +85,15 @@ const graph = builder.compile({ checkpointer });
 
     <Tabs>
         <Tab title="Sync">
-      ```python {highlight={3,8,19,23,29,36}}
+      ```python
       from langchain.chat_models import init_chat_model
       from langgraph.graph import StateGraph, MessagesState, START
-      from langgraph.checkpoint.postgres import PostgresSaver
+      from langgraph.checkpoint.postgres import PostgresSaver  # [!code highlight]
 
-      model = init_chat_model(model="anthropic:claude-3-5-haiku-latest")
+      model = init_chat_model(model="claude-haiku-4-5-20251001")
 
       DB_URI = "postgresql://postgres:postgres@localhost:5442/postgres?sslmode=disable"
-      with PostgresSaver.from_conn_string(DB_URI) as checkpointer:
+      with PostgresSaver.from_conn_string(DB_URI) as checkpointer:  # [!code highlight]
           # checkpointer.setup()
 
           def call_model(state: MessagesState):
@@ -106,39 +104,39 @@ const graph = builder.compile({ checkpointer });
           builder.add_node(call_model)
           builder.add_edge(START, "call_model")
 
-          graph = builder.compile(checkpointer=checkpointer)
+          graph = builder.compile(checkpointer=checkpointer)  # [!code highlight]
 
           config = {
               "configurable": {
-                  "thread_id": "1"
+                  "thread_id": "1"  # [!code highlight]
               }
           }
 
           for chunk in graph.stream(
               {"messages": [{"role": "user", "content": "hi! I'm bob"}]},
-              config,
+              config,  # [!code highlight]
               stream_mode="values"
           ):
               chunk["messages"][-1].pretty_print()
 
           for chunk in graph.stream(
               {"messages": [{"role": "user", "content": "what's my name?"}]},
-              config,
+              config,  # [!code highlight]
               stream_mode="values"
           ):
               chunk["messages"][-1].pretty_print()
 ```
         </Tab>
         <Tab title="Async">
-      ```python {highlight={3,8,19,23,29,36}}
+      ```python
       from langchain.chat_models import init_chat_model
       from langgraph.graph import StateGraph, MessagesState, START
-      from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
+      from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver  # [!code highlight]
 
-      model = init_chat_model(model="anthropic:claude-3-5-haiku-latest")
+      model = init_chat_model(model="claude-haiku-4-5-20251001")
 
       DB_URI = "postgresql://postgres:postgres@localhost:5442/postgres?sslmode=disable"
-      async with AsyncPostgresSaver.from_conn_string(DB_URI) as checkpointer:
+      async with AsyncPostgresSaver.from_conn_string(DB_URI) as checkpointer:  # [!code highlight]
           # await checkpointer.setup()
 
           async def call_model(state: MessagesState):
@@ -149,24 +147,24 @@ const graph = builder.compile({ checkpointer });
           builder.add_node(call_model)
           builder.add_edge(START, "call_model")
 
-          graph = builder.compile(checkpointer=checkpointer)
+          graph = builder.compile(checkpointer=checkpointer)  # [!code highlight]
 
           config = {
               "configurable": {
-                  "thread_id": "1"
+                  "thread_id": "1"  # [!code highlight]
               }
           }
 
           async for chunk in graph.astream(
               {"messages": [{"role": "user", "content": "hi! I'm bob"}]},
-              config,
+              config,  # [!code highlight]
               stream_mode="values"
           ):
               chunk["messages"][-1].pretty_print()
 
           async for chunk in graph.astream(
               {"messages": [{"role": "user", "content": "what's my name?"}]},
-              config,
+              config,  # [!code highlight]
               stream_mode="values"
           ):
               chunk["messages"][-1].pretty_print()
@@ -198,7 +196,7 @@ const graph = builder.compile({ checkpointer });
       .register(registry, MessagesZodMeta),
   });
 
-  const model = new ChatAnthropic({ model: "claude-3-5-haiku-20241022" });
+  const model = new ChatAnthropic({ model: "claude-haiku-4-5-20251001" });
 
   const DB_URI = "postgresql://postgres:postgres@localhost:5442/postgres?sslmode=disable";
   const checkpointer = PostgresSaver.fromConnString(DB_URI);
@@ -249,15 +247,15 @@ const graph = builder.compile({ checkpointer });
 
     <Tabs>
         <Tab title="Sync">
-      ```python {highlight={3,8,18,22,28,35}}
+      ```python
       from langchain.chat_models import init_chat_model
       from langgraph.graph import StateGraph, MessagesState, START
-      from langgraph.checkpoint.mongodb import MongoDBSaver
+      from langgraph.checkpoint.mongodb import MongoDBSaver  # [!code highlight]
 
-      model = init_chat_model(model="anthropic:claude-3-5-haiku-latest")
+      model = init_chat_model(model="claude-haiku-4-5-20251001")
 
       DB_URI = "localhost:27017"
-      with MongoDBSaver.from_conn_string(DB_URI) as checkpointer:
+      with MongoDBSaver.from_conn_string(DB_URI) as checkpointer:  # [!code highlight]
 
           def call_model(state: MessagesState):
               response = model.invoke(state["messages"])
@@ -267,39 +265,39 @@ const graph = builder.compile({ checkpointer });
           builder.add_node(call_model)
           builder.add_edge(START, "call_model")
 
-          graph = builder.compile(checkpointer=checkpointer)
+          graph = builder.compile(checkpointer=checkpointer)  # [!code highlight]
 
           config = {
               "configurable": {
-                  "thread_id": "1"
+                  "thread_id": "1"  # [!code highlight]
               }
           }
 
           for chunk in graph.stream(
               {"messages": [{"role": "user", "content": "hi! I'm bob"}]},
-              config,
+              config,  # [!code highlight]
               stream_mode="values"
           ):
               chunk["messages"][-1].pretty_print()
 
           for chunk in graph.stream(
               {"messages": [{"role": "user", "content": "what's my name?"}]},
-              config,
+              config,  # [!code highlight]
               stream_mode="values"
           ):
               chunk["messages"][-1].pretty_print()
 ```
         </Tab>
         <Tab title="Async">
-      ```python {highlight={3,8,18,22,28,35}}
+      ```python
       from langchain.chat_models import init_chat_model
       from langgraph.graph import StateGraph, MessagesState, START
-      from langgraph.checkpoint.mongodb.aio import AsyncMongoDBSaver
+      from langgraph.checkpoint.mongodb.aio import AsyncMongoDBSaver  # [!code highlight]
 
-      model = init_chat_model(model="anthropic:claude-3-5-haiku-latest")
+      model = init_chat_model(model="claude-haiku-4-5-20251001")
 
       DB_URI = "localhost:27017"
-      async with AsyncMongoDBSaver.from_conn_string(DB_URI) as checkpointer:
+      async with AsyncMongoDBSaver.from_conn_string(DB_URI) as checkpointer:  # [!code highlight]
 
           async def call_model(state: MessagesState):
               response = await model.ainvoke(state["messages"])
@@ -309,24 +307,24 @@ const graph = builder.compile({ checkpointer });
           builder.add_node(call_model)
           builder.add_edge(START, "call_model")
 
-          graph = builder.compile(checkpointer=checkpointer)
+          graph = builder.compile(checkpointer=checkpointer)  # [!code highlight]
 
           config = {
               "configurable": {
-                  "thread_id": "1"
+                  "thread_id": "1"  # [!code highlight]
               }
           }
 
           async for chunk in graph.astream(
               {"messages": [{"role": "user", "content": "hi! I'm bob"}]},
-              config,
+              config,  # [!code highlight]
               stream_mode="values"
           ):
               chunk["messages"][-1].pretty_print()
 
           async for chunk in graph.astream(
               {"messages": [{"role": "user", "content": "what's my name?"}]},
-              config,
+              config,  # [!code highlight]
               stream_mode="values"
           ):
               chunk["messages"][-1].pretty_print()
@@ -346,15 +344,15 @@ const graph = builder.compile({ checkpointer });
 
     <Tabs>
         <Tab title="Sync">
-      ```python {highlight={3,8,19,23,29,36}}
+      ```python
       from langchain.chat_models import init_chat_model
       from langgraph.graph import StateGraph, MessagesState, START
-      from langgraph.checkpoint.redis import RedisSaver
+      from langgraph.checkpoint.redis import RedisSaver  # [!code highlight]
 
-      model = init_chat_model(model="anthropic:claude-3-5-haiku-latest")
+      model = init_chat_model(model="claude-haiku-4-5-20251001")
 
       DB_URI = "redis://localhost:6379"
-      with RedisSaver.from_conn_string(DB_URI) as checkpointer:
+      with RedisSaver.from_conn_string(DB_URI) as checkpointer:  # [!code highlight]
           # checkpointer.setup()
 
           def call_model(state: MessagesState):
@@ -365,39 +363,39 @@ const graph = builder.compile({ checkpointer });
           builder.add_node(call_model)
           builder.add_edge(START, "call_model")
 
-          graph = builder.compile(checkpointer=checkpointer)
+          graph = builder.compile(checkpointer=checkpointer)  # [!code highlight]
 
           config = {
               "configurable": {
-                  "thread_id": "1"
+                  "thread_id": "1"  # [!code highlight]
               }
           }
 
           for chunk in graph.stream(
               {"messages": [{"role": "user", "content": "hi! I'm bob"}]},
-              config,
+              config,  # [!code highlight]
               stream_mode="values"
           ):
               chunk["messages"][-1].pretty_print()
 
           for chunk in graph.stream(
               {"messages": [{"role": "user", "content": "what's my name?"}]},
-              config,
+              config,  # [!code highlight]
               stream_mode="values"
           ):
               chunk["messages"][-1].pretty_print()
 ```
         </Tab>
         <Tab title="Async">
-      ```python {highlight={3,8,19,23,29,36}}
+      ```python
       from langchain.chat_models import init_chat_model
       from langgraph.graph import StateGraph, MessagesState, START
-      from langgraph.checkpoint.redis.aio import AsyncRedisSaver
+      from langgraph.checkpoint.redis.aio import AsyncRedisSaver  # [!code highlight]
 
-      model = init_chat_model(model="anthropic:claude-3-5-haiku-latest")
+      model = init_chat_model(model="claude-haiku-4-5-20251001")
 
       DB_URI = "redis://localhost:6379"
-      async with AsyncRedisSaver.from_conn_string(DB_URI) as checkpointer:
+      async with AsyncRedisSaver.from_conn_string(DB_URI) as checkpointer:  # [!code highlight]
           # await checkpointer.asetup()
 
           async def call_model(state: MessagesState):
@@ -408,24 +406,24 @@ const graph = builder.compile({ checkpointer });
           builder.add_node(call_model)
           builder.add_edge(START, "call_model")
 
-          graph = builder.compile(checkpointer=checkpointer)
+          graph = builder.compile(checkpointer=checkpointer)  # [!code highlight]
 
           config = {
               "configurable": {
-                  "thread_id": "1"
+                  "thread_id": "1"  # [!code highlight]
               }
           }
 
           async for chunk in graph.astream(
               {"messages": [{"role": "user", "content": "hi! I'm bob"}]},
-              config,
+              config,  # [!code highlight]
               stream_mode="values"
           ):
               chunk["messages"][-1].pretty_print()
 
           async for chunk in graph.astream(
               {"messages": [{"role": "user", "content": "what's my name?"}]},
-              config,
+              config,  # [!code highlight]
               stream_mode="values"
           ):
               chunk["messages"][-1].pretty_print()
@@ -437,10 +435,10 @@ const graph = builder.compile({ checkpointer });
 
 ### Use in subgraphs
 
-If your graph contains [subgraphs](/oss/subgraphs), you only need to provide the checkpointer when compiling the parent graph. LangGraph will automatically propagate the checkpointer to the child subgraphs.
+If your graph contains [subgraphs](/oss/langgraph/use-subgraphs), you only need to provide the checkpointer when compiling the parent graph. LangGraph will automatically propagate the checkpointer to the child subgraphs.
 
 :::python
-```python {highlight={16,21,25}}
+```python
 from langgraph.graph import START, StateGraph
 from langgraph.checkpoint.memory import InMemorySaver
 from typing import TypedDict
@@ -456,16 +454,16 @@ def subgraph_node_1(state: State):
 subgraph_builder = StateGraph(State)
 subgraph_builder.add_node(subgraph_node_1)
 subgraph_builder.add_edge(START, "subgraph_node_1")
-subgraph = subgraph_builder.compile()
+subgraph = subgraph_builder.compile()  # [!code highlight]
 
 # Parent graph
 
 builder = StateGraph(State)
-builder.add_node("node_1", subgraph)
+builder.add_node("node_1", subgraph)  # [!code highlight]
 builder.add_edge(START, "node_1")
 
 checkpointer = InMemorySaver()
-graph = builder.compile(checkpointer=checkpointer)
+graph = builder.compile(checkpointer=checkpointer)  # [!code highlight]
 ```
 :::
 
@@ -495,16 +493,16 @@ const graph = builder.compile({ checkpointer });
 If you want the subgraph to have its own memory, you can compile it with the appropriate checkpointer option. This is useful in [multi-agent](/oss/langchain/multi-agent) systems, if you want agents to keep track of their internal message histories.
 
 :::python
-```python {highlight={2}}
+```python
 subgraph_builder = StateGraph(...)
-subgraph = subgraph_builder.compile(checkpointer=True)
+subgraph = subgraph_builder.compile(checkpointer=True)  # [!code highlight]
 ```
 :::
 
 :::js
-```typescript {highlight={2}}
+```typescript
 const subgraphBuilder = new StateGraph(...);
-const subgraph = subgraphBuilder.compile({ checkpointer: true });
+const subgraph = subgraphBuilder.compile({ checkpointer: true });  // [!code highlight]
 ```
 :::
 
@@ -513,14 +511,14 @@ const subgraph = subgraphBuilder.compile({ checkpointer: true });
 Use long-term memory to store user-specific or application-specific data across conversations.
 
 :::python
-```python {highlight={1,4,7}}
-from langgraph.store.memory import InMemoryStore
+```python
+from langgraph.store.memory import InMemoryStore  # [!code highlight]
 from langgraph.graph import StateGraph
 
-store = InMemoryStore()
+store = InMemoryStore()  # [!code highlight]
 
 builder = StateGraph(...)
-graph = builder.compile(store=store)
+graph = builder.compile(store=store)  # [!code highlight]
 ```
 :::
 
@@ -540,19 +538,19 @@ const graph = builder.compile({ store });
 In production, use a store backed by a database:
 
 :::python
-```python {highlight={4,6}}
+```python
 from langgraph.store.postgres import PostgresStore
 
 DB_URI = "postgresql://postgres:postgres@localhost:5442/postgres?sslmode=disable"
-with PostgresStore.from_conn_string(DB_URI) as store:
+with PostgresStore.from_conn_string(DB_URI) as store:  # [!code highlight]
     builder = StateGraph(...)
-    graph = builder.compile(store=store)
+    graph = builder.compile(store=store)  # [!code highlight]
 ```
 :::
 
 :::js
 ```typescript
-import { PostgresStore } from "@langchain/langgraph-checkpoint-postgres";
+import { PostgresStore } from "@langchain/langgraph-checkpoint-postgres/store";
 
 const DB_URI = "postgresql://postgres:postgres@localhost:5442/postgres?sslmode=disable";
 const store = PostgresStore.fromConnString(DB_URI);
@@ -574,20 +572,20 @@ const graph = builder.compile({ store });
 
     <Tabs>
         <Tab title="Sync">
-      ```python {highlight={5,13,23,27,35,48,53,54,59,66,73}}
+      ```python
       from langchain_core.runnables import RunnableConfig
       from langchain.chat_models import init_chat_model
       from langgraph.graph import StateGraph, MessagesState, START
       from langgraph.checkpoint.postgres import PostgresSaver
-      from langgraph.store.postgres import PostgresStore
+      from langgraph.store.postgres import PostgresStore  # [!code highlight]
       from langgraph.store.base import BaseStore
 
-      model = init_chat_model(model="anthropic:claude-3-5-haiku-latest")
+      model = init_chat_model(model="claude-haiku-4-5-20251001")
 
       DB_URI = "postgresql://postgres:postgres@localhost:5442/postgres?sslmode=disable"
 
       with (
-          PostgresStore.from_conn_string(DB_URI) as store,
+          PostgresStore.from_conn_string(DB_URI) as store,  # [!code highlight]
           PostgresSaver.from_conn_string(DB_URI) as checkpointer,
       ):
           # store.setup()
@@ -597,11 +595,11 @@ const graph = builder.compile({ store });
               state: MessagesState,
               config: RunnableConfig,
               *,
-              store: BaseStore,
+              store: BaseStore,  # [!code highlight]
           ):
               user_id = config["configurable"]["user_id"]
               namespace = ("memories", user_id)
-              memories = store.search(namespace, query=str(state["messages"][-1].content))
+              memories = store.search(namespace, query=str(state["messages"][-1].content))  # [!code highlight]
               info = "\n".join([d.value["data"] for d in memories])
               system_msg = f"You are a helpful assistant talking to the user. User info: {info}"
 
@@ -609,7 +607,7 @@ const graph = builder.compile({ store });
               last_message = state["messages"][-1]
               if "remember" in last_message.content.lower():
                   memory = "User name is Bob"
-                  store.put(namespace, str(uuid.uuid4()), {"data": memory})
+                  store.put(namespace, str(uuid.uuid4()), {"data": memory})  # [!code highlight]
 
               response = model.invoke(
                   [{"role": "system", "content": system_msg}] + state["messages"]
@@ -622,52 +620,52 @@ const graph = builder.compile({ store });
 
           graph = builder.compile(
               checkpointer=checkpointer,
-              store=store,
+              store=store,  # [!code highlight]
           )
 
           config = {
               "configurable": {
-                  "thread_id": "1",
-                  "user_id": "1",
+                  "thread_id": "1",  # [!code highlight]
+                  "user_id": "1",  # [!code highlight]
               }
           }
           for chunk in graph.stream(
               {"messages": [{"role": "user", "content": "Hi! Remember: my name is Bob"}]},
-              config,
+              config,  # [!code highlight]
               stream_mode="values",
           ):
               chunk["messages"][-1].pretty_print()
 
           config = {
               "configurable": {
-                  "thread_id": "2",
+                  "thread_id": "2",  # [!code highlight]
                   "user_id": "1",
               }
           }
 
           for chunk in graph.stream(
               {"messages": [{"role": "user", "content": "what is my name?"}]},
-              config,
+              config,  # [!code highlight]
               stream_mode="values",
           ):
               chunk["messages"][-1].pretty_print()
 ```
         </Tab>
         <Tab title="Async">
-      ```python {highlight={5,13,23,27,35,48,53,54,59,66,73}}
+      ```python
       from langchain_core.runnables import RunnableConfig
       from langchain.chat_models import init_chat_model
       from langgraph.graph import StateGraph, MessagesState, START
       from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
-      from langgraph.store.postgres.aio import AsyncPostgresStore
+      from langgraph.store.postgres.aio import AsyncPostgresStore  # [!code highlight]
       from langgraph.store.base import BaseStore
 
-      model = init_chat_model(model="anthropic:claude-3-5-haiku-latest")
+      model = init_chat_model(model="claude-haiku-4-5-20251001")
 
       DB_URI = "postgresql://postgres:postgres@localhost:5442/postgres?sslmode=disable"
 
       async with (
-          AsyncPostgresStore.from_conn_string(DB_URI) as store,
+          AsyncPostgresStore.from_conn_string(DB_URI) as store,  # [!code highlight]
           AsyncPostgresSaver.from_conn_string(DB_URI) as checkpointer,
       ):
           # await store.setup()
@@ -677,11 +675,11 @@ const graph = builder.compile({ store });
               state: MessagesState,
               config: RunnableConfig,
               *,
-              store: BaseStore,
+              store: BaseStore,  # [!code highlight]
           ):
               user_id = config["configurable"]["user_id"]
               namespace = ("memories", user_id)
-              memories = await store.asearch(namespace, query=str(state["messages"][-1].content))
+              memories = await store.asearch(namespace, query=str(state["messages"][-1].content))  # [!code highlight]
               info = "\n".join([d.value["data"] for d in memories])
               system_msg = f"You are a helpful assistant talking to the user. User info: {info}"
 
@@ -689,7 +687,7 @@ const graph = builder.compile({ store });
               last_message = state["messages"][-1]
               if "remember" in last_message.content.lower():
                   memory = "User name is Bob"
-                  await store.aput(namespace, str(uuid.uuid4()), {"data": memory})
+                  await store.aput(namespace, str(uuid.uuid4()), {"data": memory})  # [!code highlight]
 
               response = await model.ainvoke(
                   [{"role": "system", "content": system_msg}] + state["messages"]
@@ -702,32 +700,32 @@ const graph = builder.compile({ store });
 
           graph = builder.compile(
               checkpointer=checkpointer,
-              store=store,
+              store=store,  # [!code highlight]
           )
 
           config = {
               "configurable": {
-                  "thread_id": "1",
-                  "user_id": "1",
+                  "thread_id": "1",  # [!code highlight]
+                  "user_id": "1",  # [!code highlight]
               }
           }
           async for chunk in graph.astream(
               {"messages": [{"role": "user", "content": "Hi! Remember: my name is Bob"}]},
-              config,
+              config,  # [!code highlight]
               stream_mode="values",
           ):
               chunk["messages"][-1].pretty_print()
 
           config = {
               "configurable": {
-                  "thread_id": "2",
+                  "thread_id": "2",  # [!code highlight]
                   "user_id": "1",
               }
           }
 
           async for chunk in graph.astream(
               {"messages": [{"role": "user", "content": "what is my name?"}]},
-              config,
+              config,  # [!code highlight]
               stream_mode="values",
           ):
               chunk["messages"][-1].pretty_print()
@@ -748,7 +746,8 @@ const graph = builder.compile({ store });
   ```typescript
   import { ChatAnthropic } from "@langchain/anthropic";
   import { StateGraph, MessagesZodMeta, START, LangGraphRunnableConfig } from "@langchain/langgraph";
-  import { PostgresSaver, PostgresStore } from "@langchain/langgraph-checkpoint-postgres";
+  import { PostgresSaver } from "@langchain/langgraph-checkpoint-postgres";
+  import { PostgresStore } from "@langchain/langgraph-checkpoint-postgres/store";
   import { BaseMessage } from "@langchain/core/messages";
   import { registry } from "@langchain/langgraph/zod";
   import * as z from "zod";
@@ -760,7 +759,7 @@ const graph = builder.compile({ store });
       .register(registry, MessagesZodMeta),
   });
 
-  const model = new ChatAnthropic({ model: "claude-3-5-haiku-20241022" });
+  const model = new ChatAnthropic({ model: "claude-haiku-4-5-20251001" });
 
   const DB_URI = "postgresql://postgres:postgres@localhost:5442/postgres?sslmode=disable";
 
@@ -845,20 +844,20 @@ const graph = builder.compile({ store });
 
     <Tabs>
         <Tab title="Sync">
-      ```python {highlight={5,13,23,27,35,48,53,54,59,66,73}}
+      ```python
       from langchain_core.runnables import RunnableConfig
       from langchain.chat_models import init_chat_model
       from langgraph.graph import StateGraph, MessagesState, START
       from langgraph.checkpoint.redis import RedisSaver
-      from langgraph.store.redis import RedisStore
+      from langgraph.store.redis import RedisStore  # [!code highlight]
       from langgraph.store.base import BaseStore
 
-      model = init_chat_model(model="anthropic:claude-3-5-haiku-latest")
+      model = init_chat_model(model="claude-haiku-4-5-20251001")
 
       DB_URI = "redis://localhost:6379"
 
       with (
-          RedisStore.from_conn_string(DB_URI) as store,
+          RedisStore.from_conn_string(DB_URI) as store,  # [!code highlight]
           RedisSaver.from_conn_string(DB_URI) as checkpointer,
       ):
           store.setup()
@@ -868,11 +867,11 @@ const graph = builder.compile({ store });
               state: MessagesState,
               config: RunnableConfig,
               *,
-              store: BaseStore,
+              store: BaseStore,  # [!code highlight]
           ):
               user_id = config["configurable"]["user_id"]
               namespace = ("memories", user_id)
-              memories = store.search(namespace, query=str(state["messages"][-1].content))
+              memories = store.search(namespace, query=str(state["messages"][-1].content))  # [!code highlight]
               info = "\n".join([d.value["data"] for d in memories])
               system_msg = f"You are a helpful assistant talking to the user. User info: {info}"
 
@@ -880,7 +879,7 @@ const graph = builder.compile({ store });
               last_message = state["messages"][-1]
               if "remember" in last_message.content.lower():
                   memory = "User name is Bob"
-                  store.put(namespace, str(uuid.uuid4()), {"data": memory})
+                  store.put(namespace, str(uuid.uuid4()), {"data": memory})  # [!code highlight]
 
               response = model.invoke(
                   [{"role": "system", "content": system_msg}] + state["messages"]
@@ -893,52 +892,52 @@ const graph = builder.compile({ store });
 
           graph = builder.compile(
               checkpointer=checkpointer,
-              store=store,
+              store=store,  # [!code highlight]
           )
 
           config = {
               "configurable": {
-                  "thread_id": "1",
-                  "user_id": "1",
+                  "thread_id": "1",  # [!code highlight]
+                  "user_id": "1",  # [!code highlight]
               }
           }
           for chunk in graph.stream(
               {"messages": [{"role": "user", "content": "Hi! Remember: my name is Bob"}]},
-              config,
+              config,  # [!code highlight]
               stream_mode="values",
           ):
               chunk["messages"][-1].pretty_print()
 
           config = {
               "configurable": {
-                  "thread_id": "2",
+                  "thread_id": "2",  # [!code highlight]
                   "user_id": "1",
               }
           }
 
           for chunk in graph.stream(
               {"messages": [{"role": "user", "content": "what is my name?"}]},
-              config,
+              config,  # [!code highlight]
               stream_mode="values",
           ):
               chunk["messages"][-1].pretty_print()
 ```
         </Tab>
         <Tab title="Async">
-      ```python {highlight={5,13,23,27,35,48,53,54,59,66,73}}
+      ```python
       from langchain_core.runnables import RunnableConfig
       from langchain.chat_models import init_chat_model
       from langgraph.graph import StateGraph, MessagesState, START
       from langgraph.checkpoint.redis.aio import AsyncRedisSaver
-      from langgraph.store.redis.aio import AsyncRedisStore
+      from langgraph.store.redis.aio import AsyncRedisStore  # [!code highlight]
       from langgraph.store.base import BaseStore
 
-      model = init_chat_model(model="anthropic:claude-3-5-haiku-latest")
+      model = init_chat_model(model="claude-haiku-4-5-20251001")
 
       DB_URI = "redis://localhost:6379"
 
       async with (
-          AsyncRedisStore.from_conn_string(DB_URI) as store,
+          AsyncRedisStore.from_conn_string(DB_URI) as store,  # [!code highlight]
           AsyncRedisSaver.from_conn_string(DB_URI) as checkpointer,
       ):
           # await store.setup()
@@ -948,11 +947,11 @@ const graph = builder.compile({ store });
               state: MessagesState,
               config: RunnableConfig,
               *,
-              store: BaseStore,
+              store: BaseStore,  # [!code highlight]
           ):
               user_id = config["configurable"]["user_id"]
               namespace = ("memories", user_id)
-              memories = await store.asearch(namespace, query=str(state["messages"][-1].content))
+              memories = await store.asearch(namespace, query=str(state["messages"][-1].content))  # [!code highlight]
               info = "\n".join([d.value["data"] for d in memories])
               system_msg = f"You are a helpful assistant talking to the user. User info: {info}"
 
@@ -960,7 +959,7 @@ const graph = builder.compile({ store });
               last_message = state["messages"][-1]
               if "remember" in last_message.content.lower():
                   memory = "User name is Bob"
-                  await store.aput(namespace, str(uuid.uuid4()), {"data": memory})
+                  await store.aput(namespace, str(uuid.uuid4()), {"data": memory})  # [!code highlight]
 
               response = await model.ainvoke(
                   [{"role": "system", "content": system_msg}] + state["messages"]
@@ -973,32 +972,32 @@ const graph = builder.compile({ store });
 
           graph = builder.compile(
               checkpointer=checkpointer,
-              store=store,
+              store=store,  # [!code highlight]
           )
 
           config = {
               "configurable": {
-                  "thread_id": "1",
-                  "user_id": "1",
+                  "thread_id": "1",  # [!code highlight]
+                  "user_id": "1",  # [!code highlight]
               }
           }
           async for chunk in graph.astream(
               {"messages": [{"role": "user", "content": "Hi! Remember: my name is Bob"}]},
-              config,
+              config,  # [!code highlight]
               stream_mode="values",
           ):
               chunk["messages"][-1].pretty_print()
 
           config = {
               "configurable": {
-                  "thread_id": "2",
+                  "thread_id": "2",  # [!code highlight]
                   "user_id": "1",
               }
           }
 
           async for chunk in graph.astream(
               {"messages": [{"role": "user", "content": "what is my name?"}]},
-              config,
+              config,  # [!code highlight]
               stream_mode="values",
           ):
               chunk["messages"][-1].pretty_print()
@@ -1060,119 +1059,120 @@ const items = await store.search(["user_123", "memories"], {
 :::
 
 <Accordion title="Long-term memory with semantic search">
-  :::python
-  ```python
-  from typing import Optional
+    :::python
 
-  from langchain.embeddings import init_embeddings
-  from langchain.chat_models import init_chat_model
-  from langgraph.store.base import BaseStore
-  from langgraph.store.memory import InMemoryStore
-  from langgraph.graph import START, MessagesState, StateGraph
+    ```python
 
-  llm = init_chat_model("openai:gpt-4o-mini")
+    from langchain.embeddings import init_embeddings
+    from langchain.chat_models import init_chat_model
+    from langgraph.store.base import BaseStore
+    from langgraph.store.memory import InMemoryStore
+    from langgraph.graph import START, MessagesState, StateGraph
 
-  # Create store with semantic search enabled
-  embeddings = init_embeddings("openai:text-embedding-3-small")
-  store = InMemoryStore(
-      index={
-          "embed": embeddings,
-          "dims": 1536,
-      }
-  )
+    model = init_chat_model("gpt-4o-mini")
 
-  store.put(("user_123", "memories"), "1", {"text": "I love pizza"})
-  store.put(("user_123", "memories"), "2", {"text": "I am a plumber"})
+    # Create store with semantic search enabled
+    embeddings = init_embeddings("openai:text-embedding-3-small")
+    store = InMemoryStore(
+        index={
+            "embed": embeddings,
+            "dims": 1536,
+        }
+    )
 
-  def chat(state, *, store: BaseStore):
-      # Search based on user's last message
-      items = store.search(
-          ("user_123", "memories"), query=state["messages"][-1].content, limit=2
-      )
-      memories = "\n".join(item.value["text"] for item in items)
-      memories = f"## Memories of user\n{memories}" if memories else ""
-      response = llm.invoke(
-          [
-              {"role": "system", "content": f"You are a helpful assistant.\n{memories}"},
-              *state["messages"],
-          ]
-      )
-      return {"messages": [response]}
+    store.put(("user_123", "memories"), "1", {"text": "I love pizza"})
+    store.put(("user_123", "memories"), "2", {"text": "I am a plumber"})
+
+    def chat(state, *, store: BaseStore):
+        # Search based on user's last message
+        items = store.search(
+            ("user_123", "memories"), query=state["messages"][-1].content, limit=2
+        )
+        memories = "\n".join(item.value["text"] for item in items)
+        memories = f"## Memories of user\n{memories}" if memories else ""
+        response = model.invoke(
+            [
+                {"role": "system", "content": f"You are a helpful assistant.\n{memories}"},
+                *state["messages"],
+            ]
+        )
+        return {"messages": [response]}
 
 
-  builder = StateGraph(MessagesState)
-  builder.add_node(chat)
-  builder.add_edge(START, "chat")
-  graph = builder.compile(store=store)
+    builder = StateGraph(MessagesState)
+    builder.add_node(chat)
+    builder.add_edge(START, "chat")
+    graph = builder.compile(store=store)
 
-  for message, metadata in graph.stream(
-      input={"messages": [{"role": "user", "content": "I'm hungry"}]},
-      stream_mode="messages",
-  ):
-      print(message.content, end="")
-  ```
-  :::
+    for message, metadata in graph.stream(
+        input={"messages": [{"role": "user", "content": "I'm hungry"}]},
+        stream_mode="messages",
+    ):
+        print(message.content, end="")
+    ```
+    :::
 
-  :::js
-  ```typescript
-  import { OpenAIEmbeddings, ChatOpenAI } from "@langchain/openai";
-  import { StateGraph, START, MessagesZodMeta, InMemoryStore } from "@langchain/langgraph";
-  import { BaseMessage } from "@langchain/core/messages";
-  import { registry } from "@langchain/langgraph/zod";
-  import * as z from "zod";
+    :::js
 
-  const MessagesZodState = z.object({
-    messages: z
-      .array(z.custom<BaseMessage>())
-      .register(registry, MessagesZodMeta),
-  });
+    ```typescript
+    import { OpenAIEmbeddings, ChatOpenAI } from "@langchain/openai";
+    import { StateGraph, START, MessagesZodMeta, InMemoryStore } from "@langchain/langgraph";
+    import { BaseMessage } from "@langchain/core/messages";
+    import { registry } from "@langchain/langgraph/zod";
+    import * as z from "zod";
 
-  const llm = new ChatOpenAI({ model: "gpt-4o-mini" });
+    const MessagesZodState = z.object({
+        messages: z
+        .array(z.custom<BaseMessage>())
+        .register(registry, MessagesZodMeta),
+    });
 
-  // Create store with semantic search enabled
-  const embeddings = new OpenAIEmbeddings({ model: "text-embedding-3-small" });
-  const store = new InMemoryStore({
-    index: {
-      embeddings,
-      dims: 1536,
+    const model = new ChatOpenAI({ model: "gpt-4o-mini" });
+
+    // Create store with semantic search enabled
+    const embeddings = new OpenAIEmbeddings({ model: "text-embedding-3-small" });
+    const store = new InMemoryStore({
+        index: {
+        embeddings,
+        dims: 1536,
+        }
+    });
+
+    await store.put(["user_123", "memories"], "1", { text: "I love pizza" });
+    await store.put(["user_123", "memories"], "2", { text: "I am a plumber" });
+
+    const chat = async (state: z.infer<typeof MessagesZodState>, config) => {
+        // Search based on user's last message
+        const items = await config.store.search(
+        ["user_123", "memories"],
+        { query: state.messages.at(-1)?.content, limit: 2 }
+        );
+        const memories = items.map(item => item.value.text).join("\n");
+        const memoriesText = memories ? `## Memories of user\n${memories}` : "";
+
+        const response = await model.invoke([
+        { role: "system", content: `You are a helpful assistant.\n${memoriesText}` },
+        ...state.messages,
+        ]);
+
+        return { messages: [response] };
+    };
+
+    const builder = new StateGraph(MessagesZodState)
+        .addNode("chat", chat)
+        .addEdge(START, "chat");
+    const graph = builder.compile({ store });
+
+    for await (const [message, metadata] of await graph.stream(
+        { messages: [{ role: "user", content: "I'm hungry" }] },
+        { streamMode: "messages" }
+    )) {
+        if (message.content) {
+        console.log(message.content);
+        }
     }
-  });
-
-  await store.put(["user_123", "memories"], "1", { text: "I love pizza" });
-  await store.put(["user_123", "memories"], "2", { text: "I am a plumber" });
-
-  const chat = async (state: z.infer<typeof MessagesZodState>, config) => {
-    // Search based on user's last message
-    const items = await config.store.search(
-      ["user_123", "memories"],
-      { query: state.messages.at(-1)?.content, limit: 2 }
-    );
-    const memories = items.map(item => item.value.text).join("\n");
-    const memoriesText = memories ? `## Memories of user\n${memories}` : "";
-
-    const response = await llm.invoke([
-      { role: "system", content: `You are a helpful assistant.\n${memoriesText}` },
-      ...state.messages,
-    ]);
-
-    return { messages: [response] };
-  };
-
-  const builder = new StateGraph(MessagesZodState)
-    .addNode("chat", chat)
-    .addEdge(START, "chat");
-  const graph = builder.compile({ store });
-
-  for await (const [message, metadata] of await graph.stream(
-    { messages: [{ role: "user", content: "I'm hungry" }] },
-    { streamMode: "messages" }
-  )) {
-    if (message.content) {
-      console.log(message.content);
-    }
-  }
-  ```
-  :::
+    ```
+    :::
 </Accordion>
 
 ## Manage short-term memory
@@ -1189,19 +1189,24 @@ This allows the agent to keep track of the conversation without exceeding the LL
 
 ### Trim messages
 
+:::python
+Most LLMs have a maximum supported context window (denominated in tokens). One way to decide when to truncate messages is to count the tokens in the message history and truncate whenever it approaches that limit. If you're using LangChain, you can use the trim messages utility and specify the number of tokens to keep from the list, as well as the `strategy` (e.g., keep the last `max_tokens`) to use for handling the boundary.
+:::
+:::js
 Most LLMs have a maximum supported context window (denominated in tokens). One way to decide when to truncate messages is to count the tokens in the message history and truncate whenever it approaches that limit. If you're using LangChain, you can use the trim messages utility and specify the number of tokens to keep from the list, as well as the `strategy` (e.g., keep the last `maxTokens`) to use for handling the boundary.
+:::
 
 :::python
 To trim message history, use the [`trim_messages`](https://python.langchain.com/api_reference/core/messages/langchain_core.messages.utils.trim_messages.html) function:
 
-```python {highlight={1,2,3,4,7}}
-from langchain_core.messages.utils import (
-    trim_messages,
-    count_tokens_approximately
-)
+```python
+from langchain_core.messages.utils import (  # [!code highlight]
+    trim_messages,  # [!code highlight]
+    count_tokens_approximately  # [!code highlight]
+)  # [!code highlight]
 
 def call_model(state: MessagesState):
-    messages = trim_messages(
+    messages = trim_messages(  # [!code highlight]
         state["messages"],
         strategy="last",
         token_counter=count_tokens_approximately,
@@ -1243,19 +1248,19 @@ const builder = new StateGraph(MessagesZodState)
 
 <Accordion title="Full example: trim messages">
   :::python
-  ```python {highlight={1,2,3,4,12}}
+  ```python
   from langchain_core.messages.utils import (
-      trim_messages,
-      count_tokens_approximately
+      trim_messages,  # [!code highlight]
+      count_tokens_approximately  # [!code highlight]
   )
   from langchain.chat_models import init_chat_model
   from langgraph.graph import StateGraph, START, MessagesState
 
-  model = init_chat_model("anthropic:claude-3-7-sonnet-latest")
+  model = init_chat_model("claude-sonnet-4-5-20250929")
   summarization_model = model.bind(max_tokens=128)
 
   def call_model(state: MessagesState):
-      messages = trim_messages(
+      messages = trim_messages(  # [!code highlight]
           state["messages"],
           strategy="last",
           token_counter=count_tokens_approximately,
@@ -1342,27 +1347,27 @@ const builder = new StateGraph(MessagesZodState)
 You can delete messages from the graph state to manage the message history. This is useful when you want to remove specific messages or clear the entire message history.
 
 :::python
-To delete messages from the graph state, you can use the `RemoveMessage`. For `RemoveMessage` to work, you need to use a state key with @[`add_messages`][add_messages] [reducer](/oss/langgraph/graph-api#reducers), like [`MessagesState`](/oss/langgraph/graph-api#messagesstate).
+To delete messages from the graph state, you can use the `RemoveMessage`. For `RemoveMessage` to work, you need to use a state key with @[`add_messages`] [reducer](/oss/langgraph/graph-api#reducers), like [`MessagesState`](/oss/langgraph/graph-api#messagesstate).
 
 To remove specific messages:
 
-```python {highlight={1,7}}
-from langchain_core.messages import RemoveMessage
+```python
+from langchain.messages import RemoveMessage  # [!code highlight]
 
 def delete_messages(state):
     messages = state["messages"]
     if len(messages) > 2:
         # remove the earliest two messages
-        return {"messages": [RemoveMessage(id=m.id) for m in messages[:2]]}
+        return {"messages": [RemoveMessage(id=m.id) for m in messages[:2]]}  # [!code highlight]
 ```
 
 To remove **all** messages:
 
-```python {highlight={1,4}}
-from langgraph.graph.message import REMOVE_ALL_MESSAGES
+```python
+from langgraph.graph.message import REMOVE_ALL_MESSAGES  # [!code highlight]
 
 def delete_messages(state):
-    return {"messages": [RemoveMessage(id=REMOVE_ALL_MESSAGES)]}
+    return {"messages": [RemoveMessage(id=REMOVE_ALL_MESSAGES)]}  # [!code highlight]
 ```
 :::
 
@@ -1391,20 +1396,20 @@ const deleteMessages = (state) => {
 <Warning>
 When deleting messages, **make sure** that the resulting message history is valid. Check the limitations of the LLM provider you're using. For example:
 
-* some providers expect message history to start with a `user` message
-* most providers require `assistant` messages with tool calls to be followed by corresponding `tool` result messages.
+* Some providers expect message history to start with a `user` message
+* Most providers require `assistant` messages with tool calls to be followed by corresponding `tool` result messages.
 </Warning>
 
 <Accordion title="Full example: delete messages">
   :::python
-  ```python {highlight={1,7}}
-  from langchain_core.messages import RemoveMessage
+  ```python
+  from langchain.messages import RemoveMessage  # [!code highlight]
 
   def delete_messages(state):
       messages = state["messages"]
       if len(messages) > 2:
           # remove the earliest two messages
-          return {"messages": [RemoveMessage(id=m.id) for m in messages[:2]]}
+          return {"messages": [RemoveMessage(id=m.id) for m in messages[:2]]}  # [!code highlight]
 
   def call_model(state: MessagesState):
       response = model.invoke(state["messages"])
@@ -1612,27 +1617,27 @@ const summarizeConversation = async (state: z.infer<typeof State>) => {
 
 <Accordion title="Full example: summarize messages">
   :::python
-  ```python {highlight={8,14,20,28,35}}
+  ```python
   from typing import Any, TypedDict
 
   from langchain.chat_models import init_chat_model
-  from langchain_core.messages import AnyMessage
+  from langchain.messages import AnyMessage
   from langchain_core.messages.utils import count_tokens_approximately
   from langgraph.graph import StateGraph, START, MessagesState
   from langgraph.checkpoint.memory import InMemorySaver
-  from langmem.short_term import SummarizationNode, RunningSummary
+  from langmem.short_term import SummarizationNode, RunningSummary  # [!code highlight]
 
-  model = init_chat_model("anthropic:claude-3-7-sonnet-latest")
+  model = init_chat_model("claude-sonnet-4-5-20250929")
   summarization_model = model.bind(max_tokens=128)
 
   class State(MessagesState):
-      context: dict[str, RunningSummary]  # (1)!
+      context: dict[str, RunningSummary]  # [!code highlight]
 
-  class LLMInputState(TypedDict):  # (2)!
+  class LLMInputState(TypedDict):  # [!code highlight]
       summarized_messages: list[AnyMessage]
       context: dict[str, RunningSummary]
 
-  summarization_node = SummarizationNode(
+  summarization_node = SummarizationNode(  # [!code highlight]
       token_counter=count_tokens_approximately,
       model=summarization_model,
       max_tokens=256,
@@ -1640,14 +1645,14 @@ const summarizeConversation = async (state: z.infer<typeof State>) => {
       max_summary_tokens=128,
   )
 
-  def call_model(state: LLMInputState):  # (3)!
+  def call_model(state: LLMInputState):  # [!code highlight]
       response = model.invoke(state["summarized_messages"])
       return {"messages": [response]}
 
   checkpointer = InMemorySaver()
   builder = StateGraph(State)
   builder.add_node(call_model)
-  builder.add_node("summarize", summarization_node)
+  builder.add_node("summarize", summarization_node)  # [!code highlight]
   builder.add_edge(START, "summarize")
   builder.add_edge("summarize", "call_model")
   graph = builder.compile(checkpointer=checkpointer)
@@ -1715,7 +1720,7 @@ const summarizeConversation = async (state: z.infer<typeof State>) => {
   });
 
   // We will use this model for both the conversation and the summarization
-  const model = new ChatAnthropic({ model: "claude-3-haiku-20240307" });
+  const model = new ChatAnthropic({ model: "claude-haiku-4-5-20251001" });
 
   // Define the logic to call the model
   const callModel = async (state: z.infer<typeof GraphState>) => {
@@ -1814,17 +1819,17 @@ You can view and delete the information stored by the checkpointer.
 :::python
 <Tabs>
     <Tab title="Graph/Functional API">
-    ```python {highlight={3,6,10}}
+    ```python
     config = {
         "configurable": {
-            "thread_id": "1",
+            "thread_id": "1",  # [!code highlight]
             # optionally provide an ID for a specific checkpoint,
             # otherwise the latest checkpoint is shown
-            # "checkpoint_id": "1f029ca3-1f5b-6704-8004-820c16b69a5a"
+            # "checkpoint_id": "1f029ca3-1f5b-6704-8004-820c16b69a5a"  # [!code highlight]
 
         }
     }
-    graph.get_state(config)
+    graph.get_state(config)  # [!code highlight]
 ```
 
     ```
@@ -1846,17 +1851,17 @@ You can view and delete the information stored by the checkpointer.
     ```
     </Tab>
     <Tab title="Checkpointer API">
-    ```python {highlight={3,6,10}}
+    ```python
     config = {
         "configurable": {
-            "thread_id": "1",
+            "thread_id": "1",  # [!code highlight]
             # optionally provide an ID for a specific checkpoint,
             # otherwise the latest checkpoint is shown
-            # "checkpoint_id": "1f029ca3-1f5b-6704-8004-820c16b69a5a"
+            # "checkpoint_id": "1f029ca3-1f5b-6704-8004-820c16b69a5a"  # [!code highlight]
 
         }
     }
-    checkpointer.get_tuple(config)
+    checkpointer.get_tuple(config)  # [!code highlight]
 ```
 
     ```
@@ -1923,13 +1928,13 @@ await graph.getState(config);
 :::python
 <Tabs>
     <Tab title="Graph/Functional API">
-    ```python {highlight={3,6}}
+    ```python
     config = {
         "configurable": {
-            "thread_id": "1"
+            "thread_id": "1"  # [!code highlight]
         }
     }
-    list(graph.get_state_history(config))
+    list(graph.get_state_history(config))  # [!code highlight]
 ```
 
     ```
@@ -1998,13 +2003,13 @@ await graph.getState(config);
     ```
     </Tab>
     <Tab title="Checkpointer API">
-    ```python {highlight={3,6}}
+    ```python
     config = {
         "configurable": {
-            "thread_id": "1"
+            "thread_id": "1"  # [!code highlight]
         }
     }
-    list(checkpointer.list(config))
+    list(checkpointer.list(config))  # [!code highlight]
 ```
 
     ```

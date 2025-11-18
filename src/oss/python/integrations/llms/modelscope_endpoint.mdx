@@ -36,7 +36,7 @@ if not os.getenv("MODELSCOPE_SDK_TOKEN"):
 The LangChain ModelScope integration lives in the `langchain-modelscope-integration` package:
 
 ```python
-%pip install -qU langchain-modelscope-integration
+pip install -qU langchain-modelscope-integration
 ```
 
 ## Instantiation
@@ -136,27 +136,7 @@ print("Sorted tuples by second element:", sorted_tuples)
 These examples demonstrate how to sort arrays in Python using different methods and options. Choose the one that best fits your needs!
 ```
 
-## Chaining
-
-We can [chain](/oss/how-to/sequence/) our completion model with a prompt template like so:
-
-```python
-from langchain_core.prompts import PromptTemplate
-
-prompt = PromptTemplate(template="How to say {input} in {output_language}:\n")
-
-chain = prompt | llm
-chain.invoke(
-    {
-        "output_language": "Chinese",
-        "input": "I love programming.",
-    }
-)
-```
-
-```output
-'In Chinese, you can say "我喜欢编程" (Wǒ xǐ huān biān chéng) to express "I love programming." Here\'s a breakdown of the sentence:\n\n- 我 (Wǒ) means "I"\n- 喜欢 (xǐ huān) means "love" or "like"\n- 编程 (biān chéng) means "programming"\n\nSo, when you put it all together, it translates to "I love programming."'
-```
+---
 
 ## API reference
 

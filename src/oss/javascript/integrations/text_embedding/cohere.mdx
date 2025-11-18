@@ -2,7 +2,7 @@
 title: CohereEmbeddings
 ---
 
-This will help you get started with CohereEmbeddings [embedding models](/oss/concepts/embedding_models) using LangChain. For detailed documentation on `CohereEmbeddings` features and configuration options, please refer to the [API reference](https://api.js.langchain.com/classes/langchain_cohere.CohereEmbeddings.html).
+This will help you get started with CohereEmbeddings [embedding models](/oss/integrations/text_embedding) using LangChain. For detailed documentation on `CohereEmbeddings` features and configuration options, please refer to the [API reference](https://api.js.langchain.com/classes/langchain_cohere.CohereEmbeddings.html).
 
 ## Overview
 
@@ -35,14 +35,17 @@ If you want to get automated tracing of your model calls you can also set your [
 
 The LangChain CohereEmbeddings integration lives in the `@langchain/cohere` package:
 
-```{=mdx}
-import IntegrationInstallTooltip from "@mdx_components/integration_install_tooltip.mdx";
-<IntegrationInstallTooltip></IntegrationInstallTooltip>
-
-<Npm2Yarn>
-  @langchain/cohere @langchain/core
-</Npm2Yarn>
+<CodeGroup>
+```bash npm
+npm install @langchain/cohere @langchain/core
 ```
+```bash yarn
+yarn add @langchain/cohere @langchain/core
+```
+```bash pnpm
+pnpm add @langchain/cohere @langchain/core
+```
+</CodeGroup>
 
 ## Instantiation
 
@@ -88,7 +91,7 @@ Below, see how to index and retrieve data using the `embeddings` object we initi
 
 ```typescript
 // Create a vector store with a sample text
-import { MemoryVectorStore } from "langchain/vectorstores/memory";
+import { MemoryVectorStore } from "@langchain/classic/vectorstores/memory";
 
 const text = "LangChain is the framework for building context-aware reasoning applications";
 
@@ -210,6 +213,8 @@ console.log(vectors[1].slice(0, 100));
   -0.0026760101,  0.028625488,   0.041015625,   0.006893158,    -0.01902771
 ]
 ```
+
+---
 
 ## API reference
 

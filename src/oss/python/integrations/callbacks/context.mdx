@@ -11,7 +11,7 @@ In this guide we will show you how to integrate with Context.
 ## Installation and Setup
 
 ```python
-%pip install -qU  langchain langchain-openai langchain-community context-python
+pip install -qU  langchain langchain-openai langchain-community context-python
 ```
 
 ### Getting API Credentials
@@ -49,7 +49,7 @@ The Context callback handler can be used to directly record transcripts between 
 ```python
 import os
 
-from langchain_core.messages import HumanMessage, SystemMessage
+from langchain.messages import HumanMessage, SystemMessage
 from langchain_openai import ChatOpenAI
 
 token = os.environ["CONTEXT_API_TOKEN"]

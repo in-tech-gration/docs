@@ -18,7 +18,7 @@ This guide will help you getting started with `ChatFireworks` [chat models](/oss
 
 See the links in the table headers below for guides on how to use specific features.
 
-| [Tool calling](/oss/langchain/tools) | [Structured output](/oss/langchain/structured-output) | JSON mode | [Image input](/oss/how-to/multimodal_inputs/) | Audio input | Video input | [Token-level streaming](/oss/langchain/streaming/) | [Token usage](/oss/how-to/chat_token_usage_tracking/) | [Logprobs](/oss/how-to/logprobs/) |
+| [Tool calling](/oss/langchain/tools) | [Structured output](/oss/langchain/structured-output) | JSON mode | [Image input](/oss/langchain/messages#multimodal) | Audio input | Video input | [Token-level streaming](/oss/langchain/streaming/) | [Token usage](/oss/langchain/models#token-usage) | [Logprobs](/oss/langchain/models#log-probabilities) |
 | :---: | :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: |
 | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ |
 
@@ -45,16 +45,17 @@ If you want to get automated tracing of your model calls you can also set your [
 
 The LangChain `ChatFireworks` integration lives in the `@langchain/community` package:
 
-```{=mdx}
-
-import IntegrationInstallTooltip from "@mdx_components/integration_install_tooltip.mdx";
-<IntegrationInstallTooltip></IntegrationInstallTooltip>
-
-<Npm2Yarn>
-  @langchain/community @langchain/core
-</Npm2Yarn>
-
+<CodeGroup>
+```bash npm
+npm install @langchain/community @langchain/core
 ```
+```bash yarn
+yarn add @langchain/community @langchain/core
+```
+```bash pnpm
+pnpm add @langchain/community @langchain/core
+```
+</CodeGroup>
 
 ## Instantiation
 
@@ -117,60 +118,7 @@ console.log(aiMsg.content)
 J'adore la programmation.
 ```
 
-## Chaining
-
-We can [chain](/oss/how-to/sequence/) our model with a prompt template like so:
-
-```typescript
-import { ChatPromptTemplate } from "@langchain/core/prompts"
-
-const prompt = ChatPromptTemplate.fromMessages(
-    [
-        [
-            "system",
-            "You are a helpful assistant that translates {input_language} to {output_language}.",
-        ],
-        ["human", "{input}"],
-    ]
-)
-
-const chain = prompt.pipe(llm);
-await chain.invoke(
-    {
-        input_language: "English",
-        output_language: "German",
-        input: "I love programming.",
-    }
-)
-```
-
-```output
-AIMessage {
-  "id": "chatcmpl-9rBYM3KSIhHOuTXpBvA5oFyk8RSaN",
-  "content": "Ich liebe das Programmieren.",
-  "additional_kwargs": {},
-  "response_metadata": {
-    "tokenUsage": {
-      "completionTokens": 6,
-      "promptTokens": 26,
-      "totalTokens": 32
-    },
-    "finish_reason": "stop"
-  },
-  "tool_calls": [],
-  "invalid_tool_calls": [],
-  "usage_metadata": {
-    "input_tokens": 26,
-    "output_tokens": 6,
-    "total_tokens": 32
-  }
-}
-```
-
-Behind the scenes, Fireworks AI uses the OpenAI SDK and OpenAI compatible API, with some caveats:
-
-- Certain properties are not supported by the Fireworks API, see [here](https://readme.fireworks.ai/docs/openai-compatibility#api-compatibility).
-- Generation using multiple prompts is not supported.
+---
 
 ## API reference
 

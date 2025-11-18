@@ -22,7 +22,7 @@ This notebook covers how to load documents from `Docugami`. It provides the adva
 3. Create an access token via the Developer Playground for your workspace. [Detailed instructions](https://help.docugami.com/home/docugami-api)
 4. Explore the [Docugami API](https://api-docs.docugami.com) to get a list of your processed docset IDs, or just the document IDs for a particular docset.
 6. Use the DocugamiLoader as detailed below, to get rich semantic chunks for your documents.
-7. Optionally, build and publish one or more [reports or abstracts](https://help.docugami.com/home/reports). This helps Docugami improve the semantic XML with better tags based on your preferences, which are then added to the DocugamiLoader output as metadata. Use techniques like [self-querying retriever](/oss/how-to/self_query) to do high accuracy Document QA.
+7. Optionally, build and publish one or more [reports or abstracts](https://help.docugami.com/home/reports). This helps Docugami improve the semantic XML with better tags based on your preferences, which are then added to the DocugamiLoader output as metadata. Use techniques like self-querying retriever to do high accuracy Document QA.
 
 ## Advantages vs Other Chunking Techniques
 
@@ -61,7 +61,7 @@ len(chunks)
 120
 ```
 
-The `metadata` for each `Document` (really, a chunk of an actual PDF, DOC or DOCX) contains some useful additional information:
+The `metadata` for each @[`Document`] (really, a chunk of an actual PDF, DOC or DOCX) contains some useful additional information:
 
 1. **id and source:** ID and Name of the file (PDF, DOC or DOCX) the chunk is sourced from within Docugami.
 2. **xpath:** XPath inside the XML representation of the document, for the chunk. Useful for source citations directly to the actual chunk inside the document XML.
@@ -72,7 +72,7 @@ You can control chunking behavior by setting the following properties on the `Do
 
 1. You can set min and max chunk size, which the system tries to adhere to with minimal truncation. You can set `loader.min_text_length` and `loader.max_text_length` to control these.
 2. By default, only the text for chunks is returned. However, Docugami's XML knowledge graph has additional rich information including semantic tags for entities inside the chunk. Set `loader.include_xml_tags = True` if you want the additional xml metadata on the returned chunks.
-3. In addition, you can set `loader.parent_hierarchy_levels` if you want Docugami to return parent chunks in the chunks it returns. The child chunks point to the parent chunks via the `loader.parent_id_key` value. This is useful e.g. with the [MultiVector Retriever](/oss/how-to/multi_vector) for [small-to-big](https://www.youtube.com/watch?v=ihSiRrOUwmg) retrieval. See detailed example later in this notebook.
+3. In addition, you can set `loader.parent_hierarchy_levels` if you want Docugami to return parent chunks in the chunks it returns. The child chunks point to the parent chunks via the `loader.parent_id_key` value. This is useful e.g. with the MultiVector Retriever for [small-to-big](https://www.youtube.com/watch?v=ihSiRrOUwmg) retrieval. See detailed example later in this notebook.
 
 ```python
 loader.min_text_length = 64
@@ -196,7 +196,7 @@ print(chunks[0].metadata)
 {'xpath': '/docset:OFFICELEASE-section/dg:chunk', 'id': '47297e277e556f3ce8b570047304560b', 'name': 'Sample Commercial Leases/Shorebucks LLC_AZ.pdf', 'source': 'Sample Commercial Leases/Shorebucks LLC_AZ.pdf', 'structure': 'h1 h1 p', 'tag': 'chunk Lease', 'Lease Date': 'March  29th , 2019', 'Landlord': 'Menlo Group', 'Tenant': 'Shorebucks LLC', 'Premises Address': '1564  E Broadway Rd ,  Tempe ,  Arizona  85282', 'Term of Lease': '96  full calendar months', 'Square Feet': '16,159'}
 ```
 
-We can use a [self-querying retriever](/oss/how-to/self_query) to improve our query accuracy, using this additional metadata:
+We can use a self-querying retriever to improve our query accuracy, using this additional metadata:
 
 ```python
 !poetry run pip install -U lark --quiet
@@ -204,7 +204,7 @@ We can use a [self-querying retriever](/oss/how-to/self_query) to improve our qu
 
 ```python
 from langchain.chains.query_constructor.schema import AttributeInfo
-from langchain.retrievers.self_query.base import SelfQueryRetriever
+from langchain_classic.retrievers.self_query.base import SelfQueryRetriever
 from langchain_chroma import Chroma
 
 EXCLUDE_KEYS = ["id", "xpath", "structure"]
@@ -261,7 +261,7 @@ This time the answer is correct, since the self-querying retriever created a fil
 
 # Advanced Topic: Small-to-Big Retrieval with Document Knowledge Graph Hierarchy
 
-Documents are inherently semi-structured and the DocugamiLoader is able to navigate the semantic and structural contours of the document to provide parent chunk references on the chunks it returns. This is useful e.g. with the [MultiVector Retriever](/oss/how-to/multi_vector) for [small-to-big](https://www.youtube.com/watch?v=ihSiRrOUwmg) retrieval.
+Documents are inherently semi-structured and the DocugamiLoader is able to navigate the semantic and structural contours of the document to provide parent chunk references on the chunks it returns. This is useful e.g. with the MultiVector Retriever for [small-to-big](https://www.youtube.com/watch?v=ihSiRrOUwmg) retrieval.
 
 To get parent chunk references, you can set `loader.parent_hierarchy_levels` to a non-zero value.
 
@@ -322,7 +322,7 @@ CHUNK 21b4d9517f7ccdc0e3a028ce5043a2a0: page_content='1.1 Landlord.\n <Landlord>
 ```
 
 ```python
-from langchain.retrievers.multi_vector import MultiVectorRetriever, SearchType
+from langchain_classic.retrievers.multi_vector import MultiVectorRetriever, SearchType
 from langchain.storage import InMemoryStore
 from langchain_chroma import Chroma
 from langchain_openai import OpenAIEmbeddings

@@ -24,7 +24,7 @@ For a complete list of supported models and model variants, see the [Ollama mode
 
 See the links in the table headers below for guides on how to use specific features.
 
-| [Tool calling](/oss/langchain/tools) | [Structured output](/oss/langchain/structured-output) | JSON mode | [Image input](/oss/how-to/multimodal_inputs/) | Audio input | Video input | [Token-level streaming](/oss/langchain/streaming/) | [Token usage](/oss/how-to/chat_token_usage_tracking/) | [Logprobs](/oss/how-to/logprobs/) |
+| [Tool calling](/oss/langchain/tools) | [Structured output](/oss/langchain/structured-output) | JSON mode | [Image input](/oss/langchain/messages#multimodal) | Audio input | Video input | [Token-level streaming](/oss/langchain/streaming/) | [Token usage](/oss/langchain/models#token-usage) | [Logprobs](/oss/langchain/models#log-probabilities) |
 | :---: | :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: |
 | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ❌ |
 
@@ -45,15 +45,17 @@ If you want to get automated tracing of your model calls you can also set your [
 
 The LangChain ChatOllama integration lives in the `@langchain/ollama` package:
 
-```{=mdx}
-import IntegrationInstallTooltip from "@mdx_components/integration_install_tooltip.mdx";
-<IntegrationInstallTooltip></IntegrationInstallTooltip>
-
-<Npm2Yarn>
-  @langchain/ollama @langchain/core
-</Npm2Yarn>
-
+<CodeGroup>
+```bash npm
+npm install @langchain/ollama @langchain/core
 ```
+```bash yarn
+yarn add @langchain/ollama @langchain/core
+```
+```bash pnpm
+pnpm add @langchain/ollama @langchain/core
+```
+</CodeGroup>
 
 ## Instantiation
 
@@ -119,59 +121,6 @@ Je adore le programmation.
 (Note: "programmation" is the feminine form of the noun in French, but if you want to use the masculine form, it would be "le programme" instead.)
 ```
 
-## Chaining
-
-We can [chain](/oss/how-to/sequence/) our model with a prompt template like so:
-
-```typescript
-import { ChatPromptTemplate } from "@langchain/core/prompts"
-
-const prompt = ChatPromptTemplate.fromMessages(
-    [
-        [
-            "system",
-            "You are a helpful assistant that translates {input_language} to {output_language}.",
-        ],
-        ["human", "{input}"],
-    ]
-)
-
-const chain = prompt.pipe(llm);
-await chain.invoke(
-    {
-        input_language: "English",
-        output_language: "German",
-        input: "I love programming.",
-    }
-)
-```
-
-```output
-AIMessage {
-  "content": "Ich liebe Programmieren!\n\n(Note: \"Ich liebe\" means \"I love\", \"Programmieren\" is the verb for \"programming\")",
-  "additional_kwargs": {},
-  "response_metadata": {
-    "model": "llama3",
-    "created_at": "2024-08-01T16:59:18.088423Z",
-    "done_reason": "stop",
-    "done": true,
-    "total_duration": 585146125,
-    "load_duration": 27557166,
-    "prompt_eval_count": 30,
-    "prompt_eval_duration": 74241000,
-    "eval_count": 29,
-    "eval_duration": 481195000
-  },
-  "tool_calls": [],
-  "invalid_tool_calls": [],
-  "usage_metadata": {
-    "input_tokens": 30,
-    "output_tokens": 29,
-    "total_tokens": 59
-  }
-}
-```
-
 ## Tools
 
 Ollama now offers support for native tool calling [for a subset of their available models](https://ollama.com/search?c=tools). The example below demonstrates how you can invoke a tool from an Ollama model.
@@ -179,7 +128,7 @@ Ollama now offers support for native tool calling [for a subset of their availab
 ```typescript
 import { tool } from "@langchain/core/tools";
 import { ChatOllama } from "@langchain/ollama";
-import { z } from "zod";
+import * as z from "zod";
 
 const weatherTool = tool((_) => "Da weather is weatherin", {
   name: "get_current_weather",
@@ -245,7 +194,7 @@ For [models that support tool calling](https://ollama.com/search?c=tools), you c
 
 ```typescript
 import { ChatOllama } from "@langchain/ollama";
-import { z } from "zod";
+import * as z from "zod";
 
 // Define the model
 const llmForWSO = new ChatOllama({
@@ -333,7 +282,7 @@ AIMessage {
 ## Multimodal models
 
 Ollama supports open source multimodal models like [LLaVA](https://ollama.ai/library/llava) in versions 0.1.15 and up.
-You can pass images as part of a message's `content` field to [multimodal-capable](/oss/how-to/multimodal_inputs/) models like this:
+You can pass images as part of a message's `content` field to [multimodal-capable](/oss/langchain/messages#multimodal) models like this:
 
 ```typescript
 import { ChatOllama } from "@langchain/ollama";
@@ -387,6 +336,8 @@ AIMessage {
   }
 }
 ```
+
+---
 
 ## API reference
 

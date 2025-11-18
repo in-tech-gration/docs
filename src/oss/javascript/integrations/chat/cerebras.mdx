@@ -26,7 +26,7 @@ This will help you getting started with ChatCerebras [chat models](/oss/langchai
 
 See the links in the table headers below for guides on how to use specific features.
 
-| [Tool calling](/oss/langchain/tools) | [Structured output](/oss/langchain/structured-output) | JSON mode | [Image input](/oss/how-to/multimodal_inputs/) | Audio input | Video input | [Token-level streaming](/oss/langchain/streaming/) | [Token usage](/oss/how-to/chat_token_usage_tracking/) | [Logprobs](/oss/how-to/logprobs/) |
+| [Tool calling](/oss/langchain/tools) | [Structured output](/oss/langchain/structured-output) | JSON mode | [Image input](/oss/langchain/messages#multimodal) | Audio input | Video input | [Token-level streaming](/oss/langchain/streaming/) | [Token usage](/oss/langchain/models#token-usage) | [Logprobs](/oss/langchain/models#log-probabilities) |
 | :---: | :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: |
 | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ |
 
@@ -53,16 +53,17 @@ If you want to get automated tracing of your model calls you can also set your [
 
 The LangChain ChatCerebras integration lives in the `@langchain/cerebras` package:
 
-```{=mdx}
-
-import IntegrationInstallTooltip from "@mdx_components/integration_install_tooltip.mdx";
-<IntegrationInstallTooltip></IntegrationInstallTooltip>
-
-<Npm2Yarn>
-  @langchain/cerebras @langchain/core
-</Npm2Yarn>
-
+<CodeGroup>
+```bash npm
+npm install @langchain/cerebras @langchain/core
 ```
+```bash yarn
+yarn add @langchain/cerebras @langchain/core
+```
+```bash pnpm
+pnpm add @langchain/cerebras @langchain/core
+```
+</CodeGroup>
 
 ## Instantiation
 
@@ -155,61 +156,7 @@ console.log({ aiInvokeMsgContent: aiInvokeMsg.content, aiBindMsg: aiBindMsg.cont
 { aiInvokeMsgContent: '{"result":4}', aiBindMsg: '{"result":4}' }
 ```
 
-## Chaining
-
-We can [chain](/oss/how-to/sequence/) our model with a prompt template like so:
-
-```typescript
-import { ChatPromptTemplate } from "@langchain/core/prompts"
-
-const prompt = ChatPromptTemplate.fromMessages(
-    [
-        [
-            "system",
-            "You are a helpful assistant that translates {input_language} to {output_language}.",
-        ],
-        ["human", "{input}"],
-    ]
-)
-
-const chain = prompt.pipe(llm);
-await chain.invoke(
-    {
-        input_language: "English",
-        output_language: "German",
-        input: "I love programming.",
-    }
-)
-```
-
-```output
-AIMessage {
-  "id": "run-5c8a9f25-0f57-499b-9c2b-87bd07135feb",
-  "content": "Ich liebe das Programmieren.",
-  "additional_kwargs": {},
-  "response_metadata": {
-    "id": "chatcmpl-abd1e9eb-b873-492e-9e30-0d13dfc3a145",
-    "created": 1735785607,
-    "model": "llama-3.3-70b",
-    "system_fingerprint": "fp_2e2a2a083c",
-    "object": "chat.completion",
-    "time_info": {
-      "queue_time": 0.00009499,
-      "prompt_time": 0.002095266,
-      "completion_time": 0.008807576,
-      "total_time": 0.012718439102172852,
-      "created": 1735785607
-    }
-  },
-  "tool_calls": [],
-  "invalid_tool_calls": [],
-  "usage_metadata": {
-    "input_tokens": 50,
-    "output_tokens": 7,
-    "total_tokens": 57
-  }
-}
-```
+---
 
 ## API reference
 

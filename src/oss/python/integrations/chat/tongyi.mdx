@@ -7,7 +7,7 @@ In this notebook, we will introduce how to use langchain with [Tongyi](https://w
 
 ```python
 # Install the package
-%pip install -qU  dashscope
+pip install -qU  dashscope
 ```
 
 ```python
@@ -25,7 +25,7 @@ os.environ["DASHSCOPE_API_KEY"] = DASHSCOPE_API_KEY
 
 ```python
 from langchain_community.chat_models.tongyi import ChatTongyi
-from langchain_core.messages import HumanMessage
+from langchain.messages import HumanMessage
 
 chatLLM = ChatTongyi(
     streaming=True,
@@ -45,7 +45,7 @@ chat resp: content='' response_metadata={'finish_reason': 'stop', 'request_id': 
 ```
 
 ```python
-from langchain_core.messages import HumanMessage, SystemMessage
+from langchain.messages import HumanMessage, SystemMessage
 
 messages = [
     SystemMessage(
@@ -75,7 +75,7 @@ ChatTongyi supports tool calling API that lets you describe tools and their argu
 
 ```python
 from langchain_community.chat_models.tongyi import ChatTongyi
-from langchain_core.tools import tool
+from langchain.tools import tool
 
 
 @tool
@@ -101,7 +101,7 @@ content='' additional_kwargs={'tool_calls': [{'function': {'name': 'multiply', '
 
 ```python
 from langchain_community.chat_models.tongyi import ChatTongyi
-from langchain_core.messages import HumanMessage, SystemMessage
+from langchain.messages import HumanMessage, SystemMessage
 
 tools = [
     {
@@ -151,7 +151,7 @@ Enable the large model to continue generating content from the initial text you 
 
 ```python
 from langchain_community.chat_models.tongyi import ChatTongyi
-from langchain_core.messages import AIMessage, HumanMessage
+from langchain.messages import AIMessage, HumanMessage
 
 messages = [
     HumanMessage(
@@ -176,7 +176,7 @@ Qwen-VL(qwen-vl-plus/qwen-vl-max) are models that can process images.
 
 ```python
 from langchain_community.chat_models import ChatTongyi
-from langchain_core.messages import HumanMessage
+from langchain.messages import HumanMessage
 
 chatLLM = ChatTongyi(model_name="qwen-vl-max")
 image_message = {

@@ -24,9 +24,9 @@ This guide will also use OpenAI embeddings, which require you to install the `@l
 
 You can use local SQLite when working with the libSQL vector store, or use a hosted Turso Database.
 
-import IntegrationInstallTooltip from '/snippets/javascript-integrations/integration-install-tooltip.mdx';
-
-<IntegrationInstallTooltip/>
+<Tip>
+See [this section for general instructions on installing LangChain packages](/oss/langchain/install).
+</Tip>
 
 ```bash npm
 npm install @libsql/client @langchain/openai @langchain/community
@@ -151,11 +151,13 @@ for (const [doc, score] of similaritySearchWithScoreResults) {
 }
 ```
 
+---
+
 ## API reference
 
 For detailed documentation of all `LibSQLVectorStore` features and configurations head to the API reference.
 
 ## Related
 
-- Vector store [conceptual guide](/oss/concepts/#vectorstores)
-- Vector store [how-to guides](/oss/how-to/#vectorstores)
+- Vector store [conceptual guide](/oss/integrations/vectorstores)
+- Vector store [how-to guides](/oss/integrations/vectorstores)

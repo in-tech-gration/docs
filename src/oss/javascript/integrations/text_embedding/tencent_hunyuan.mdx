@@ -10,9 +10,9 @@ The `TencentHunyuanEmbeddings` class uses the Tencent Hunyuan API to generate em
 2. Create SecretID & SecretKey [here](https://console.cloud.tencent.com/cam/capi).
 3. Set SecretID and SecretKey as environment variables named `TENCENT_SECRET_ID` and `TENCENT_SECRET_KEY`, respectively.
 
-import IntegrationInstallTooltip from '/snippets/javascript-integrations/integration-install-tooltip.mdx';
-
-<IntegrationInstallTooltip/>
+<Tip>
+See [this section for general instructions on installing LangChain packages](/oss/langchain/install).
+</Tip>
 
 ```bash npm
 npm install @langchain/community @langchain/core
@@ -29,11 +29,23 @@ And then make sure that you import from the `web` as shown below.
 
 Here's an example:
 
-import TencentHunyuan from "/snippets/javascript-integrations/examples/models/embeddings/tencent_hunyuan.mdx";
+```typescript
+// in nodejs environment
+import { TencentHunyuanEmbeddings } from "@langchain/community/embeddings/tencent_hunyuan";
 
-<TencentHunyuan />
+// in browser environment
+// import { TencentHunyuanEmbeddings } from "@langchain/community/embeddings/tencent_hunyuan/web";
+
+/* Embed queries */
+const embeddings = new TencentHunyuanEmbeddings();
+const res = await embeddings.embedQuery("你好，世界！");
+console.log(res);
+/* Embed documents */
+const documentRes = await embeddings.embedDocuments(["你好，世界！", "再见"]);
+console.log({ documentRes });
+```
 
 ## Related
 
-- Embedding model [conceptual guide](/oss/concepts/embedding_models)
-- Embedding model [how-to guides](/oss/how-to/#embedding-models)
+- Embedding model [conceptual guide](/oss/integrations/text_embedding)
+- Embedding model [how-to guides](/oss/integrations/text_embedding)

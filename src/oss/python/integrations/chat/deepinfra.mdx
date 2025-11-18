@@ -18,7 +18,7 @@ import os
 from getpass import getpass
 
 from langchain_community.chat_models import ChatDeepInfra
-from langchain_core.messages import HumanMessage
+from langchain.messages import HumanMessage
 
 DEEPINFRA_API_TOKEN = getpass()
 
@@ -65,8 +65,8 @@ import asyncio
 
 from dotenv import find_dotenv, load_dotenv
 from langchain_community.chat_models import ChatDeepInfra
-from langchain_core.messages import HumanMessage
-from langchain_core.tools import tool
+from langchain.messages import HumanMessage
+from langchain.tools import tool
 from pydantic import BaseModel
 
 model_name = "meta-llama/Meta-Llama-3-70B-Instruct"

@@ -24,7 +24,7 @@ This guide provides a quick overview for getting started with the (MODULE_NAME) 
 
 ### Features
 
-| [Tool calling](/oss/langchain/tools) | [Structured output](/oss/langchain/structured-output/) | JSON mode | [Image input](/oss/how-to/multimodal_inputs/) | [Audio input](/oss/langchain/messages#multimodal) | [Video input](/oss/langchain/messages#multimodal) | [Token-level streaming](/oss/langchain/streaming/) | Native async | [Token usage](/oss/how-to/chat_token_usage_tracking/) | [Logprobs](/oss/how-to/logprobs/) |
+| [Tool calling](/oss/langchain/tools) | [Structured output](/oss/langchain/structured-output/) | JSON mode | [Image input](/oss/langchain/messages#multimodal) | [Audio input](/oss/langchain/messages#multimodal) | [Video input](/oss/langchain/messages#multimodal) | [Token-level streaming](/oss/langchain/streaming/) | Native async | [Token usage](/oss/langchain/models#token-usage) | [Logprobs](/oss/langchain/models#log-probabilities) |
 | :---: | :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: | :---: |
 | ✅/❌ | ✅/❌ | ✅/❌ | ✅/❌ | ✅/❌ | ✅/❌ | ✅/❌ | ✅/❌ | ✅/❌ | ✅❌ |
 
@@ -97,7 +97,7 @@ model = Chat(MODULE_NAME)(
     print(response)
     ```
     ```python Message objects icon="message"
-    from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
+    from langchain.messages import SystemMessage, HumanMessage, AIMessage
 
     messages = [
         SystemMessage("You are a poetry expert"),
@@ -159,4 +159,4 @@ Examples:
 
 ## API reference
 
-For detailed documentation of all Chat(MODULE_NAME) features and configurations, head to the [API reference](link-to-ref-page).
+For detailed documentation of all Chat(MODULE_NAME) features and configurations, head to the [API reference](<LINK>).

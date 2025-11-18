@@ -18,7 +18,7 @@ This will help you getting started with Amazon Bedrock Converse [chat models](/o
 
 See the links in the table headers below for guides on how to use specific features.
 
-| [Tool calling](/oss/langchain/tools) | [Structured output](/oss/langchain/structured-output) | JSON mode | [Image input](/oss/how-to/multimodal_inputs/) | Audio input | Video input | [Token-level streaming](/oss/langchain/streaming/) | [Token usage](/oss/how-to/chat_token_usage_tracking/) | [Logprobs](/oss/how-to/logprobs/) |
+| [Tool calling](/oss/langchain/tools) | [Structured output](/oss/langchain/structured-output) | JSON mode | [Image input](/oss/langchain/messages#multimodal) | Audio input | Video input | [Token-level streaming](/oss/langchain/streaming/) | [Token usage](/oss/langchain/models#token-usage) | [Logprobs](/oss/langchain/models#log-probabilities) |
 | :---: | :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: |
 | ✅ | ✅ | ❌ | ✅ | ❌ | ❌ | ✅ | ✅ | ❌ |
 
@@ -41,15 +41,17 @@ If you want to get automated tracing of your model calls you can also set your [
 
 The LangChain `ChatBedrockConverse` integration lives in the `@langchain/aws` package:
 
-```{=mdx}
-import IntegrationInstallTooltip from "@mdx_components/integration_install_tooltip.mdx";
-<IntegrationInstallTooltip></IntegrationInstallTooltip>
-
-<Npm2Yarn>
-  @langchain/aws @langchain/core
-</Npm2Yarn>
-
+<CodeGroup>
+```bash npm
+npm install @langchain/aws @langchain/core
 ```
+```bash yarn
+yarn add @langchain/aws @langchain/core
+```
+```bash pnpm
+pnpm add @langchain/aws @langchain/core
+```
+</CodeGroup>
 
 ## Instantiation
 
@@ -123,68 +125,11 @@ console.log(aiMsg.content)
 J'adore la programmation.
 ```
 
-## Chaining
-
-We can [chain](/oss/how-to/sequence/) our model with a prompt template like so:
-
-```typescript
-import { ChatPromptTemplate } from "@langchain/core/prompts"
-
-const prompt = ChatPromptTemplate.fromMessages(
-  [
-    [
-      "system",
-      "You are a helpful assistant that translates {input_language} to {output_language}.",
-    ],
-    ["human", "{input}"],
-  ]
-)
-
-const chain = prompt.pipe(llm);
-await chain.invoke(
-  {
-    input_language: "English",
-    output_language: "German",
-    input: "I love programming.",
-  }
-)
-```
-
-```output
-AIMessage {
-  "id": "c6401e11-8f85-4a71-8e15-4856d55aef78",
-  "content": "Here's the German translation:\n\nIch liebe Programmieren.",
-  "additional_kwargs": {},
-  "response_metadata": {
-    "$metadata": {
-      "httpStatusCode": 200,
-      "requestId": "c6401e11-8f85-4a71-8e15-4856d55aef78",
-      "attempts": 1,
-      "totalRetryDelay": 0
-    },
-    "metrics": {
-      "latencyMs": 760
-    },
-    "stopReason": "end_turn",
-    "usage": {
-      "inputTokens": 23,
-      "outputTokens": 18,
-      "totalTokens": 41
-    }
-  },
-  "tool_calls": [],
-  "invalid_tool_calls": [],
-  "usage_metadata": {
-    "input_tokens": 23,
-    "output_tokens": 18,
-    "total_tokens": 41
-  }
-}
-```
-
 ## Tool calling
 
 Tool calling with Bedrock models works in a similar way to [other models](/oss/langchain/tools), but note that not all Bedrock models support tool calling. Please refer to the [AWS model documentation](https://docs.aws.amazon.com/bedrock/latest/APIReference/welcome.html) for more information.
+
+---
 
 ## API reference
 

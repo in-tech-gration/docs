@@ -7,12 +7,12 @@ title: FlashRank reranker
 This notebook shows how to use [flashrank](https://github.com/PrithivirajDamodaran/FlashRank) for document compression and retrieval.
 
 ```python
-%pip install -qU  flashrank
-%pip install -qU  faiss
+pip install -qU  flashrank
+pip install -qU  faiss
 
 # OR  (depending on Python version)
 
-%pip install -qU  faiss_cpu
+pip install -qU  faiss_cpu
 ```
 
 ```python
@@ -271,7 +271,7 @@ May God bless you all. May God protect our troops.
 Now let's wrap our base retriever with a `ContextualCompressionRetriever`, using `FlashrankRerank` as a compressor.
 
 ```python
-from langchain.retrievers import ContextualCompressionRetriever
+from langchain_classic.retrievers.contextual_compression import ContextualCompressionRetriever
 from langchain_community.document_compressors import FlashrankRerank
 from langchain_openai import ChatOpenAI
 

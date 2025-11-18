@@ -18,7 +18,7 @@ This will help you getting started with ChatGroq [chat models](/oss/langchain/mo
 
 See the links in the table headers below for guides on how to use specific features.
 
-| [Tool calling](/oss/langchain/tools) | [Structured output](/oss/langchain/structured-output) | JSON mode | [Image input](/oss/how-to/multimodal_inputs/) | Audio input | Video input | [Token-level streaming](/oss/langchain/streaming/) | [Token usage](/oss/how-to/chat_token_usage_tracking/) | [Logprobs](/oss/how-to/logprobs/) |
+| [Tool calling](/oss/langchain/tools) | [Structured output](/oss/langchain/structured-output) | JSON mode | [Image input](/oss/langchain/messages#multimodal) | Audio input | Video input | [Token-level streaming](/oss/langchain/streaming/) | [Token usage](/oss/langchain/models#token-usage) | [Logprobs](/oss/langchain/models#log-probabilities) |
 | :---: | :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: |
 | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ |
 
@@ -46,16 +46,17 @@ If you want to get automated tracing of your model calls you can also set your [
 
 The LangChain ChatGroq integration lives in the `@langchain/groq` package:
 
-```{=mdx}
-
-import IntegrationInstallTooltip from "@mdx_components/integration_install_tooltip.mdx";
-<IntegrationInstallTooltip></IntegrationInstallTooltip>
-
-<Npm2Yarn>
-  @langchain/groq @langchain/core
-</Npm2Yarn>
-
+<CodeGroup>
+```bash npm
+npm install @langchain/groq @langchain/core
 ```
+```bash yarn
+yarn add @langchain/groq @langchain/core
+```
+```bash pnpm
+pnpm add @langchain/groq @langchain/core
+```
+</CodeGroup>
 
 ## Instantiation
 
@@ -141,49 +142,7 @@ console.log({ aiInvokeMsgContent: aiInvokeMsg.content, aiBindMsg: aiBindMsg.cont
 }
 ```
 
-## Chaining
-
-We can [chain](/oss/how-to/sequence/) our model with a prompt template like so:
-
-```typescript
-import { ChatPromptTemplate } from "@langchain/core/prompts"
-
-const prompt = ChatPromptTemplate.fromMessages(
-    [
-        [
-            "system",
-            "You are a helpful assistant that translates {input_language} to {output_language}.",
-        ],
-        ["human", "{input}"],
-    ]
-)
-
-const chain = prompt.pipe(llm);
-await chain.invoke(
-    {
-        input_language: "English",
-        output_language: "German",
-        input: "I love programming.",
-    }
-)
-```
-
-```output
-AIMessage {
-  "content": "That's great! I can help you translate English phrases related to programming into German.\n\n\"I love programming\" can be translated to German as \"Ich liebe Programmieren\".\n\nHere are some more programming-related phrases translated into German:\n\n* \"Programming language\" = \"Programmiersprache\"\n* \"Code\" = \"Code\"\n* \"Variable\" = \"Variable\"\n* \"Function\" = \"Funktion\"\n* \"Array\" = \"Array\"\n* \"Object-oriented programming\" = \"Objektorientierte Programmierung\"\n* \"Algorithm\" = \"Algorithmus\"\n* \"Data structure\" = \"Datenstruktur\"\n* \"Debugging\" = \"Debuggen\"\n* \"Compile\" = \"Kompilieren\"\n* \"Link\" = \"Verknüpfen\"\n* \"Run\" = \"Ausführen\"\n* \"Test\" = \"Testen\"\n* \"Deploy\" = \"Bereitstellen\"\n* \"Version control\" = \"Versionskontrolle\"\n* \"Open source\" = \"Open Source\"\n* \"Software development\" = \"Softwareentwicklung\"\n* \"Agile methodology\" = \"Agile Methodik\"\n* \"DevOps\" = \"DevOps\"\n* \"Cloud computing\" = \"Cloud Computing\"\n\nI hope this helps! Let me know if you have any other questions or if you need further translations.",
-  "additional_kwargs": {},
-  "response_metadata": {
-    "tokenUsage": {
-      "completionTokens": 327,
-      "promptTokens": 25,
-      "totalTokens": 352
-    },
-    "finish_reason": "stop"
-  },
-  "tool_calls": [],
-  "invalid_tool_calls": []
-}
-```
+---
 
 ## API reference
 

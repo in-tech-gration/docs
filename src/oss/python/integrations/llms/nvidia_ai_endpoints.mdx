@@ -2,7 +2,7 @@
 title: NVIDIA
 ---
 
-This will help you get started with NVIDIA [models](/oss/concepts/text_llms). For detailed documentation of all `NVIDIA` features and configurations head to the [API reference](https://python.langchain.com/api_reference/nvidia_ai_endpoints/llms/langchain_nvidia_ai_endpoints.chat_models.NVIDIA.html).
+This will help you get started with NVIDIA models. For detailed documentation of all `NVIDIA` features and configurations head to the [API reference](https://python.langchain.com/api_reference/nvidia_ai_endpoints/llms/langchain_nvidia_ai_endpoints.chat_models.NVIDIA.html).
 
 ## Overview
 
@@ -30,7 +30,7 @@ For more information on accessing the llm models through this api, check out the
 
 ### Model features
 
-| JSON mode | [Image input](/oss/how-to/multimodal_inputs/) | Audio input | Video input | [Token-level streaming](/oss/langchain/streaming/) | Native async | [Token usage](/oss/how-to/chat_token_usage_tracking/) | [Logprobs](/oss/how-to/logprobs/) |
+| JSON mode | [Image input](/oss/langchain/messages#multimodal) | Audio input | Video input | [Token-level streaming](/oss/langchain/streaming/) | Native async | [Token usage](/oss/langchain/models#token-usage) | [Logprobs](/oss/langchain/models#log-probabilities) |
 | :---: | :---: |  :---: | :---: | :---: | :---: | :---: | :---: |
 | ❌ | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ |
 
@@ -62,12 +62,12 @@ if not os.getenv("NVIDIA_API_KEY"):
 The LangChain NVIDIA AI Endpoints integration lives in the `langchain-nvidia-ai-endpoints` package:
 
 ```python
-%pip install -qU langchain-nvidia-ai-endpoints
+pip install -qU langchain-nvidia-ai-endpoints
 ```
 
 ## Instantiation
 
-See [LLM](/docs/how_to#llms) for full functionality.
+See [LLM](/oss/langchain/models) for full functionality.
 
 ```python
 from langchain_nvidia_ai_endpoints import NVIDIA
@@ -135,32 +135,7 @@ NVIDIA.get_available_models()
 # llm.get_available_models()
 ```
 
-## Chaining
-
-We can [chain](/oss/how-to/sequence/) our model with a prompt template like so:
-
-```python
-from langchain_core.prompts import ChatPromptTemplate
-
-prompt = ChatPromptTemplate(
-    [
-        (
-            "system",
-            "You are a helpful assistant that translates {input_language} to {output_language}.",
-        ),
-        ("human", "{input}"),
-    ]
-)
-
-chain = prompt | llm
-chain.invoke(
-    {
-        "input_language": "English",
-        "output_language": "German",
-        "input": "I love programming.",
-    }
-)
-```
+---
 
 ## API reference
 

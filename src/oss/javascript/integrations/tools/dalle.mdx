@@ -2,28 +2,22 @@
 title: Dall-E Tool
 ---
 
-import DalleImageGeneration from "/snippets/javascript-integrations/examples/tools/dalle_image_generation.mdx";
+```typescript
+/* eslint-disable no-process-env */
+import { DallEAPIWrapper } from "@langchain/openai";
 
-The Dall-E tool allows your agent to create images using OpenAI's Dall-E image generation tool.
+const tool = new DallEAPIWrapper({
+  n: 1, // Default
+  model: "dall-e-3", // Default
+  apiKey: process.env.OPENAI_API_KEY, // Default
+});
 
-## Setup
+const imageURL = await tool.invoke("a painting of a cat");
 
-You will need an OpenAI API Key which you can get from the [OpenAI web site](https://openai.com)
-and then set the OPENAI_API_KEY environment variable to the key you just created.
-
-To use the Dall-E Tool you need to install the LangChain OpenAI integration package:
-
-import IntegrationInstallTooltip from '/snippets/javascript-integrations/integration-install-tooltip.mdx';
-
-<IntegrationInstallTooltip/>
-
-```bash npm
-npm install @langchain/openai @langchain/core
+console.log(imageURL);
 ```
-
-<DalleImageGeneration />
 
 ## Related
 
 - Tool [conceptual guide](/oss/langchain/tools)
-- Tool [how-to guides](/oss/how-to/#tools)
+- Tool [how-to guides](/oss/langchain/tools)

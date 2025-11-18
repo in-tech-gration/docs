@@ -2,7 +2,7 @@
 title: CloudflareWorkersAI
 ---
 
-This will help you get started with Cloudflare Workers AI [text completion models (LLMs)](/oss/concepts/text_llms) using LangChain. For detailed documentation on `CloudflareWorkersAI` features and configuration options, please refer to the [API reference](https://api.js.langchain.com/classes/langchain_cloudflare.CloudflareWorkersAI.html).
+This will help you get started with Cloudflare Workers AI text completion models (LLMs) using LangChain. For detailed documentation on `CloudflareWorkersAI` features and configuration options, please refer to the [API reference](https://api.js.langchain.com/classes/langchain_cloudflare.CloudflareWorkersAI.html).
 
 ## Overview
 
@@ -24,15 +24,17 @@ Head [to this page](https://developers.cloudflare.com/workers-ai/) to sign up to
 
 The LangChain Cloudflare integration lives in the `@langchain/cloudflare` package:
 
-```{=mdx}
-import IntegrationInstallTooltip from "@mdx_components/integration_install_tooltip.mdx";
-<IntegrationInstallTooltip></IntegrationInstallTooltip>
-
-<Npm2Yarn>
-  @langchain/cloudflare @langchain/core
-</Npm2Yarn>
-
+<CodeGroup>
+```bash npm
+npm install @langchain/cloudflare @langchain/core
 ```
+```bash yarn
+yarn add @langchain/cloudflare @langchain/core
+```
+```bash pnpm
+pnpm add @langchain/cloudflare @langchain/core
+```
+</CodeGroup>
 
 ## Instantiation
 
@@ -72,29 +74,7 @@ completion
 "Cloudflare is not an AI company, but rather a content delivery network (CDN) and security company. T"... 876 more characters
 ```
 
-## Chaining
-
-We can [chain](/oss/how-to/sequence/) our completion model with a prompt template like so:
-
-```typescript
-import { PromptTemplate } from "@langchain/core/prompts"
-
-const prompt = PromptTemplate.fromTemplate("How to say {input} in {output_language}:\n")
-
-const chain = prompt.pipe(llm);
-await chain.invoke(
-  {
-    output_language: "German",
-    input: "I love programming.",
-  }
-)
-```
-
-```output
-"That's a simple but sweet statement! \n" +
-  "\n" +
-  'To say "I love programming" in German, you can say: "ICH LIEB'... 366 more characters
-```
+---
 
 ## API reference
 

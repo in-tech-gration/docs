@@ -2,7 +2,7 @@
 title: ChatVertexAI
 ---
 
-[Google Vertex](https://cloud.google.com/vertex-ai) is a service that exposes all foundation models available in Google Cloud, like `gemini-1.5-pro`, `gemini-2.0-flash-exp`, etc.
+[Google Vertex](https://cloud.google.com/vertex-ai) is a service that exposes all foundation models available in Google Cloud, like `gemini-2.5-pro`, `gemini-2.5-flash`, etc.
 It also provides some non-Google models such as [Anthropic's Claude](https://cloud.google.com/vertex-ai/generative-ai/docs/partner-models/use-claude).
 
 This will help you getting started with `ChatVertexAI` [chat models](/oss/langchain/models). For detailed documentation of all `ChatVertexAI` features and configurations head to the [API reference](https://api.js.langchain.com/classes/langchain_google_vertexai.ChatVertexAI.html).
@@ -11,7 +11,7 @@ This will help you getting started with `ChatVertexAI` [chat models](/oss/langch
 
 ### Integration details
 
-| Class | Package | Local | Serializable | [PY support](https://python.langchain.com/docs/integrations/chat/google_vertex_ai_palm) | Downloads | Version |
+| Class | Package | Local | Serializable | PY support | Downloads | Version |
 | :--- | :--- | :---: | :---: |  :---: | :---: | :---: |
 | [ChatVertexAI](https://api.js.langchain.com/classes/langchain_google_vertexai.ChatVertexAI.html) | [`@langchain/google-vertexai`](https://www.npmjs.com/package/@langchain/google-vertexai) | ❌ | ✅ | ✅ | ![NPM - Downloads](https://img.shields.io/npm/dm/@langchain/google-vertexai?style=flat-square&label=%20&) | ![NPM - Version](https://img.shields.io/npm/v/@langchain/google-vertexai?style=flat-square&label=%20&) |
 
@@ -19,7 +19,7 @@ This will help you getting started with `ChatVertexAI` [chat models](/oss/langch
 
 See the links in the table headers below for guides on how to use specific features.
 
-| [Tool calling](/oss/langchain/tools) | [Structured output](/oss/langchain/structured-output) | JSON mode | [Image input](/oss/how-to/multimodal_inputs/) | Audio input | Video input | [Token-level streaming](/oss/langchain/streaming/) | [Token usage](/oss/how-to/chat_token_usage_tracking/) | [Logprobs](/oss/how-to/logprobs/) |
+| [Tool calling](/oss/langchain/tools) | [Structured output](/oss/langchain/structured-output) | JSON mode | [Image input](/oss/langchain/messages#multimodal) | Audio input | Video input | [Token-level streaming](/oss/langchain/streaming/) | [Token usage](/oss/langchain/models#token-usage) | [Logprobs](/oss/langchain/models#log-probabilities) |
 | :---: | :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: |
 | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 
@@ -65,21 +65,31 @@ If you want to get automated tracing of your model calls you can also set your [
 
 The LangChain `ChatVertexAI` integration lives in the `@langchain/google-vertexai` package:
 
-```{=mdx}
-import IntegrationInstallTooltip from "@mdx_components/integration_install_tooltip.mdx";
-<IntegrationInstallTooltip></IntegrationInstallTooltip>
-
-<Npm2Yarn>
-  @langchain/google-vertexai @langchain/core
-</Npm2Yarn>
+<CodeGroup>
+```bash npm
+npm install @langchain/google-vertexai @langchain/core
+```
+```bash yarn
+yarn add @langchain/google-vertexai @langchain/core
+```
+```bash pnpm
+pnpm add @langchain/google-vertexai @langchain/core
+```
+</CodeGroup>
 
 Or if using in a web environment like a [Vercel Edge function](https://vercel.com/blog/edge-functions-generally-available):
 
-<Npm2Yarn>
-  @langchain/google-vertexai-web @langchain/core
-</Npm2Yarn>
-
+<CodeGroup>
+```bash npm
+npm install @langchain/google-vertexai-web @langchain/core
 ```
+```bash yarn
+yarn add @langchain/google-vertexai-web @langchain/core
+```
+```bash pnpm
+pnpm add @langchain/google-vertexai-web @langchain/core
+```
+</CodeGroup>
 
 ## Instantiation
 
@@ -91,7 +101,7 @@ import { ChatVertexAI } from "@langchain/google-vertexai"
 // import { ChatVertexAI } from "@langchain/google-vertexai-web"
 
 const llm = new ChatVertexAI({
-    model: "gemini-2.0-flash-exp",
+    model: "gemini-2.5-flash",
     temperature: 0,
     maxRetries: 2,
     // For web, authOptions.credentials
@@ -162,7 +172,7 @@ const searchRetrievalTool = {
 };
 
 const searchRetrievalModel = new ChatVertexAI({
-  model: "gemini-1.5-pro",
+  model: "gemini-2.5-pro",
   temperature: 0,
   maxRetries: 0,
 }).bindTools([searchRetrievalTool]);
@@ -208,7 +218,7 @@ const searchRetrievalToolWithDataset = {
 };
 
 const searchRetrievalModelWithDataset = new ChatVertexAI({
-  model: "gemini-1.5-pro",
+  model: "gemini-2.5-pro",
   temperature: 0,
   maxRetries: 0,
 }).bindTools([searchRetrievalToolWithDataset]);
@@ -238,7 +248,7 @@ Once you've created a cache, you can pass its id in as a runtime param as follow
 import { ChatVertexAI } from "@langchain/google-vertexai";
 
 const modelWithCachedContent = new ChatVertexAI({
-  model: "gemini-1.5-pro-002",
+  model: "gemini-2.5-pro-002",
   location: "us-east5",
 });
 
@@ -252,7 +262,7 @@ You can also bind this field directly onto the model instance:
 
 ```typescript
 const modelWithBoundCachedContent = new ChatVertexAI({
-  model: "gemini-1.5-pro-002",
+  model: "gemini-2.5-pro-002",
   location: "us-east5",
 }).bind({
   cachedContent:
@@ -261,50 +271,9 @@ const modelWithBoundCachedContent = new ChatVertexAI({
 
 ```
 
-Note that not all models currently support context caching.
+Note that not all models currently support context caching.
 
-## Chaining
-
-We can [chain](/oss/how-to/sequence/) our model with a prompt template like so:
-
-```typescript
-import { ChatPromptTemplate } from "@langchain/core/prompts"
-
-const prompt = ChatPromptTemplate.fromMessages(
-    [
-        [
-            "system",
-            "You are a helpful assistant that translates {input_language} to {output_language}.",
-        ],
-        ["human", "{input}"],
-    ]
-)
-
-const chain = prompt.pipe(llm);
-await chain.invoke(
-  {
-    input_language: "English",
-    output_language: "German",
-    input: "I love programming.",
-  }
-);
-```
-
-```output
-AIMessageChunk {
-  "content": "Ich liebe das Programmieren. \n",
-  "additional_kwargs": {},
-  "response_metadata": {},
-  "tool_calls": [],
-  "tool_call_chunks": [],
-  "invalid_tool_calls": [],
-  "usage_metadata": {
-    "input_tokens": 15,
-    "output_tokens": 9,
-    "total_tokens": 24
-  }
-}
-```
+---
 
 ## API reference
 

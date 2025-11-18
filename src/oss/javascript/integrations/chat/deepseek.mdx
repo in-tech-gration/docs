@@ -16,7 +16,7 @@ This will help you getting started with DeepSeek [chat models](/oss/langchain/mo
 
 See the links in the table headers below for guides on how to use specific features.
 
-| [Tool calling](/oss/langchain/tools) | [Structured output](/oss/langchain/structured-output) | JSON mode | [Image input](/oss/how-to/multimodal_inputs/) | Audio input | Video input | [Token-level streaming](/oss/langchain/streaming/) | [Token usage](/oss/how-to/chat_token_usage_tracking/) | [Logprobs](/oss/how-to/logprobs/) |
+| [Tool calling](/oss/langchain/tools) | [Structured output](/oss/langchain/structured-output) | JSON mode | [Image input](/oss/langchain/messages#multimodal) | Audio input | Video input | [Token-level streaming](/oss/langchain/streaming/) | [Token usage](/oss/langchain/models#token-usage) | [Logprobs](/oss/langchain/models#log-probabilities) |
 | :---: | :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: |
 | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ |
 
@@ -47,15 +47,18 @@ If you want to get automated tracing of your model calls you can also set your [
 
 The LangChain ChatDeepSeek integration lives in the `@langchain/deepseek` package:
 
+<CodeGroup>
+```bash npm
+npm install @langchain/deepseek @langchain/core
 ```
-import IntegrationInstallTooltip from "@mdx_components/integration_install_tooltip.mdx";
-<IntegrationInstallTooltip></IntegrationInstallTooltip>
-
-<Npm2Yarn>
-  @langchain/deepseek @langchain/core
-</Npm2Yarn>
-
+```bash yarn
+yarn add @langchain/deepseek @langchain/core
 ```
+```bash pnpm
+pnpm add @langchain/deepseek @langchain/core
+```
+</CodeGroup>
+
 ## Instantiation
 
 Now we can instantiate our model object and generate chat completions:
@@ -129,73 +132,8 @@ console.log(aiMsg.content)
 ```output
 J'adore la programmation.
 ```
-## Chaining
 
-We can [chain](/oss/how-to/sequence/) our model with a prompt template like so:
-
-
-```typescript
-import { ChatPromptTemplate } from "@langchain/core/prompts"
-
-const prompt = ChatPromptTemplate.fromMessages(
-  [
-    [
-      "system",
-      "You are a helpful assistant that translates {input_language} to {output_language}.",
-    ],
-    ["human", "{input}"],
-  ]
-)
-
-const chain = prompt.pipe(llm);
-await chain.invoke(
-  {
-    input_language: "English",
-    output_language: "German",
-    input: "I love programming.",
-  }
-)
-```
-```output
-AIMessage {
-  "id": "6e7f6f8c-8d7a-4dad-be07-425384038fd4",
-  "content": "Ich liebe es zu programmieren.",
-  "additional_kwargs": {
-    "reasoning_content": "..."
-  },
-  "response_metadata": {
-    "tokenUsage": {
-      "promptTokens": 18,
-      "completionTokens": 9,
-      "totalTokens": 27
-    },
-    "finish_reason": "stop",
-    "model_name": "deepseek-reasoner",
-    "usage": {
-      "prompt_tokens": 18,
-      "completion_tokens": 9,
-      "total_tokens": 27,
-      "prompt_tokens_details": {
-        "cached_tokens": 0
-      },
-      "prompt_cache_hit_tokens": 0,
-      "prompt_cache_miss_tokens": 18
-    },
-    "system_fingerprint": "fp_3a5770e1b4"
-  },
-  "tool_calls": [],
-  "invalid_tool_calls": [],
-  "usage_metadata": {
-    "output_tokens": 9,
-    "input_tokens": 18,
-    "total_tokens": 27,
-    "input_token_details": {
-      "cache_read": 0
-    },
-    "output_token_details": {}
-  }
-}
-```
+---
 
 ## API reference
 

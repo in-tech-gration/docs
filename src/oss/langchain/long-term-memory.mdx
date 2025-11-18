@@ -2,13 +2,11 @@
 title: Long-term memory
 ---
 
-import AlphaCallout from '/snippets/alpha-lc-callout.mdx';
 
-<AlphaCallout />
 
 ## Overview
 
-LangChain agents use [LangGraph persistence](/oss/langgraph/persistence#memory-store) to enable long term memory. This is a more advanced topic and requires knowledge of LangGraph to use.
+LangChain agents use [LangGraph persistence](/oss/langgraph/persistence#memory-store) to enable long-term memory. This is a more advanced topic and requires knowledge of LangGraph to use.
 
 
 ## Memory storage
@@ -30,11 +28,11 @@ def embed(texts: list[str]) -> list[list[float]]:
 
 
 # InMemoryStore saves data to an in-memory dictionary. Use a DB-backed store in production use.
-store = InMemoryStore(index={"embed": embed, "dims": 2})
+store = InMemoryStore(index={"embed": embed, "dims": 2}) # [!code highlight]
 user_id = "my-user"
 application_context = "chitchat"
-namespace = (user_id, application_context)
-store.put(
+namespace = (user_id, application_context) # [!code highlight]
+store.put( # [!code highlight]
     namespace,
     "a-memory",
     {
@@ -46,9 +44,9 @@ store.put(
     },
 )
 # get the "memory" by ID
-item = store.get(namespace, "a-memory")
+item = store.get(namespace, "a-memory") # [!code highlight]
 # search for "memories" within this namespace, filtering on content equivalence, sorted by vector similarity
-items = store.search(
+items = store.search( # [!code highlight]
     namespace, filter={"my-key": "my-value"}, query="language preferences"
 )
 ```
@@ -64,12 +62,12 @@ const embed = (texts: string[]): number[][] => {
 };
 
 // InMemoryStore saves data to an in-memory dictionary. Use a DB-backed store in production use.
-const store = new InMemoryStore({ index: { embed, dims: 2 } });
+const store = new InMemoryStore({ index: { embed, dims: 2 } }); // [!code highlight]
 const userId = "my-user";
 const applicationContext = "chitchat";
-const namespace = [userId, applicationContext];
+const namespace = [userId, applicationContext]; // [!code highlight]
 
-await store.put(
+await store.put( // [!code highlight]
     namespace,
     "a-memory",
     {
@@ -82,10 +80,10 @@ await store.put(
 );
 
 // get the "memory" by ID
-const item = await store.get(namespace, "a-memory");
+const item = await store.get(namespace, "a-memory"); // [!code highlight]
 
 // search for "memories" within this namespace, filtering on content equivalence, sorted by vector similarity
-const items = await store.search(
+const items = await store.search( // [!code highlight]
     namespace,
     {
         filter: { "my-key": "my-value" },
@@ -100,103 +98,112 @@ For more information about the memory store, see the [Persistence](/oss/langgrap
 ## Read long-term memory in tools
 
 :::python
-```title="A tool the agent can use to look up user information" {highlight={6,8,20,22,28,34}}
+```python A tool the agent can use to look up user information
 from dataclasses import dataclass
 
 from langchain_core.runnables import RunnableConfig
 from langchain.agents import create_agent
-from langgraph.config import get_store
-from langgraph.runtime import get_runtime
+from langchain.tools import tool, ToolRuntime
 from langgraph.store.memory import InMemoryStore
+
 
 @dataclass
 class Context:
     user_id: str
 
-store = InMemoryStore() # (1)!
+# InMemoryStore saves data to an in-memory dictionary. Use a DB-backed store in production.
+store = InMemoryStore() # [!code highlight]
 
-store.put(  # (2)!
-    ("users",),  # (3)!
-    "user_123",  # (4)!
+# Write sample data to the store using the put method
+store.put( # [!code highlight]
+    ("users",),  # Namespace to group related data together (users namespace for user data)
+    "user_123",  # Key within the namespace (user ID as key)
     {
         "name": "John Smith",
         "language": "English",
-    } # (5)!
+    }  # Data to store for the given user
 )
 
-def get_user_info() -> str:
+@tool
+def get_user_info(runtime: ToolRuntime[Context]) -> str:
     """Look up user info."""
-    # Same as that provided to `create_agent`
-    store = get_runtime().store # (6)!
-    user_id = get_runtime(Context).context.user_id
-    user_info = store.get(("users",), user_id) # (7)!
+    # Access the store - same as that provided to `create_agent`
+    store = runtime.store # [!code highlight]
+    user_id = runtime.context.user_id
+    # Retrieve data from store - returns StoreValue object with value and metadata
+    user_info = store.get(("users",), user_id) # [!code highlight]
     return str(user_info.value) if user_info else "Unknown user"
 
 agent = create_agent(
-    model="anthropic:claude-3-7-sonnet-latest",
+    model="claude-sonnet-4-5-20250929",
     tools=[get_user_info],
-    store=store # (8)!,
+    # Pass store to agent - enables agent to access store when running tools
+    store=store, # [!code highlight]
     context_schema=Context
 )
 
 # Run the agent
 agent.invoke(
     {"messages": [{"role": "user", "content": "look up user information"}]},
-    context=Context(user_id="user_123")
+    context=Context(user_id="user_123") # [!code highlight]
 )
 ```
 
-1. The `InMemoryStore` is a store that stores data in memory. In a production setting, you would typically use a database or other persistent storage. Please review the [store documentation](https://langchain-ai.github.io/langgraph/reference/store/) for more options. If you're deploying with **LangGraph Platform**, the platform will provide a production-ready store for you.
-2. For this example, we write some sample data to the store using the `put` method. Please see the @[BaseStore.put] API reference for more details.
-3. The first argument is the namespace. This is used to group related data together. In this case, we are using the `users` namespace to group user data.
-4. A key within the namespace. This example uses a user ID for the key.
-5. The data that we want to store for the given user.
-6. The `get_store` function is used to access the store. You can call it from anywhere in your code, including tools and prompts. This function returns the store that was passed to the agent when it was created.
-7. The `get` method is used to retrieve data from the store. The first argument is the namespace, and the second argument is the key. This will return a `StoreValue` object, which contains the value and metadata about the value.
-8. The `store` is passed to the agent. This enables the agent to access the store when running tools. You can also use the `get_store` function to access the store from anywhere in your code.
 :::
 
 :::js
-```typescript title="A tool the agent can use to look up user information" highlight={5,9-17,24,38}
-import { z } from "zod";
+```typescript A tool the agent can use to look up user information
+import * as z from "zod";
 import { createAgent, tool } from "langchain";
 import { InMemoryStore, type Runtime } from "@langchain/langgraph";
 
-const store = new InMemoryStore();
+// InMemoryStore saves data to an in-memory dictionary. Use a DB-backed store in production.
+const store = new InMemoryStore(); // [!code highlight]
 const contextSchema = z.object({
     userId: z.string(),
 });
 
-await store.put(
-    ["users"],
-    "user_123",
+// Write sample data to the store using the put method
+await store.put( // [!code highlight]
+    ["users"], // Namespace to group related data together (users namespace for user data)
+    "user_123", // Key within the namespace (user ID as key)
     {
         name: "John Smith",
         language: "English",
-    }
+    } // Data to store for the given user
 );
 
 const getUserInfo = tool(
   // Look up user info.
   async (_, runtime: Runtime<z.infer<typeof contextSchema>>) => {
-    // Same as that provided to `createAgent`
+    // Access the store - same as that provided to `createAgent`
     const userId = runtime.context?.userId;
     if (!userId) {
       throw new Error("userId is required");
     }
+    // Retrieve data from store - returns StoreValue object with value and metadata
+    const userInfo = await runtime.store.get(["users"], userId);
+    return userInfo?.value ? JSON.stringify(userInfo.value) : "Unknown user";
+  },
+  {
+    name: "getUserInfo",
+    description: "Look up user info by userId from the store.",
+    schema: z.object({}),
+  }
 );
 
 const agent = createAgent({
-    model: "openai:gpt-4o-mini",
+    model: "gpt-4o-mini",
     tools: [getUserInfo],
     contextSchema,
-    store,
+    // Pass store to agent - enables agent to access store when running tools
+    store, // [!code highlight]
 });
 
 // Run the agent
 const result = await agent.invoke(
     { messages: [{ role: "user", content: "look up user information" }] },
-    { context: { userId: "user_123" } }
+    { context: { userId: "user_123" } } // [!code highlight]
 );
 
 console.log(result.messages.at(-1)?.content);
@@ -208,100 +215,111 @@ console.log(result.messages.at(-1)?.content);
  */
 ```
 
-1. The `InMemoryStore` is a store that stores data in memory. In a production setting, you would typically use a database or other persistent storage. Please review the [store documentation](https://langchain-ai.github.io/langgraph/reference/store/) for more options. If you're deploying with **LangGraph Platform**, the platform will provide a production-ready store for you.
-2. For this example, we write some sample data to the store using the `put` method. Please see the @[BaseStore.put] API reference for more details.
-3. The first argument is the namespace. This is used to group related data together. In this case, we are using the `users` namespace to group user data.
-4. A key within the namespace. This example uses a user ID for the key.
-5. The data that we want to store for the given user.
-6. The store is accessible through the config. You can call it from anywhere in your code, including tools and prompts. This function returns the store that was passed to the agent when it was created.
-7. The `get` method is used to retrieve data from the store. The first argument is the namespace, and the second argument is the key. This will return a `StoreValue` object, which contains the value and metadata about the value.
-8. The `store` is passed to the agent. This enables the agent to access the store when running tools. You can also use the store from the config to access it from anywhere in your code.
 :::
 
 <a id="write-long-term"></a>
 ## Write long-term memory from tools
 
 :::python
-```title="Example of a tool that updates user information" {highlight={16,18,24,30}}
+```python Example of a tool that updates user information
+from dataclasses import dataclass
 from typing_extensions import TypedDict
 
-from langchain_core.runnables import RunnableConfig
 from langchain.agents import create_agent
-from langgraph.config import get_store
+from langchain.tools import tool, ToolRuntime
 from langgraph.store.memory import InMemoryStore
 
-store = InMemoryStore() # (1)!
 
-class UserInfo(TypedDict): # (2)!
+# InMemoryStore saves data to an in-memory dictionary. Use a DB-backed store in production.
+store = InMemoryStore() # [!code highlight]
+
+@dataclass
+class Context:
+    user_id: str
+
+# TypedDict defines the structure of user information for the LLM
+class UserInfo(TypedDict):
     name: str
 
-def save_user_info(user_info: UserInfo, config: RunnableConfig) -> str: # (3)!
+# Tool that allows agent to update user information (useful for chat applications)
+@tool
+def save_user_info(user_info: UserInfo, runtime: ToolRuntime[Context]) -> str:
     """Save user info."""
-    # Same as that provided to `create_agent`
-    store = get_store() # (4)!
-    user_id = config["configurable"].get("user_id")
-    store.put(("users",), user_id, user_info) # (5)!
+    # Access the store - same as that provided to `create_agent`
+    store = runtime.store # [!code highlight]
+    user_id = runtime.context.user_id # [!code highlight]
+    # Store data in the store (namespace, key, data)
+    store.put(("users",), user_id, user_info) # [!code highlight]
     return "Successfully saved user info."
 
 agent = create_agent(
-    model="anthropic:claude-3-7-sonnet-latest",
+    model="claude-sonnet-4-5-20250929",
     tools=[save_user_info],
-    store=store
+    store=store, # [!code highlight]
+    context_schema=Context
 )
 
 # Run the agent
 agent.invoke(
     {"messages": [{"role": "user", "content": "My name is John Smith"}]},
-    config={"configurable": {"user_id": "user_123"}} # (6)!
+    # user_id passed in context to identify whose information is being updated
+    context=Context(user_id="user_123") # [!code highlight]
 )
 
 # You can access the store directly to get the value
 store.get(("users",), "user_123").value
 ```
 
-1. The `InMemoryStore` is a store that stores data in memory. In a production setting, you would typically use a database or other persistent storage. Please review the [store documentation](https://langchain-ai.github.io/langgraph/reference/store/) for more options. If you're deploying with **LangGraph Platform**, the platform will provide a production-ready store for you.
-2. The `UserInfo` class is a `TypedDict` that defines the structure of the user information. The LLM will use this to format the response according to the schema.
-3. The `save_user_info` function is a tool that allows an agent to update user information. This could be useful for a chat application where the user wants to update their profile information.
-4. The `get_store` function is used to access the store. You can call it from anywhere in your code, including tools and prompts. This function returns the store that was passed to the agent when it was created.
-5. The `put` method is used to store data in the store. The first argument is the namespace, and the second argument is the key. This will store the user information in the store.
-6. The `user_id` is passed in the config. This is used to identify the user whose information is being updated.
 :::
 
 :::js
-```typescript title="Example of a tool that updates user information" highlight={5,11-14,19,39}
-import { z } from "zod";
+```typescript Example of a tool that updates user information
+import * as z from "zod";
 import { tool, createAgent, type AgentRuntime } from "langchain";
 import { InMemoryStore, type Runtime } from "@langchain/langgraph";
 
-const store = new InMemoryStore();
+// InMemoryStore saves data to an in-memory dictionary. Use a DB-backed store in production.
+const store = new InMemoryStore(); // [!code highlight]
 
 const contextSchema = z.object({
     userId: z.string(),
 });
 
+// Schema defines the structure of user information for the LLM
 const UserInfo = z.object({
     name: z.string(),
 });
 
+// Tool that allows agent to update user information (useful for chat applications)
 const saveUserInfo = tool(
-  async (userInfo, runtime: Runtime<z.infer<typeof contextSchema>>) => {
+  async (userInfo: z.infer<typeof UserInfo>, runtime: Runtime<z.infer<typeof contextSchema>>) => {
     const userId = runtime.context?.userId;
     if (!userId) {
       throw new Error("userId is required");
     }
+    // Store data in the store (namespace, key, data)
+    await runtime.store.put(["users"], userId, userInfo);
+    return "Successfully saved user info.";
+  },
+  {
+    name: "save_user_info",
+    description: "Save user info",
+    schema: UserInfo,
+  }
 );
 
 const agent = createAgent({
-    model: "openai:gpt-4o-mini",
+    model: "gpt-4o-mini",
     tools: [saveUserInfo],
     contextSchema,
-    store,
+    store, // [!code highlight]
 });
 
 // Run the agent
 await agent.invoke(
     { messages: [{ role: "user", content: "My name is John Smith" }] },
-    { context: { userId: "user_123" } }
+    // userId passed in context to identify whose information is being updated
+    { context: { userId: "user_123" } } // [!code highlight]
 );
 
 // You can access the store directly to get the value
@@ -309,10 +327,4 @@ const result = await store.get(["users"], "user_123");
 console.log(result?.value); // Output: { name: "John Smith" }
 ```
 
-1. The `InMemoryStore` is a store that stores data in memory. In a production setting, you would typically use a database or other persistent storage. Please review the [store documentation](https://langchain-ai.github.io/langgraph/reference/store/) for more options. If you're deploying with **LangGraph Platform**, the platform will provide a production-ready store for you.
-2. The `UserInfo` schema defines the structure of the user information. The LLM will use this to format the response according to the schema.
-3. The `saveUserInfo` function is a tool that allows an agent to update user information. This could be useful for a chat application where the user wants to update their profile information.
-4. The store is accessible through the config. You can call it from anywhere in your code, including tools and prompts. This function returns the store that was passed to the agent when it was created.
-5. The `put` method is used to store data in the store. The first argument is the namespace, and the second argument is the key. This will store the user information in the store.
-6. The `userId` is passed in the config. This is used to identify the user whose information is being updated.
 :::

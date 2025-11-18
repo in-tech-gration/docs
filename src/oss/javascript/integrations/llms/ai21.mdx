@@ -6,19 +6,32 @@ You can get started with AI21Labs' Jurassic family of models, as well as see a f
 
 Here's an example of initializing an instance in LangChain.js:
 
-import IntegrationInstallTooltip from '/snippets/javascript-integrations/integration-install-tooltip.mdx';
-
-<IntegrationInstallTooltip/>
+<Tip>
+See [this section for general instructions on installing LangChain packages](/oss/langchain/install).
+</Tip>
 
 ```bash npm
 npm install @langchain/community @langchain/core
 ```
 
-import Ai21 from "/snippets/javascript-integrations/examples/models/llm/ai21.mdx";
+```typescript
+import { AI21 } from "@langchain/community/llms/ai21";
 
-<Ai21 />
+const model = new AI21({
+  ai21ApiKey: "YOUR_AI21_API_KEY", // Or set as process.env.AI21_API_KEY
+});
+
+const res = await model.invoke(`Translate "I love programming" into German.`);
+
+console.log({ res });
+
+/*
+  {
+    res: "\nIch liebe das Programmieren."
+  }
+ */
+```
 
 ## Related
 
-- LLM [conceptual guide](/oss/concepts/text_llms)
-- LLM [how-to guides](/oss/how-to/#llms)
+- [Models guide](/oss/langchain/models)

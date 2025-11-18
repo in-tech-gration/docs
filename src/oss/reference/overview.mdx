@@ -3,49 +3,69 @@ title: Reference
 sidebarTitle: Overview
 ---
 
-These pages detail the core interfaces you will use when building with LangGraph. Each section covers a different part of the ecosystem.
+Comprehensive API reference documentation for the LangChain and LangGraph Python and TypeScript libraries.
 
-## LangGraph
+## Reference sites
 
-The core APIs for the LangGraph open source library.
+<CardGroup cols={2}>
+    :::python
+    <Card
+        title="LangChain"
+        icon="link"
+        href="https://reference.langchain.com/python/langchain/"
+    >
+        Complete API reference for LangChain Python, including chat models, tools, agents, and more.
+    </Card>
 
-:::python
-- [Graphs](https://langchain-ai.github.io/langgraph/reference/graphs/): Main graph abstraction and usage.
-- [Functional API](https://langchain-ai.github.io/langgraph/reference/func/): Functional programming interface for graphs.
-- [Pregel](https://langchain-ai.github.io/langgraph/reference/pregel/): Pregel-inspired computation model.
-- [Checkpointers](https://langchain-ai.github.io/langgraph/reference/checkpoints/): Saving and restoring graph state.
-- [Storage](https://langchain-ai.github.io/langgraph/reference/store/): Storage backends and options.
-- [Caching](https://langchain-ai.github.io/langgraph/reference/cache/): Caching mechanisms for performance.
-- [Types](https://langchain-ai.github.io/langgraph/reference/types/): Type definitions for graph components.
-- [Config](https://langchain-ai.github.io/langgraph/reference/config/): Configuration options.
-- [Errors](https://langchain-ai.github.io/langgraph/reference/errors/): Error types and handling.
-- [Constants](https://langchain-ai.github.io/langgraph/reference/constants/): Global constants.
-- [Channels](https://langchain-ai.github.io/langgraph/reference/channels/): Message passing and channels.
-:::
+    <Card
+        title="LangGraph"
+        icon="diagram-project"
+        href="https://reference.langchain.com/python/langgraph/"
+    >
+        Complete API reference for LangGraph Python, including graph APIs, state management, checkpointing, and more.
+    </Card>
 
-:::js
-- [Graphs](https://langchain-ai.github.io/langgraphjs/reference/classes/langgraph.Graph.html): Main graph abstraction and usage.
-- [Functional API](https://langchain-ai.github.io/langgraphjs/reference/modules/langgraph.html): Functional programming interface for graphs.
-- [Pregel](https://langchain-ai.github.io/langgraphjs/reference/classes/langgraph.Pregel.html): Pregel-inspired computation model.
-- [Checkpointers](https://langchain-ai.github.io/langgraphjs/reference/modules/checkpoint.html): Saving and restoring graph state.
-- [MemorySaver](https://langchain-ai.github.io/langgraphjs/reference/classes/checkpoint.MemorySaver.html): Storage backends and options.
-- [Errors](https://langchain-ai.github.io/langgraphjs/reference/variables/checkpoint.ERROR.html): Error types and handling.
-- [Channels](https://langchain-ai.github.io/langgraphjs/reference/classes/langgraph_pregel.Channel.html): Message passing and channels.
-:::
+    <Card
+        title="LangChain Integrations"
+        icon="plug"
+        href="https://reference.langchain.com/python/integrations/"
+    >
+        LangChain packages to connect with popular LLM providers, vector stores, tools, and other services.
+    </Card>
 
-## Prebuilt components
+    <Card
+        title="MCP Adapter"
+        icon="plug"
+        href="https://reference.langchain.com/python/langchain_mcp_adapters/"
+    >
+        Use Model Context Protocol (MCP) tools within LangChain and LangGraph applications.
+    </Card>
 
-Higher-level abstractions for common workflows, agents, and other patterns.
+    <Card
+        title="Deep Agents"
+        icon="robot"
+        href="https://reference.langchain.com/python/deepagents/"
+    >
+        Build agents that can plan, use subagents, and leverage file systems for complex tasks
+    </Card>
+    :::
 
-:::python
-- [Agents](https://langchain-ai.github.io/langgraphjs/reference/functions/langgraph_prebuilt.createReactAgent.html): Built-in agent patterns.
-- [Supervisor](https://langchain-ai.github.io/langgraphjs/reference/modules/langgraph_supervisor.html): Orchestration and delegation.
-- [Swarm](https://langchain-ai.github.io/langgraphjs/reference/modules/langgraph_swarm.html): Multi-agent collaboration.
-- [MCP adapters](https://langchain-ai.github.io/langgraph/reference/mcp/): Integrations with external systems.
-:::
+    :::js
+    <Card
+        title="LangChain"
+        icon="link"
+        href="https://reference.langchain.com/javascript/modules/langchain.html"
+    >
+        Complete API reference for LangChain JavaScript/TypeScript, including chat models, tools, agents, and more.
+    </Card>
 
-:::js
-- [Agents](https://langchain-ai.github.io/langgraph/reference/agents/): Built-in agent patterns.
-- [Supervisor](https://langchain-ai.github.io/langgraph/reference/supervisor/): Orchestration and delegation.
-- [Swarm](https://langchain-ai.github.io/langgraph/reference/swarm/): Multi-agent collaboration.
-:::
+    <Card
+        title="LangGraph"
+        icon="diagram-project"
+        href="https://reference.langchain.com/javascript/modules/_langchain_langgraph.html"
+    >
+        Complete API reference for LangGraph JavaScript/TypeScript, including graph APIs, state management, checkpointing, and more.
+    </Card>
+    :::
+</CardGroup>
+

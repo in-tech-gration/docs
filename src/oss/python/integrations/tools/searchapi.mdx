@@ -34,7 +34,7 @@ os.environ["OPENAI_API_KEY"] = ""
 
 ```python
 from langchain_community.utilities import SearchApiAPIWrapper
-from langchain_core.tools import Tool
+from langchain.tools import Tool
 from langchain_openai import OpenAI
 
 llm = OpenAI(temperature=0)
@@ -51,7 +51,8 @@ tools = [
 ```python
 from langchain.agents import create_agent
 
-agent = create_agent("openai:gpt-4.1-mini", tools)
+
+agent = create_agent("gpt-4.1-mini", tools)
 ```
 
 ```python

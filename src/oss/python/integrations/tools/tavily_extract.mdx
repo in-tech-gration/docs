@@ -14,7 +14,7 @@ title: Tavily Extract
 
 ### Tool features
 
-| [Returns artifact](/oss/how-to/tool_artifacts/) | Native async |                       Return data                        | Pricing |
+| [Returns artifact](/oss/langchain/tools) | Native async |                       Return data                        | Pricing |
 | :---: | :---: |:--------------------------------------------------------:| :---: |
 | ❌ | ✅ | raw content and images | 1,000 free searches / month |
 
@@ -23,7 +23,7 @@ title: Tavily Extract
 The integration lives in the `langchain-tavily` package.
 
 ```python
-%pip install -qU langchain-tavily
+pip install -qU langchain-tavily
 ```
 
 ```output
@@ -123,16 +123,17 @@ if not os.environ.get("OPENAI_API_KEY"):
 # !pip install -qU langchain langchain-openai
 from langchain.chat_models import init_chat_model
 
-llm = init_chat_model(model="gpt-4o", model_provider="openai", temperature=0)
+model = init_chat_model(model="gpt-4o", model_provider="openai", temperature=0)
 ```
 
 ```python
 from langchain_tavily import TavilyExtract
 from langchain.agents import create_agent
 
+
 tavily_search_tool = TavilyExtract()
 
-agent = create_agent(llm, [tavily_search_tool])
+agent = create_agent(model, [tavily_search_tool])
 
 user_input = "['https://en.wikipedia.org/wiki/Albert_Einstein','https://en.wikipedia.org/wiki/Theoretical_physics']"
 
@@ -185,6 +186,8 @@ Modern theoretical physics seeks to unify existing theories and explore new conc
 
 Both pages highlight the interplay between theory and experimentation in advancing our understanding of the universe, with Einstein's work serving as a prime example of theoretical physics' impact.
 ```
+
+---
 
 ## API reference
 

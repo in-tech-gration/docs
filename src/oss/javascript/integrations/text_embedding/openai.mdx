@@ -1,8 +1,8 @@
 ---
-title: OpenAI
+title: OpenAIEmbeddings
 ---
 
-This will help you get started with OpenAIEmbeddings [embedding models](/oss/concepts/embedding_models) using LangChain. For detailed documentation on `OpenAIEmbeddings` features and configuration options, please refer to the [API reference](https://api.js.langchain.com/classes/langchain_openai.OpenAIEmbeddings.html).
+This will help you get started with OpenAIEmbeddings [embedding models](/oss/integrations/text_embedding) using LangChain. For detailed documentation on `OpenAIEmbeddings` features and configuration options, please refer to the [API reference](https://api.js.langchain.com/classes/langchain_openai.OpenAIEmbeddings.html).
 
 ## Overview
 
@@ -35,14 +35,17 @@ If you want to get automated tracing of your model calls you can also set your [
 
 The LangChain OpenAIEmbeddings integration lives in the `@langchain/openai` package:
 
-```{=mdx}
-import IntegrationInstallTooltip from "@mdx_components/integration_install_tooltip.mdx";
-<IntegrationInstallTooltip></IntegrationInstallTooltip>
-
-<Npm2Yarn>
-  @langchain/openai @langchain/core
-</Npm2Yarn>
+<CodeGroup>
+```bash npm
+npm install @langchain/openai @langchain/core
 ```
+```bash yarn
+yarn add @langchain/openai @langchain/core
+```
+```bash pnpm
+pnpm add @langchain/openai @langchain/core
+```
+</CodeGroup>
 
 ## Instantiation
 
@@ -69,7 +72,7 @@ Below, see how to index and retrieve data using the `embeddings` object we initi
 
 ```typescript
 // Create a vector store with a sample text
-import { MemoryVectorStore } from "langchain/vectorstores/memory";
+import { MemoryVectorStore } from "@langchain/classic/vectorstores/memory";
 
 const text = "LangChain is the framework for building context-aware reasoning applications";
 
@@ -246,6 +249,8 @@ const model = new OpenAIEmbeddings({
 You can also pass other `ClientOptions` parameters accepted by the official SDK.
 
 If you are hosting on Azure OpenAI, see the [dedicated page instead](/oss/integrations/text_embedding/azure_openai).
+
+---
 
 ## API reference
 

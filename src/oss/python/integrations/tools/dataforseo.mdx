@@ -9,7 +9,7 @@ title: DataForSEO
 This notebook demonstrates how to use the [DataForSeo API](https://dataforseo.com/apis) to obtain search engine results.
 
 ```python
-%pip install -qU langchain-community
+pip install -qU langchain-community
 ```
 
 ```python
@@ -109,7 +109,7 @@ maps_search.results("coffee near me")
 You can use the `Tool` class from the `langchain.agents` module to integrate the `DataForSeoAPIWrapper` with a langchain agent. The `Tool` class encapsulates a function that the agent can call.
 
 ```python
-from langchain_core.tools import Tool
+from langchain.tools import Tool
 
 search = DataForSeoAPIWrapper(
     top_count=3,

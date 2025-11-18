@@ -15,15 +15,15 @@ infinity_emb v2 --model-id mixedbread-ai/mxbai-rerank-xsmall-v1
 ```
 
 ```python
-%pip install -qU  infinity_client
+pip install -qU  infinity_client
 ```
 
 ```python
-%pip install -qU  faiss
+pip install -qU  faiss
 
 # OR  (depending on Python version)
 
-%pip install -qU  faiss-cpu
+pip install -qU  faiss-cpu
 ```
 
 ```python
@@ -280,7 +280,7 @@ Now let's wrap our base retriever with a `ContextualCompressionRetriever`. We'll
 
 ```python
 from infinity_client import Client
-from langchain.retrievers import ContextualCompressionRetriever
+from langchain_classic.retrievers.contextual_compression import ContextualCompressionRetriever
 from langchain_community.document_compressors.infinity_rerank import InfinityRerank
 
 client = Client(base_url="http://localhost:7997")

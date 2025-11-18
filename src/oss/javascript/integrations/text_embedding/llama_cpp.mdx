@@ -17,9 +17,9 @@ You'll need to install major version `3` of the [node-llama-cpp](https://github.
 ```bash npm
 npm install -S node-llama-cpp@3
 ```
-import IntegrationInstallTooltip from '/snippets/javascript-integrations/integration-install-tooltip.mdx';
-
-<IntegrationInstallTooltip/>
+<Tip>
+See [this section for general instructions on installing LangChain packages](/oss/langchain/install).
+</Tip>
 
 ```bash npm
 npm install @langchain/community @langchain/core
@@ -39,17 +39,47 @@ A note to LangChain.js contributors: if you want to run the tests associated wit
 
 We need to provide a path to our local Llama3 model, also the `embeddings` property is always set to `true` in this module.
 
-import LlamaCppBasic from "/snippets/javascript-integrations/examples/embeddings/llama_cpp_basic.mdx";
+```typescript
+import { LlamaCppEmbeddings } from "@langchain/community/embeddings/llama_cpp";
 
-<LlamaCppBasic />
+const llamaPath = "/Replace/with/path/to/your/model/gguf-llama3-Q4_0.bin";
+
+const embeddings = await LlamaCppEmbeddings.initialize({
+  modelPath: llamaPath,
+});
+
+const res = embeddings.embedQuery("Hello Llama!");
+
+console.log(res);
+
+/*
+	[ 15043, 365, 29880, 3304, 29991 ]
+*/
+```
 
 ### Document embedding
 
-import LlamaCppDocs from "/snippets/javascript-integrations/examples/embeddings/llama_cpp_docs.mdx";
+```typescript
+import { LlamaCppEmbeddings } from "@langchain/community/embeddings/llama_cpp";
 
-<LlamaCppDocs />
+const llamaPath = "/Replace/with/path/to/your/model/gguf-llama3-Q4_0.bin";
+
+const documents = ["Hello World!", "Bye Bye!"];
+
+const embeddings = await LlamaCppEmbeddings.initialize({
+  modelPath: llamaPath,
+});
+
+const res = await embeddings.embedDocuments(documents);
+
+console.log(res);
+
+/*
+	[ [ 15043, 2787, 29991 ], [ 2648, 29872, 2648, 29872, 29991 ] ]
+*/
+```
 
 ## Related
 
-- Embedding model [conceptual guide](/oss/concepts/embedding_models)
-- Embedding model [how-to guides](/oss/how-to/#embedding-models)
+- Embedding model [conceptual guide](/oss/integrations/text_embedding)
+- Embedding model [how-to guides](/oss/integrations/text_embedding)

@@ -4,7 +4,7 @@ title: Google Spanner
 
 > [Spanner](https://cloud.google.com/spanner) is a highly scalable database that combines unlimited scalability with relational semantics, such as secondary indexes, strong consistency, schemas, and SQL providing 99.999% availability in one easy solution.
 
-This notebook goes over how to use [Spanner](https://cloud.google.com/spanner) to [save, load and delete langchain documents](/docs/how_to#document-loaders) with `SpannerLoader` and `SpannerDocumentSaver`.
+This notebook goes over how to use [Spanner](https://cloud.google.com/spanner) to [save, load and delete langchain documents](/oss/integrations/document_loaders) with `SpannerLoader` and `SpannerDocumentSaver`.
 
 Learn more about the package on [GitHub](https://github.com/googleapis/langchain-google-spanner-python/).
 
@@ -34,7 +34,7 @@ TABLE_NAME = "test_table"  # @param {type:"string"}
 The integration lives in its own `langchain-google-spanner` package, so we need to install it.
 
 ```python
-%pip install -upgrade --quiet langchain-google-spanner langchain
+pip install -upgrade --quiet langchain-google-spanner langchain
 ```
 
 **Colab only**: Uncomment the following cell to restart the kernel or use the button to restart the kernel. For Vertex AI Workbench you can restart the terminal using the button on top.

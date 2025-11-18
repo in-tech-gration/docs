@@ -10,9 +10,9 @@ You'll need to sign up for an Alibaba API key and set it as an environment varia
 
 Then, you'll need to install the [`@langchain/community`](https://www.npmjs.com/package/@langchain/community) package:
 
-import IntegrationInstallTooltip from '/snippets/javascript-integrations/integration-install-tooltip.mdx';
-
-<IntegrationInstallTooltip/>
+<Tip>
+See [this section for general instructions on installing LangChain packages](/oss/langchain/install).
+</Tip>
 
 ```bash npm
 npm install @langchain/community @langchain/core
@@ -20,11 +20,17 @@ npm install @langchain/community @langchain/core
 
 ## Usage
 
-import AlibabaTongyi from "/snippets/javascript-integrations/examples/embeddings/alibaba_tongyi.mdx";
+```typescript
+import { AlibabaTongyiEmbeddings } from "@langchain/community/embeddings/alibaba_tongyi";
 
-<AlibabaTongyi />
+const model = new AlibabaTongyiEmbeddings({});
+const res = await model.embedQuery(
+  "What would be a good company name a company that makes colorful socks?"
+);
+console.log({ res });
+```
 
 ## Related
 
-- Embedding model [conceptual guide](/oss/concepts/embedding_models)
-- Embedding model [how-to guides](/oss/how-to/#embedding-models)
+- Embedding model [conceptual guide](/oss/integrations/text_embedding)
+- Embedding model [how-to guides](/oss/integrations/text_embedding)

@@ -28,18 +28,53 @@ Where `ASTRA_DB_COLLECTION` is the desired name of your collection
 
 6. Install the Astra TS Client & the LangChain community package
 
-import IntegrationInstallTooltip from '/snippets/javascript-integrations/integration-install-tooltip.mdx';
-
-<IntegrationInstallTooltip/>
+<Tip>
+See [this section for general instructions on installing LangChain packages](/oss/langchain/install).
+</Tip>
 
 ```bash npm
 npm install @langchain/openai @datastax/astra-db-ts @langchain/community @langchain/core
 ```
 ## Indexing docs
 
-import Astra from "/snippets/javascript-integrations/examples/indexes/vector_stores/astra.mdx";
+```typescript
+import { OpenAIEmbeddings } from "@langchain/openai";
+import {
+  AstraDBVectorStore,
+  AstraLibArgs,
+} from "@langchain/community/vectorstores/astradb";
 
-<Astra />
+const astraConfig: AstraLibArgs = {
+  token: process.env.ASTRA_DB_APPLICATION_TOKEN as string,
+  endpoint: process.env.ASTRA_DB_ENDPOINT as string,
+  collection: process.env.ASTRA_DB_COLLECTION ?? "langchain_test",
+  collectionOptions: {
+    vector: {
+      dimension: 1536,
+      metric: "cosine",
+    },
+  },
+};
+
+const vectorStore = await AstraDBVectorStore.fromTexts(
+  [
+    "AstraDB is built on Apache Cassandra",
+    "AstraDB is a NoSQL DB",
+    "AstraDB supports vector search",
+  ],
+  [{ foo: "foo" }, { foo: "bar" }, { foo: "baz" }],
+  new OpenAIEmbeddings(),
+  astraConfig
+);
+
+// Querying docs:
+const results = await vectorStore.similaritySearch("Cassandra", 1);
+
+// or filtered query:
+const filteredQueryResults = await vectorStore.similaritySearch("A", 1, {
+  foo: "bar",
+});
+```
 
 ## Vector Types
 
@@ -55,5 +90,5 @@ vector store is first created as part of the `CreateCollectionOptions`:
 
 ## Related
 
-- Vector store [conceptual guide](/oss/concepts/#vectorstores)
-- Vector store [how-to guides](/oss/how-to/#vectorstores)
+- Vector store [conceptual guide](/oss/integrations/vectorstores)
+- Vector store [how-to guides](/oss/integrations/vectorstores)

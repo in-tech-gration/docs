@@ -12,9 +12,9 @@ Please set the acquired API key as an environment variable named BAIDU_API_KEY, 
 
 Then, you'll need to install the [`@langchain/baidu-qianfan`](https://www.npmjs.com/package/@langchain/baidu-qianfan) package:
 
-import IntegrationInstallTooltip from '/snippets/javascript-integrations/integration-install-tooltip.mdx';
-
-<IntegrationInstallTooltip/>
+<Tip>
+See [this section for general instructions on installing LangChain packages](/oss/langchain/install).
+</Tip>
 
 ```bash npm
 npm install @langchain/baidu-qianfan @langchain/core
@@ -22,11 +22,17 @@ npm install @langchain/baidu-qianfan @langchain/core
 
 ## Usage
 
-import BaiduQianfan from "/snippets/javascript-integrations/examples/embeddings/baidu_qianfan.mdx";
+```typescript
+import { BaiduQianfanEmbeddings } from "@langchain/baidu-qianfan";
 
-<BaiduQianfan />
+const embeddings = new BaiduQianfanEmbeddings();
+const res = await embeddings.embedQuery(
+  "What would be a good company name a company that makes colorful socks?"
+);
+console.log({ res });
+```
 
 ## Related
 
-- Embedding model [conceptual guide](/oss/concepts/embedding_models)
-- Embedding model [how-to guides](/oss/how-to/#embedding-models)
+- Embedding model [conceptual guide](/oss/integrations/text_embedding)
+- Embedding model [how-to guides](/oss/integrations/text_embedding)

@@ -6,7 +6,7 @@ LangChain offers is an in-memory, ephemeral vectorstore that stores embeddings i
 
 As it is intended for demos, it does not yet support ids or deletion.
 
-This guide provides a quick overview for getting started with in-memory [`vector stores`](/oss/concepts/#vectorstores). For detailed documentation of all `MemoryVectorStore` features and configurations head to the [API reference](https://api.js.langchain.com/classes/langchain.vectorstores_memory.MemoryVectorStore.html).
+This guide provides a quick overview for getting started with in-memory [`vector stores`](/oss/integrations/vectorstores). For detailed documentation of all `MemoryVectorStore` features and configurations head to the [API reference](https://api.js.langchain.com/classes/langchain.vectorstores_memory.MemoryVectorStore.html).
 
 ## Overview
 
@@ -22,14 +22,17 @@ To use in-memory vector stores, you'll need to install the `langchain` package:
 
 This guide will also use [OpenAI embeddings](/oss/integrations/text_embedding/openai), which require you to install the `@langchain/openai` integration package. You can also use [other supported embeddings models](/oss/integrations/text_embedding) if you wish.
 
-```{=mdx}
-import IntegrationInstallTooltip from "@mdx_components/integration_install_tooltip.mdx";
-<IntegrationInstallTooltip></IntegrationInstallTooltip>
-
-<Npm2Yarn>
-  langchain @langchain/openai @langchain/core
-</Npm2Yarn>
+<CodeGroup>
+```bash npm
+npm install langchain @langchain/openai @langchain/core
 ```
+```bash yarn
+yarn add langchain @langchain/openai @langchain/core
+```
+```bash pnpm
+pnpm add langchain @langchain/openai @langchain/core
+```
+</CodeGroup>
 
 ### Credentials
 
@@ -51,7 +54,7 @@ If you want to get automated tracing of your model calls you can also set your [
 ## Instantiation
 
 ```typescript
-import { MemoryVectorStore } from "langchain/vectorstores/memory";
+import { MemoryVectorStore } from "@langchain/classic/vectorstores/memory";
 import { OpenAIEmbeddings } from "@langchain/openai";
 
 const embeddings = new OpenAIEmbeddings({
@@ -197,6 +200,8 @@ For guides on how to use this vector store for retrieval-augmented generation (R
 - [Build a RAG app with LangChain](/oss/langchain/rag).
 - [Agentic RAG](/oss/langgraph/agentic-rag)
 - [Retrieval docs](/oss/langchain/retrieval)
+
+---
 
 ## API reference
 

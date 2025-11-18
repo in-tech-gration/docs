@@ -4,7 +4,7 @@ title: Unstructured
 
 This notebook covers how to use `Unstructured` [document loader](https://python.langchain.com/docs/concepts/document_loaders) to load files of many types. `Unstructured` currently supports loading of text files, powerpoints, html, pdfs, images, and more.
 
-Please see [this guide](/oss/python/integrations/providers/unstructured) for more instructions on setting up Unstructured locally, including setting up required system dependencies.
+Please see [this guide](/oss/integrations/providers/unstructured) for more instructions on setting up Unstructured locally, including setting up required system dependencies.
 
 ## Overview
 
@@ -44,7 +44,7 @@ The following packages are required to run the rest of this notebook.
 
 ```python
 # Install package, compatible with API partitioning
-%pip install -qU langchain-unstructured unstructured-client unstructured "unstructured[pdf]" python-magic
+pip install -qU langchain-unstructured unstructured-client unstructured "unstructured[pdf]" python-magic
 ```
 
 #### Installation for Local
@@ -349,6 +349,8 @@ page_content='This domain is for use in illustrative examples in documents. You 
 
 page_content='More information...' metadata={'category_depth': 0, 'link_texts': ['More information...'], 'link_urls': ['https://www.iana.org/domains/example'], 'languages': ['eng'], 'filetype': 'text/html', 'url': 'https://www.example.com', 'category': 'Title', 'element_id': '793ab98565d6f6d6f3a6d614e3ace2a9'}
 ```
+
+---
 
 ## API reference
 

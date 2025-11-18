@@ -35,9 +35,9 @@ and then choose the database you created above. This will also generate a `xata.
 
 ## Usage
 
-import IntegrationInstallTooltip from '/snippets/javascript-integrations/integration-install-tooltip.mdx';
-
-<IntegrationInstallTooltip/>
+<Tip>
+See [this section for general instructions on installing LangChain packages](/oss/langchain/install).
+</Tip>
 
 ```bash npm
 npm install @langchain/openai @langchain/community @langchain/core
@@ -47,19 +47,142 @@ npm install @langchain/openai @langchain/community @langchain/core
 
 This example uses the `VectorDBQAChain` to search the documents stored in Xata and then pass them as context to the OpenAI model, in order to answer the question asked by the user.
 
-import Xata from "/snippets/javascript-integrations/examples/indexes/vector_stores/xata.mdx";
+```typescript
+import { XataVectorSearch } from "@langchain/community/vectorstores/xata";
+import { OpenAIEmbeddings, OpenAI } from "@langchain/openai";
+import { BaseClient } from "@xata.io/client";
+import { VectorDBQAChain } from "@langchain/classic/chains";
+import { Document } from "@langchain/core/documents";
 
-<Xata />
+// First, follow set-up instructions at
+// https://js.langchain.com/docs/modules/data_connection/vectorstores/integrations/xata
+
+// if you use the generated client, you don't need this function.
+// Just import getXataClient from the generated xata.ts instead.
+const getXataClient = () => {
+  if (!process.env.XATA_API_KEY) {
+    throw new Error("XATA_API_KEY not set");
+  }
+
+  if (!process.env.XATA_DB_URL) {
+    throw new Error("XATA_DB_URL not set");
+  }
+  const xata = new BaseClient({
+    databaseURL: process.env.XATA_DB_URL,
+    apiKey: process.env.XATA_API_KEY,
+    branch: process.env.XATA_BRANCH || "main",
+  });
+  return xata;
+};
+
+export async function run() {
+  const client = getXataClient();
+
+  const table = "vectors";
+  const embeddings = new OpenAIEmbeddings();
+  const store = new XataVectorSearch(embeddings, { client, table });
+
+  // Add documents
+  const docs = [
+    new Document({
+      pageContent: "Xata is a Serverless Data platform based on PostgreSQL",
+    }),
+    new Document({
+      pageContent:
+        "Xata offers a built-in vector type that can be used to store and query vectors",
+    }),
+    new Document({
+      pageContent: "Xata includes similarity search",
+    }),
+  ];
+
+  const ids = await store.addDocuments(docs);
+
+  // eslint-disable-next-line no-promise-executor-return
+  await new Promise((r) => setTimeout(r, 2000));
+
+  const model = new OpenAI();
+  const chain = VectorDBQAChain.fromLLM(model, store, {
+    k: 1,
+    returnSourceDocuments: true,
+  });
+  const response = await chain.invoke({ query: "What is Xata?" });
+
+  console.log(JSON.stringify(response, null, 2));
+
+  await store.delete({ ids });
+}
+```
 
 ### Example: Similarity search with a metadata filter
 
 This example shows how to implement semantic search using LangChain.js and Xata. Before running it, make sure to add an `author` column of type String to the `vectors` table in Xata.
 
-import XataMetadata from "/snippets/javascript-integrations/examples/indexes/vector_stores/xata_metadata.mdx";
+```typescript
+import { XataVectorSearch } from "@langchain/community/vectorstores/xata";
+import { OpenAIEmbeddings } from "@langchain/openai";
+import { BaseClient } from "@xata.io/client";
+import { Document } from "@langchain/core/documents";
 
-<XataMetadata />
+// First, follow set-up instructions at
+// https://js.langchain.com/docs/modules/data_connection/vectorstores/integrations/xata
+// Also, add a column named "author" to the "vectors" table.
+
+// if you use the generated client, you don't need this function.
+// Just import getXataClient from the generated xata.ts instead.
+const getXataClient = () => {
+  if (!process.env.XATA_API_KEY) {
+    throw new Error("XATA_API_KEY not set");
+  }
+
+  if (!process.env.XATA_DB_URL) {
+    throw new Error("XATA_DB_URL not set");
+  }
+  const xata = new BaseClient({
+    databaseURL: process.env.XATA_DB_URL,
+    apiKey: process.env.XATA_API_KEY,
+    branch: process.env.XATA_BRANCH || "main",
+  });
+  return xata;
+};
+
+export async function run() {
+  const client = getXataClient();
+  const table = "vectors";
+  const embeddings = new OpenAIEmbeddings();
+  const store = new XataVectorSearch(embeddings, { client, table });
+  // Add documents
+  const docs = [
+    new Document({
+      pageContent: "Xata works great with LangChain.js",
+      metadata: { author: "Xata" },
+    }),
+    new Document({
+      pageContent: "Xata works great with LangChain",
+      metadata: { author: "LangChain" },
+    }),
+    new Document({
+      pageContent: "Xata includes similarity search",
+      metadata: { author: "Xata" },
+    }),
+  ];
+  const ids = await store.addDocuments(docs);
+
+  // eslint-disable-next-line no-promise-executor-return
+  await new Promise((r) => setTimeout(r, 2000));
+
+  // author is applied as pre-filter to the similarity search
+  const results = await store.similaritySearchWithScore("xata works great", 6, {
+    author: "LangChain",
+  });
+
+  console.log(JSON.stringify(results, null, 2));
+
+  await store.delete({ ids });
+}
+```
 
 ## Related
 
-- Vector store [conceptual guide](/oss/concepts/#vectorstores)
-- Vector store [how-to guides](/oss/how-to/#vectorstores)
+- Vector store [conceptual guide](/oss/integrations/vectorstores)
+- Vector store [how-to guides](/oss/integrations/vectorstores)

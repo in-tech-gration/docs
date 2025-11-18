@@ -2,19 +2,12 @@
 title: DirectoryLoader
 ---
 
-```{=mdx}
 
 <Tip>
-**Compatibility**
-
-
-Only available on Node.js.
-
+**Compatibility**: Only available on Node.js.
 </Tip>
 
-```
-
-This notebook provides a quick overview for getting started with `DirectoryLoader` [document loaders](/oss/concepts/document_loaders). For detailed documentation of all `DirectoryLoader` features and configurations head to the [API reference](https://api.js.langchain.com/classes/langchain.document_loaders_fs_directory.DirectoryLoader.html).
+This notebook provides a quick overview for getting started with `DirectoryLoader` [document loaders](/oss/integrations/document_loaders). For detailed documentation of all `DirectoryLoader` features and configurations head to the [API reference](https://api.js.langchain.com/classes/langchain.document_loaders_fs_directory.DirectoryLoader.html).
 
 This example goes over how to load data from folders with multiple files. The second argument is a map of file extensions to loader factories. Each file will be passed to the matching loader, and the resulting documents will be concatenated together.
 
@@ -44,27 +37,29 @@ To access `DirectoryLoader` document loader you'll need to install the `langchai
 
 The LangChain DirectoryLoader integration lives in the `langchain` package:
 
-```{=mdx}
-import IntegrationInstallTooltip from "@mdx_components/integration_install_tooltip.mdx";
-<IntegrationInstallTooltip></IntegrationInstallTooltip>
-
-<Npm2Yarn>
-  langchain @langchain/core
-</Npm2Yarn>
-
+<CodeGroup>
+```bash npm
+npm install langchain @langchain/core
 ```
+```bash yarn
+yarn add langchain @langchain/core
+```
+```bash pnpm
+pnpm add langchain @langchain/core
+```
+</CodeGroup>
 
 ## Instantiation
 
 Now we can instantiate our model object and load documents:
 
 ```typescript
-import { DirectoryLoader } from "langchain/document_loaders/fs/directory";
+import { DirectoryLoader } from "@langchain/classic/document_loaders/fs/directory";
 import {
   JSONLoader,
   JSONLinesLoader,
-} from "langchain/document_loaders/fs/json";
-import { TextLoader } from "langchain/document_loaders/fs/text";
+} from "@langchain/classic/document_loaders/fs/json";
+import { TextLoader } from "@langchain/classic/document_loaders/fs/text";
 import { CSVLoader } from "@langchain/community/document_loaders/fs/csv";
 
 const loader = new DirectoryLoader(
@@ -106,6 +101,8 @@ console.log(docs[0].metadata)
   source: '/Users/bracesproul/code/lang-chain-ai/langchainjs/examples/src/document_loaders/example_data/example.txt'
 }
 ```
+
+---
 
 ## API reference
 

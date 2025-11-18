@@ -21,6 +21,8 @@ You may find it helpful to read the [Administration overview](/langsmith/adminis
 
 LangSmith relies on RBAC to manage user permissions within a [workspace](/langsmith/administration-overview#workspaces). This allows you to control who can access your LangSmith workspace and what they can do within it. Only users with the `workspace:manage` permission can manage access control settings for a workspace.
 
+For a complete reference of workspace roles and their permissions, refer to the [Role-based access control](/langsmith/rbac#workspace-roles) guide. For specific operations each role can perform, refer to the [Organization and workspace operations reference](/langsmith/organization-workspace-operations).
+
 ### Create a role
 
 By default, LangSmith comes with a set of system roles:
@@ -81,6 +83,11 @@ Once you have completed your configuration of SAML SSO for your organization, us
 
 ### Enforce SAML SSO only
 
+<Note>
+User invites are not supported in organizations enforcing SAML SSO only. Initial workspace membership and role is determined by JIT provisioning, and changes afterwards can be managed in the UI.
+For additional flexibility in automated user management, LangSmith supports SCIM.
+</Note>
+
 To ensure users can only access the organization when logged in using SAML SSO and no other method, check the **Login via SSO only** checkbox and click **Save**. Once this happens, users accessing the organization that are logged-in via a non-SSO login method are required to log back in using SAML SSO. This setting can be switched back to allow all login methods by unselecting the checkbox and clicking **Save**.
 
 <Note>
@@ -97,9 +104,9 @@ SAML SSO is available for organizations on the [Enterprise plan](https://www.lan
 
 - Your organization must be on an Enterprise plan.
 - Your Identity Provider (IdP) must support the SAML 2.0 standard.
-- Only [`Organization Admins`](/langsmith/observability-concepts#organization-roles) can configure SAML SSO.
+- Only [`Organization Admins`](/langsmith/organization-workspace-operations#sso-and-authentication) can configure SAML SSO.
 
-For instructions on using SCIM along with SAML for user provisioning and deprovisioning, refer to the [SCIM setup](#user-management).
+For instructions on using SCIM along with SAML for user provisioning and deprovisioning, refer to the [SCIM setup](#set-up-scim-for-your-organization).
 
 ### Initial configuration
 
@@ -151,7 +158,7 @@ For additional information, see Microsoft's [documentation](https://learn.micros
 4. In the **Create your own application** window:
 
    1. Enter a name for your application (e.g., `LangSmith`).
-   2. Select *Integrate any other application you don't find in the gallery (Non-gallery)**.
+   2. Select **Integrate any other application you don't find in the gallery (Non-gallery)**.
 
 5. Click **Create**.
 
@@ -285,13 +292,13 @@ For additional information, see Okta's [documentation](https://help.okta.com/en-
 1. Select `Browse App Integration Catalog`.
 1. Find and select the LangSmith application.
 1. On the application overview page, select Add Integration.
-1. Fill in `ApiUrlBase`:
-   - US: `api.smith.langchain.com`
-   - EU: `eu.api.smith.langchain.com`
+1. Leave `ApiUrlBase` empty.
 1. Fill in `AuthHost`:
-   - US: `auth.langchain.com`
-   - EU: `eu.auth.langchain.com`
-1. Fill in `LangSmithUrl`: Same as `ApiUrlBase`
+    - US: `auth.langchain.com`
+    - EU: `eu.auth.langchain.com`
+1. (Optional, if planning to use [SCIM](#set-up-scim-for-your-organization) as well) Fill in `LangSmithUrl`:
+    - US: `api.smith.langchain.com`
+    - EU: `eu.api.smith.langchain.com`
 1. Under Application Visibility, keep the box unchecked.
 1. Select Next.
 1. Select `SAML 2.0`.
@@ -369,7 +376,7 @@ SCIM eliminates the need for manual user management and ensures that user access
 - **Improved security**: Users who leave your organization are automatically deprovisioned from LangSmith.
 - **Consistent access control**: User attributes and group memberships are synchronized between systems.
 - **Scaling team access control**: Efficiently manage large teams with many workspaces and custom roles.
-- **Role assignment**: Select specific [Organization Roles](/langsmith/observability-concepts#organization-roles) and [Workspace Roles](/langsmith/observability-concepts#workspace-roles) for groups of users.
+- **Role assignment**: Select specific [Organization Roles](/langsmith/rbac#organization-roles) and [Workspace Roles](/langsmith/rbac#workspace-roles) for groups of users.
 
 ### Requirements
 
@@ -408,6 +415,10 @@ The link expires in 24 hours, and can be resent if needed by removing and re-add
 ### Attributes and Mapping
 
 #### Group Naming Convention
+
+<Warning>
+Renaming groups is **not** supported via SCIM. Group names are persistent because they must match role names and/or workspace names in LangSmith.
+</Warning>
 
 Group membership maps to LangSmith workspace membership and workspace roles with a specific naming convention:
 
@@ -464,7 +475,7 @@ While specific instructions depending on the identity provider may vary, these m
    If your company has a group naming policy, you should instead map from the `description` identity provider attribute and
    set the description based on the [Group Naming Convention](#group-naming-convention) section.
 
-### Step 1: Configure SAML SSO (Cloud only)
+### Step 1 - Configure SAML SSO (Cloud only)
 
 There are two scenarios for [SAML SSO](#set-up-saml-sso-for-your-organization) configuration:
 
@@ -485,9 +496,13 @@ The NameID should not be an email address or username because email addresses an
 
 The NameID format must be `Persistent`, unless you are using a field, like email, that requires a different format.
 
-### Step 2: Disable JIT provisioning (Cloud only)
+### Step 2 - Disable JIT provisioning
 
-Before enabling SCIM, disable [Just-in-time (JIT) provisioning](/langsmith/user-management#just-in-time-jit-provisioning) to prevent conflicts between automatic and manual user provisioning. Use the `PATCH /orgs/current/info` [endpoint](https://api.smith.langchain.com/redoc#tag/orgs/operation/update_current_organization_info_api_v1_orgs_current_info_patch):
+Before enabling SCIM, disable [Just-in-time (JIT) provisioning](/langsmith/user-management#just-in-time-jit-provisioning) to prevent conflicts between automatic and manual user provisioning.
+
+#### Disabling JIT for Cloud
+
+Use the `PATCH /orgs/current/info` [endpoint](https://api.smith.langchain.com/redoc#tag/orgs/operation/update_current_organization_info_api_v1_orgs_current_info_patch):
 
 ```bash
 curl -X PATCH $LANGCHAIN_ENDPOINT/orgs/current/info \
@@ -496,7 +511,17 @@ curl -X PATCH $LANGCHAIN_ENDPOINT/orgs/current/info \
   -d '{"jit_provisioning_enabled": false}'
 ```
 
-### Step 3: Generate SCIM bearer token
+#### Disabling JIT for Self-Hosted
+
+As of LangSmith chart version **0.11.14**, you can disable JIT provisioning for your self-hosted organization using SSO. To disable, set the following values:
+
+```yaml
+commonEnv:
+  - name: SELF_HOSTED_JIT_PROVISIONING_ENABLED
+    value: "false"
+```
+
+### Step 3 - Generate SCIM bearer token
 
 <Note>
 In self-hosted environments, the full URL below may look like `https://langsmith.yourdomain.com/api/v1/platform/orgs/current/scim/tokens` (without a subdomain, note the `/api/v1` path prefix) or `https://langsmith.yourdomain.com/subdomain/api/v1/platform/orgs/current/scim/tokens` (with a subdomain) - see the [ingress docs](/langsmith/self-host-ingress) for more details.
@@ -507,7 +532,6 @@ Generate a SCIM Bearer Token for your organization. This token will be used by y
 ```bash
 curl -X POST $LANGCHAIN_ENDPOINT/v1/platform/orgs/current/scim/tokens \
   -H "X-Api-Key: $LANGCHAIN_API_KEY" \
-  -H "X-Organization-Id: $LANGCHAIN_ORGANIZATION_ID" \
   -H "Content-Type: application/json" \
   -d '{"description": "Your description here"}'
 ```
@@ -519,7 +543,7 @@ Note that the SCIM Bearer Token value is not available outside of the response t
 - `PATCH /v1/platform/orgs/current/scim/tokens/{scim_token_id}` (only the `description` field is supported)
 - `DELETE /v1/platform/orgs/current/scim/tokens/{scim_token_id}`
 
-### Step 4: Configure your Identity Provider
+### Step 4 - Configure your Identity Provider
 
 <Note>
 If you use Azure Entra ID (formerly Azure AD) or Okta, there are specific instructions for identity provider setup (refer to [Azure Entra ID](#azure-entra-id-configuration-steps), [Okta](#okta)). The requirements and steps above are applicable for all identity providers.
@@ -619,7 +643,9 @@ You must use the [Okta Lifecycle Management](https://www.okta.com/products/lifec
 - Create users
 - Update user attributes
 - Deactivate users
-- Group push
+- Group push (**without group renaming**)
+- Import users
+- Import groups
 
 <div id="add-application-okta-oin">
     <b>Step 1: Add application from Okta Integration Network</b>
@@ -633,14 +659,9 @@ See [SAML SSO setup](#okta) for cloud or [OAuth2.0 setup](/langsmith/self-host-s
 
 **Step 2: Configure API Integration**
 
-1. In the Provisioning tab, select Configure API integration.
-1. Select Enable API integration.
-1. For Base URL (if present):
-
-- US: `https://api.smith.langchain.com/scim/v2`
-- EU: `https://eu.api.smith.langchain.com/scim/v2`
-- Self-hosted: `<langsmith_url>/scim/v2` (note there is no `/api/v1` path prefix) or if a subdomain is configured `<langsmith_url>/subdomain/scim/v2`
-
+1. In the General tab, ensure the `LangSmithUrl` is filled in according to the instructions from [Step 1](#add-application-okta-oin)
+1. In the Provisioning tab, select `Integration`.
+1. Select `Edit` then `Enable API integration`.
 1. For API Token, paste the SCIM token you [generated above](#step-3-generate-scim-bearer-token).
 1. Keep `Import Groups` checked.
 1. To verify the configuration, select Test API Credentials.

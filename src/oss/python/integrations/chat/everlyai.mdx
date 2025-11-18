@@ -10,7 +10,7 @@ This notebook demonstrates the use of `langchain.chat_models.ChatEverlyAI` for [
 * or use the `everlyai_api_key` keyword argument
 
 ```python
-%pip install -qU  langchain-openai
+pip install -qU  langchain-openai
 ```
 
 ```python
@@ -25,7 +25,7 @@ if "EVERLYAI_API_KEY" not in os.environ:
 
 ```python
 from langchain_community.chat_models import ChatEverlyAI
-from langchain_core.messages import HumanMessage, SystemMessage
+from langchain.messages import HumanMessage, SystemMessage
 
 messages = [
     SystemMessage(content="You are a helpful AI that shares everything you know."),
@@ -49,7 +49,7 @@ print(chat(messages).content)
 ```python
 from langchain_community.chat_models import ChatEverlyAI
 from langchain_core.callbacks import StreamingStdOutCallbackHandler
-from langchain_core.messages import HumanMessage, SystemMessage
+from langchain.messages import HumanMessage, SystemMessage
 
 messages = [
     SystemMessage(content="You are a humorous AI that delights people."),
@@ -83,7 +83,7 @@ AIMessageChunk(content="  Ah, a joke, you say? *adjusts glasses* Well, I've got 
 ```python
 from langchain_community.chat_models import ChatEverlyAI
 from langchain_core.callbacks import StreamingStdOutCallbackHandler
-from langchain_core.messages import HumanMessage, SystemMessage
+from langchain.messages import HumanMessage, SystemMessage
 
 messages = [
     SystemMessage(content="You are a humorous AI that delights people."),

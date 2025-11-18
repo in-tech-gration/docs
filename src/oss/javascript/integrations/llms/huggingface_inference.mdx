@@ -8,9 +8,9 @@ Here's an example of calling a HugggingFaceInference model as an LLM:
 npm install @langchain/community @langchain/core @huggingface/inference@4
 ```
 
-import UnifiedModelParamsTooltip from "/snippets/javascript-integrations/unified-model-params-tooltip.mdx";
-
-<UnifiedModelParamsTooltip />
+<Tip>
+We're unifying model params across all packages. We now suggest using `model` instead of `modelName`, and `apiKey` for API keys.
+</Tip>
 
 ```typescript
 import { HuggingFaceInference } from "@langchain/community/llms/hf";
@@ -25,5 +25,5 @@ console.log({ res });
 
 ## Related
 
-- LLM [conceptual guide](/oss/concepts/text_llms)
-- LLM [how-to guides](/oss/how-to/#llms)
+
+- [Models guide](/oss/langchain/models)

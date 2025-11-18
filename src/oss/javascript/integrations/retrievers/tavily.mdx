@@ -1,7 +1,6 @@
 ---
-
 title: TavilySearchAPIRetriever
-----
+---
 
 [Tavily's Search API](https://tavily.com) is a search engine built specifically for AI agents (LLMs), delivering real-time, accurate, and factual results at speed.
 
@@ -30,14 +29,17 @@ If you want to get automated tracing from individual queries, you can also set y
 
 This retriever lives in the `@langchain/community` package:
 
-```{=mdx}
-import IntegrationInstallTooltip from "@mdx_components/integration_install_tooltip.mdx";
-<IntegrationInstallTooltip></IntegrationInstallTooltip>
-
-<Npm2Yarn>
-  @langchain/community @langchain/core
-</Npm2Yarn>
+<CodeGroup>
+```bash npm
+npm install @langchain/community @langchain/core
 ```
+```bash yarn
+yarn add @langchain/community @langchain/core
+```
+```bash pnpm
+pnpm add @langchain/community @langchain/core
+```
+</CodeGroup>
 
 ## Instantiation
 
@@ -96,64 +98,7 @@ await retriever.invoke(query);
 ]
 ```
 
-## Use within a chain
-
-Like other retrievers, `TavilySearchAPIRetriever` can be incorporated into LLM applications via [chains](/oss/how-to/sequence/).
-
-We will need a LLM or chat model:
-
-```{=mdx}
-<ChatModelTabs customVarName="llm" />
-```
-
-```typescript
-// @lc-docs-hide-cell
-
-import { ChatOpenAI } from "@langchain/openai";
-
-const llm = new ChatOpenAI({
-  model: "gpt-4o-mini",
-  temperature: 0,
-});
-```
-
-```typescript
-import { ChatPromptTemplate } from "@langchain/core/prompts";
-import { RunnablePassthrough, RunnableSequence } from "@langchain/core/runnables";
-import { StringOutputParser } from "@langchain/core/output_parsers";
-
-import type { Document } from "@langchain/core/documents";
-
-const prompt = ChatPromptTemplate.fromTemplate(`
-Answer the question based only on the context provided.
-
-Context: {context}
-
-Question: {question}`);
-
-const formatDocs = (docs: Document[]) => {
-  return docs.map((doc) => doc.pageContent).join("\n\n");
-}
-
-// See https://js.langchain.com/docs/tutorials/rag
-const ragChain = RunnableSequence.from([
-  {
-    context: retriever.pipe(formatDocs),
-    question: new RunnablePassthrough(),
-  },
-  prompt,
-  llm,
-  new StringOutputParser(),
-]);
-```
-
-```typescript
-await ragChain.invoke(query);
-```
-
-```output
-The current weather in San Francisco is partly cloudy with a temperature of 16.8°C (62.2°F). The wind is coming from the west at 13.2 mph (21.2 kph), and the humidity is at 74%. There is no precipitation, and visibility is 10 km (6 miles).
-```
+---
 
 ## API reference
 

@@ -26,9 +26,14 @@ npm i @langchain/community @langchain/core @browserbasehq/sdk
 
 Utilize the `BrowserbaseLoader` as follows to allow your agent to load websites:
 
-import Browserbase from "/snippets/javascript-integrations/examples/document_loaders/browserbase.mdx";
+```typescript
+import { BrowserbaseLoader } from "@langchain/community/document_loaders/web/browserbase";
 
-<Browserbase />
+const loader = new BrowserbaseLoader(["https://example.com"], {
+  textContent: true,
+});
+const docs = await loader.load();
+```
 
 ## Arguments
 

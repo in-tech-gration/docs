@@ -92,13 +92,6 @@ class DocumentationBuilder:
         logger.info("Building LangGraph JavaScript version...")
         self._build_langgraph_version("oss/javascript", "js")
 
-        # Build unversioned content (same content regardless of version)
-        logger.info("Building LangGraph Platform content...")
-        self._build_unversioned_content("langgraph-platform", "langgraph-platform")
-
-        logger.info("Building LangChain Labs content...")
-        self._build_unversioned_content("labs", "labs")
-
         logger.info("Building LangSmith content...")
         self._build_unversioned_content("langsmith", "langsmith")
 
@@ -170,6 +163,50 @@ class DocumentationBuilder:
         pattern = r'(\[.*?\]\(|\bhref="|")(/oss/[^")\s]+)([")\s])'
         return re.sub(pattern, rewrite_link, content)
 
+    def _add_suggested_edits_link(self, content: str, input_path: Path) -> str:
+        """Add 'Edit Source' link to the end of markdown content.
+
+        This method appends GitHub links with icons pointing to the source file,
+        but only for files that are within the src/ directory.
+
+        Args:
+            content: The markdown content to process.
+            input_path: Path to the source file.
+
+        Returns:
+            The content with the source links appended (if applicable).
+        """
+        try:
+            # Only add links for files in the src/ directory
+            relative_path = input_path.absolute().relative_to(self.src_dir.absolute())
+
+            # Construct the GitHub URLs
+            edit_url = (
+                f"https://github.com/langchain-ai/docs/edit/main/src/{relative_path}"
+            )
+
+            # Create the callout section with Mintlify Callout component
+            source_links_section = (
+                "\n\n---\n\n"
+                '<Callout icon="pen-to-square" iconType="regular">\n'
+                f"    [Edit the source of this page on GitHub.]({edit_url})\n"
+                "</Callout>\n"
+                '<Tip icon="terminal" iconType="regular">\n'
+                "    [Connect these docs programmatically](/use-these-docs) to Claude, VSCode, and more via MCP for real-time answers.\n"  # noqa: E501
+                "</Tip>\n"
+            )
+
+            # Append to content
+            return content.rstrip() + source_links_section
+
+        except ValueError:
+            # File is not within src_dir, return content unchanged
+            return content
+        except Exception:
+            logger.exception("Failed to add source links for %s", input_path)
+            # Return original content if there's an error
+            return content
+
     def _process_markdown_content(
         self, content: str, file_path: Path, target_language: str | None = None
     ) -> str:
@@ -223,6 +260,11 @@ class DocumentationBuilder:
                 content, input_path, target_language
             )
 
+            # Add "Edit Source" link for files in src/ directory
+            processed_content = self._add_suggested_edits_link(
+                processed_content, input_path
+            )
+
             # Convert .md to .mdx if needed
             if input_path.suffix.lower() == ".md":
                 output_path = output_path.with_suffix(".mdx")
@@ -259,7 +301,7 @@ class DocumentationBuilder:
         if relative_path.parts[0] == "oss":
             self._build_oss_file(file_path, relative_path)
         # Check if this is unversioned content
-        elif relative_path.parts[0] in {"langgraph-platform", "labs", "langsmith"}:
+        elif relative_path.parts[0] == "langsmith":
             self._build_unversioned_file(file_path, relative_path)
         # Handle shared files (images, docs.json, etc.)
         elif self.is_shared_file(file_path):
@@ -294,7 +336,7 @@ class DocumentationBuilder:
             logger.info("Built JavaScript version: oss/javascript/%s", oss_relative)
 
     def _build_unversioned_file(self, file_path: Path, relative_path: Path) -> None:
-        """Build an unversioned file (langgraph-platform, labs, langsmith).
+        """Build an unversioned file (langsmith).
 
         Args:
             file_path: Path to the source file.
@@ -339,6 +381,10 @@ class DocumentationBuilder:
         Returns:
             True if the file was built successfully, False if skipped.
         """
+        # Skip template files
+        if file_path.name == "TEMPLATE.mdx":
+            return False
+
         # Create output directory if needed
         output_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -376,6 +422,10 @@ class DocumentationBuilder:
         Returns:
             True if the file was copied, False if it was skipped.
         """
+        # Skip template files
+        if file_path.name == "TEMPLATE.mdx":
+            return False
+
         relative_path = file_path.absolute().relative_to(self.src_dir.absolute())
         output_path = self.build_dir / relative_path
 
@@ -527,10 +577,10 @@ class DocumentationBuilder:
         )
 
     def _build_unversioned_content(self, source_dir: str, output_dir: str) -> None:
-        """Build unversioned content (langgraph-platform/, labs/, langsmith/).
+        """Build unversioned content (langsmith/).
 
         Args:
-            source_dir: Source directory name (e.g., "langgraph-platform", "labs").
+            source_dir: Source directory name (e.g., "langsmith").
             output_dir: Output directory name (same as source_dir).
         """
         src_path = self.src_dir / source_dir
@@ -605,6 +655,10 @@ class DocumentationBuilder:
         Returns:
             True if the file was copied, False if it was skipped.
         """
+        # Skip template files
+        if file_path.name == "TEMPLATE.mdx":
+            return False
+
         # Update progress bar description with current file
         pbar.set_postfix_str(display_path)
 
@@ -685,6 +739,14 @@ class DocumentationBuilder:
         if file_path.name == "docs.json":
             return True
 
+        # index.mdx at root should be shared
+        if file_path.name == "index.mdx" and len(relative_path.parts) == 1:
+            return True
+
+        # use-these-docs.mdx at root should be shared
+        if file_path.name == "use-these-docs.mdx" and len(relative_path.parts) == 1:
+            return True
+
         # Images directory should be shared
         if "images" in relative_path.parts:
             return True
@@ -718,7 +780,94 @@ class DocumentationBuilder:
             output_path.parent.mkdir(parents=True, exist_ok=True)
 
             if file_path.suffix.lower() in self.copy_extensions:
-                shutil.copy2(file_path, output_path)
-                copied_count += 1
+                # Handle markdown files with preprocessing for /oss/ link resolution
+                if file_path.suffix.lower() in {".md", ".mdx"}:
+                    # For snippet files, we need to handle URL rewriting differently
+                    # Use a special marker-based approach for dynamic URL resolution
+                    if "snippets" in relative_path.parts:
+                        logger.debug(
+                            "Processing snippet file with URL rewriting: %s",
+                            relative_path,
+                        )
+                        self._process_snippet_markdown_file(file_path, output_path)
+                    else:
+                        # Regular markdown processing without language-specific rewrite
+                        self._process_markdown_file(file_path, output_path, None)
+                    copied_count += 1
+                else:
+                    shutil.copy2(file_path, output_path)
+                    copied_count += 1
 
         logger.info("✅ Shared files copied: %d files", copied_count)
+
+    def _process_snippet_markdown_file(
+        self, input_path: Path, output_path: Path
+    ) -> None:
+        """Process a snippet markdown file with language-aware URL resolution.
+
+        For snippet files that contain /oss/ links, we need to create versions
+        that work properly when included in different language contexts.
+        We'll modify the URLs to use relative paths that resolve correctly.
+
+        Args:
+            input_path: Path to the source snippet markdown file.
+            output_path: Path where the processed file should be written.
+        """
+        try:
+            # Read the source markdown content
+            with input_path.open("r", encoding="utf-8") as f:
+                content = f.read()
+
+            # Apply standard markdown preprocessing
+            processed_content = preprocess_markdown(
+                content, input_path, target_language=None
+            )
+
+            # Convert /oss/ links to relative paths that work from any language context
+            def convert_oss_link(match: re.Match) -> str:
+                """Convert /oss/ links to language-agnostic relative paths.
+
+                IMPORTANT: the conversion creates relative paths that resolve from the
+                parent page's directory.
+                - /oss/providers/groq → ../providers/groq
+                """
+                pre = match.group(1)  # Everything before the URL
+                url = match.group(2)  # The URL
+                post = match.group(3)  # Everything after the URL
+
+                # Only convert absolute /oss/ paths that don't contain 'images'
+                # or '/oss/python' or '/oss/javascript'
+                if (
+                    url.startswith("/oss/")
+                    and "images" not in url
+                    and "/oss/python" not in url
+                    and "/oss/javascript" not in url
+                ):
+                    # Convert to relative path that works from oss/python/* or oss/js/*
+                    # e.g., /oss/releases/langchain-v1 becomes ../releases/langchain-v1
+                    parts = url.split("/")
+                    oss_path = "/".join(parts[2:])  # Remove /oss/ prefix
+                    url = f"../{oss_path}"  # Make it relative
+
+                return f"{pre}{url}{post}"
+
+            # Apply URL conversion
+            pattern = r'(\[.*?\]\(|\bhref="|")(/oss/[^")\s]+)([")\s])'
+            processed_content = re.sub(pattern, convert_oss_link, processed_content)
+
+            # Convert .md to .mdx if needed
+            if input_path.suffix.lower() == ".md":
+                output_path = output_path.with_suffix(".mdx")
+
+            # Write the processed content
+            with output_path.open("w", encoding="utf-8") as f:
+                f.write(processed_content)
+
+        except (OSError, UnicodeDecodeError):
+            logger.exception(
+                "File I/O or decoding error in snippet markdown file %s", input_path
+            )
+            raise
+        except re.error:
+            logger.exception("Regex error in snippet markdown file %s", input_path)
+            raise

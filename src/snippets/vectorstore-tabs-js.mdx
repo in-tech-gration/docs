@@ -2,17 +2,17 @@
     <Tab title="Memory">
     <CodeGroup>
     ```bash npm
-    npm i langchain
+    npm i @langchain/classic
     ```
     ```bash yarn
-    yarn add langchain
+    yarn add @langchain/classic
     ```
     ```bash pnpm
-    pnpm add langchain
+    pnpm add @langchain/classic
     ```
     </CodeGroup>
     ```typescript
-    import { MemoryVectorStore } from "langchain/vectorstores/memory";
+    import { MemoryVectorStore } from "@langchain/classic/vectorstores/memory";
 
     const vectorStore = new MemoryVectorStore(embeddings);
     ```
@@ -123,7 +123,11 @@
     import { PineconeStore } from "@langchain/pinecone";
     import { Pinecone as PineconeClient } from "@pinecone-database/pinecone";
 
-    const pinecone = new PineconeClient();
+    const pinecone = new PineconeClient({
+      apiKey: process.env.PINECONE_API_KEY,
+    });
+    const pineconeIndex = pinecone.Index("your-index-name");
+    
     const vectorStore = new PineconeStore(embeddings, {
       pineconeIndex,
       maxConcurrency: 5,

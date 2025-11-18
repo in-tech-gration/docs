@@ -16,7 +16,7 @@ This will help you get started with Netmind [chat models](https://www.netmind.ai
 
 ### Model features
 
-| [Tool calling](../../how_to/tool_calling.ipynb) | [Structured output](../../how_to/structured_output.ipynb) | JSON mode | [Image input](../../how_to/multimodal_inputs.ipynb) | Audio input | Video input | [Token-level streaming](../../how_to/chat_streaming.ipynb) | Native async | [Token usage](../../how_to/chat_token_usage_tracking.ipynb) | [Logprobs](../../how_to/logprobs.ipynb) |
+| [Tool calling](/oss/langchain/tools) | [Structured output](/oss/langchain/structured-output) | JSON mode | [Image input](/oss/langchain/messages#multimodal) | Audio input | Video input | [Token-level streaming](/oss/langchain/streaming#llm-tokens) | Native async | [Token usage](/oss/langchain/models#token-usage) | [Logprobs](/oss/langchain/models#log-probabilities) |
 |:-----------------------------------------------:|:---------------------------------------------------------:|:---------:|:---------------------------------------------------:|:-----------:|:-----------:|:----------------------------------------------------------:|:------------:|:-----------------------------------------------------------:|:---------------------------------------:|
 |                        ✅                        |                             ✅                             |     ✅     |                          ❌                          |      ❌      |      ❌      |                             ✅                              |      ✅       |                              ✅                              |                    ✅                    |
 
@@ -48,7 +48,7 @@ If you want to get automated tracing of your model calls you can also set your [
 The LangChain Netmind integration lives in the `langchain-netmind` package:
 
 ```python
-%pip install -qU langchain-netmind
+pip install -qU langchain-netmind
 ```
 
 ```output
@@ -100,36 +100,7 @@ print(ai_msg.content)
 J'adore programmer.
 ```
 
-## Chaining
-
-We can [chain](/oss/how-to/sequence/) our model with a prompt template like so:
-
-```python
-from langchain_core.prompts import ChatPromptTemplate
-
-prompt = ChatPromptTemplate(
-    [
-        (
-            "system",
-            "You are a helpful assistant that translates {input_language} to {output_language}.",
-        ),
-        ("human", "{input}"),
-    ]
-)
-
-chain = prompt | llm
-chain.invoke(
-    {
-        "input_language": "English",
-        "output_language": "German",
-        "input": "I love programming.",
-    }
-)
-```
-
-```output
-AIMessage(content='Ich liebe es zu programmieren.', additional_kwargs={'refusal': None}, response_metadata={'token_usage': {'completion_tokens': 14, 'prompt_tokens': 26, 'total_tokens': 40, 'completion_tokens_details': None, 'prompt_tokens_details': None}, 'model_name': 'deepseek-ai/DeepSeek-V3', 'system_fingerprint': None, 'finish_reason': 'stop', 'logprobs': None}, id='run-d63adcc6-53ba-4caa-9a79-78d640b39274-0', usage_metadata={'input_tokens': 26, 'output_tokens': 14, 'total_tokens': 40, 'input_token_details': {}, 'output_token_details': {}})
-```
+---
 
 ## API reference
 
@@ -137,7 +108,3 @@ For detailed documentation of all ChatNetmind features and configurations head t
 - [API reference](https://python.langchain.com/api_reference/)
 - [langchain-netmind](https://github.com/protagolabs/langchain-netmind)
 - [pypi](https://pypi.org/project/langchain-netmind/)
-
-```python
-
-```

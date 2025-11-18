@@ -3,6 +3,8 @@ title: Workflows and agents
 sidebarTitle: Workflows + agents
 ---
 
+
+
 This guide reviews common workflow and agent patterns.
 
 - Workflows have predetermined code paths and are designed to operate in a certain order.
@@ -37,7 +39,7 @@ def _set_env(var: str):
 
 _set_env("ANTHROPIC_API_KEY")
 
-llm = ChatAnthropic(model="claude-3-5-sonnet-latest")
+llm = ChatAnthropic(model="claude-sonnet-4-5-20250929")
 ```
 :::
 
@@ -45,19 +47,19 @@ llm = ChatAnthropic(model="claude-3-5-sonnet-latest")
 1. Install dependencies
 <CodeGroup>
 ```bash npm
-npm install @langchain/langgraph@next @langchain/core@next
+npm install @langchain/langgraph @langchain/core
 ```
 
 ```bash pnpm
-pnpm add @langchain/langgraph@next @langchain/core@next
+pnpm add @langchain/langgraph @langchain/core
 ```
 
 ```bash yarn
-yarn add @langchain/langgraph@next @langchain/core@next
+yarn add @langchain/langgraph @langchain/core
 ```
 
 ```bash bun
-bun add @langchain/langgraph@next @langchain/core@next
+bun add @langchain/langgraph @langchain/core
 ```
 </CodeGroup>
 
@@ -67,7 +69,7 @@ bun add @langchain/langgraph@next @langchain/core@next
 import { ChatAnthropic } from "@langchain/anthropic";
 
 const llm = new ChatAnthropic({
-  model: "claude-3-5-sonnet-latest",
+  model: "claude-sonnet-4-5-20250929",
   apiKey: "<your_anthropic_key>"
 });
 ```
@@ -81,9 +83,9 @@ Workflows and agentic systems are based on LLMs and the various augmentations yo
 
 :::python
 ```python
-
 # Schema for structured output
 from pydantic import BaseModel, Field
+
 
 class SearchQuery(BaseModel):
     search_query: str = Field(None, description="Query that is optimized web search.")
@@ -115,7 +117,7 @@ msg.tool_calls
 :::js
 ```typescript
 
-import { z } from "zod";
+import * as z from "zod";
 import { tool } from "langchain";
 
 // Schema for structured output
@@ -709,7 +711,8 @@ Routing workflows process inputs and then directs them to context-specific tasks
 <CodeGroup>
 ```python Graph API
 from typing_extensions import Literal
-from langchain_core.messages import HumanMessage, SystemMessage
+from langchain.messages import HumanMessage, SystemMessage
+
 
 # Schema for structured output to use as routing logic
 class Route(BaseModel):
@@ -815,7 +818,7 @@ print(state["output"])
 ```python Functional API
 from typing_extensions import Literal
 from pydantic import BaseModel
-from langchain_core.messages import HumanMessage, SystemMessage
+from langchain.messages import HumanMessage, SystemMessage
 
 
 # Schema for structured output to use as routing logic
@@ -889,7 +892,7 @@ for step in router_workflow.stream("Write me a joke about cats", stream_mode="up
 <CodeGroup>
 ```typescript Graph API
 import { StateGraph, Annotation } from "@langchain/langgraph";
-import { z } from "zod";
+import * as z from "zod";
 
 // Schema for structured output to use as routing logic
 const routeSchema = z.object({
@@ -997,7 +1000,7 @@ const state = await routerWorkflow.invoke({
 console.log(state.output);
 ```
 ```typescript Functional API
-import { z } from "zod";
+import * as z from "zod";
 import { task, entrypoint } from "@langchain/langgraph";
 
 // Schema for structured output to use as routing logic
@@ -1228,7 +1231,7 @@ type SectionsSchema = {
 const planner = llm.withStructuredOutput(sectionsSchema);
 ```
 ```typescript Functional API
-import { z } from "zod";
+import * as z from "zod";
 import { task, entrypoint } from "@langchain/langgraph";
 
 // Schema for structured output to use in planning
@@ -1506,7 +1509,7 @@ console.log(state.finalReport);
 
 ## Evaluator-optimizer
 
-In evaluator-optimizer workflows, one LLM call creates a response and the other evaluates that response. If the evaluator or a [human-in-the-loop](/oss/langgraph/add-human-in-the-loop) determines the response needs refinement, feedback is provided and the response is recreated. This loop continues until an acceptable response is generated.
+In evaluator-optimizer workflows, one LLM call creates a response and the other evaluates that response. If the evaluator or a [human-in-the-loop](/oss/langgraph/interrupts) determines the response needs refinement, feedback is provided and the response is recreated. This loop continues until an acceptable response is generated.
 
 Evaluator-optimizer workflows are commonly used when there's particular success criteria for a task, but iteration is required to meet that criteria. For example, there's not always a perfect match when translating text between two languages. It might take a few iterations to generate a translation with the same meaning across the two languages.
 
@@ -1653,7 +1656,7 @@ for step in optimizer_workflow.stream("Cats", stream_mode="updates"):
 :::js
 <CodeGroup>
 ```typescript Graph API
-import { z } from "zod";
+import * as z from "zod";
 import { Annotation, StateGraph } from "@langchain/langgraph";
 
 // Graph state
@@ -1729,7 +1732,7 @@ const state = await optimizerWorkflow.invoke({ topic: "Cats" });
 console.log(state.joke);
 ```
 ```typescript Functional API
-import { z } from "zod";
+import * as z from "zod";
 import { task, entrypoint } from "@langchain/langgraph";
 
 // Schema for structured output to use in evaluation
@@ -1809,39 +1812,39 @@ To get started with agents, see the [quickstart](/oss/langchain/quickstart) or r
 
 :::python
 ```python Using tools
-from langchain_core.tools import tool
+from langchain.tools import tool
 
 
 # Define tools
 @tool
 def multiply(a: int, b: int) -> int:
-    """Multiply a and b.
+    """Multiply `a` and `b`.
 
     Args:
-        a: first int
-        b: second int
+        a: First int
+        b: Second int
     """
     return a * b
 
 
 @tool
 def add(a: int, b: int) -> int:
-    """Adds a and b.
+    """Adds `a` and `b`.
 
     Args:
-        a: first int
-        b: second int
+        a: First int
+        b: Second int
     """
     return a + b
 
 
 @tool
 def divide(a: int, b: int) -> float:
-    """Divide a and b.
+    """Divide `a` and `b`.
 
     Args:
-        a: first int
-        b: second int
+        a: First int
+        b: Second int
     """
     return a / b
 
@@ -1855,7 +1858,7 @@ llm_with_tools = llm.bind_tools(tools)
 <CodeGroup>
 ```python Graph API
 from langgraph.graph import MessagesState
-from langchain_core.messages import SystemMessage, HumanMessage, ToolMessage
+from langchain.messages import SystemMessage, HumanMessage, ToolMessage
 
 
 # Nodes
@@ -1893,9 +1896,11 @@ def should_continue(state: MessagesState) -> Literal["tool_node", END]:
 
     messages = state["messages"]
     last_message = messages[-1]
+
     # If the LLM makes a tool call, then perform an action
     if last_message.tool_calls:
         return "tool_node"
+
     # Otherwise, we stop (reply to the user)
     return END
 
@@ -1930,7 +1935,7 @@ for m in messages["messages"]:
 ```
 ```python Functional API
 from langgraph.graph import add_messages
-from langchain_core.messages import (
+from langchain.messages import (
     SystemMessage,
     HumanMessage,
     BaseMessage,
@@ -1989,7 +1994,7 @@ for chunk in agent.stream(messages, stream_mode="updates"):
 :::js
 ```typescript Using tools
 import { tool } from "@langchain/core/tools";
-import { z } from "zod";
+import * as z from "zod";
 
 // Define tools
 const multiply = tool(

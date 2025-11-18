@@ -168,7 +168,7 @@ llm = ChatOpenAI(model_name="gpt-4", temperature=0.0)
 ```
 
 ```python
-# NOTE: set allow_dangerous_requests manually for security concern https://python.langchain.com/docs/security
+# NOTE: set allow_dangerous_requests manually for security concern
 spotify_agent = planner.create_openapi_agent(
     spotify_api_spec,
     requests_wrapper,

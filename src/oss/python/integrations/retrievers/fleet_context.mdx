@@ -4,12 +4,12 @@ title: Fleet AI Context
 
 >[Fleet AI Context](https://www.fleet.so/context) is a dataset of high-quality embeddings of the top 1200 most popular & permissive Python Libraries & their documentation.
 >
->The `Fleet AI` team is on a mission to embed the world's most important data. They've started by embedding the top 1200 Python libraries to enable code generation with up-to-date knowledge. They've been kind enough to share their embeddings of the [LangChain docs](/docs/introduction) and [API reference](https://python.langchain.com/api_reference/).
+>The `Fleet AI` team is on a mission to embed the world's most important data. They've started by embedding the top 1200 Python libraries to enable code generation with up-to-date knowledge.
 
 Let's take a look at how we can use these embeddings to power a docs retrieval system and ultimately a simple code-generating chain!
 
 ```python
-%pip install -qU  langchain fleet-context langchain-openai pandas faiss-cpu # faiss-gpu for CUDA supported GPU
+pip install -qU  langchain fleet-context langchain-openai pandas faiss-cpu # faiss-gpu for CUDA supported GPU
 ```
 
 ```python
@@ -17,7 +17,7 @@ from operator import itemgetter
 from typing import Any, Optional, Type
 
 import pandas as pd
-from langchain.retrievers import MultiVectorRetriever
+from langchain_classic.retrievers import MultiVectorRetriever
 from langchain_community.vectorstores import FAISS
 from langchain_core.documents import Document
 from langchain_core.stores import BaseStore

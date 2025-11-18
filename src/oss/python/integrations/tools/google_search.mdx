@@ -9,7 +9,7 @@ First, you need to set up the proper API keys and environment variables. To set 
 Then we will need to set some environment variables.
 
 ```python
-%pip install -qU  langchain-google-community
+pip install -qU  langchain-google-community
 ```
 
 ```python
@@ -20,7 +20,7 @@ os.environ["GOOGLE_API_KEY"] = ""
 ```
 
 ```python
-from langchain_core.tools import Tool
+from langchain.tools import Tool
 from langchain_google_community import GoogleSearchAPIWrapper
 
 search = GoogleSearchAPIWrapper()

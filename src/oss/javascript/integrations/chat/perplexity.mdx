@@ -16,7 +16,7 @@ This guide will help you getting started with Perplexity [chat models](/oss/lang
 
 See the links in the table headers below for guides on how to use specific features.
 
-| [Tool calling](/oss/langchain/tools) | [Structured output](/oss/langchain/structured-output) | JSON mode | [Image input](/oss/how-to/multimodal_inputs/) | Audio input | Video input | [Token-level streaming](/oss/langchain/streaming/) | [Token usage](/oss/how-to/chat_token_usage_tracking/) | [Logprobs](/oss/how-to/logprobs/) |
+| [Tool calling](/oss/langchain/tools) | [Structured output](/oss/langchain/structured-output) | JSON mode | [Image input](/oss/langchain/messages#multimodal) | Audio input | Video input | [Token-level streaming](/oss/langchain/streaming/) | [Token usage](/oss/langchain/models#token-usage) | [Logprobs](/oss/langchain/models#log-probabilities) |
 | :---: | :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: |
 | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ |
 
@@ -45,15 +45,17 @@ If you want to get automated tracing of your model calls you can also set your [
 
 The LangChain Perplexity integration lives in the `@langchain/community` package:
 
-```{=mdx}
-import IntegrationInstallTooltip from "@mdx_components/integration_install_tooltip.mdx";
-<IntegrationInstallTooltip></IntegrationInstallTooltip>
-
-<Npm2Yarn>
-  @langchain/community @langchain/core
-</Npm2Yarn>
-
+<CodeGroup>
+```bash npm
+npm install @langchain/community @langchain/core
 ```
+```bash yarn
+yarn add @langchain/community @langchain/core
+```
+```bash pnpm
+pnpm add @langchain/community @langchain/core
+```
+</CodeGroup>
 
 ## Instantiation
 
@@ -121,57 +123,7 @@ console.log(aiMsg.content)
 J'adore la programmation.
 ```
 
-## Chaining
-
-We can [chain](/oss/how-to/sequence/) our model with a prompt template like so:
-
-```typescript
-import { ChatPromptTemplate } from "@langchain/core/prompts"
-
-const prompt = ChatPromptTemplate.fromMessages(
-  [
-    [
-      "system",
-      "You are a helpful assistant that translates {input_language} to {output_language}.",
-    ],
-    ["human", "{input}"],
-  ]
-)
-
-const chain = prompt.pipe(llm);
-await chain.invoke(
-  {
-    input_language: "English",
-    output_language: "German",
-    input: "I love programming.",
-  }
-)
-```
-
-```output
-AIMessage {
-  "id": "run-a44dc452-4a71-423d-a4ee-50a2d7c90abd",
-  "content": "**English to German Translation:**\n\n\"I love programming\" translates to **\"Ich liebe das Programmieren.\"**\n\nIf you'd like to express your passion for programming in more detail, here are some additional translations:\n\n- **\"Programming is incredibly rewarding and fulfilling.\"** translates to **\"Das Programmieren ist unglaublich lohnend und erfüllend.\"**\n- **\"I enjoy solving problems through coding.\"** translates to **\"Ich genieße es, Probleme durch Codieren zu lösen.\"**\n- **\"I find the process of creating something from nothing very satisfying.\"** translates to **\"Ich finde den Prozess, etwas aus dem Nichts zu schaffen, sehr befriedigend.\"**",
-  "additional_kwargs": {
-    "citations": [
-      "https://careersatagoda.com/blog/why-we-love-programming/",
-      "https://henrikwarne.com/2012/06/02/why-i-love-coding/",
-      "https://dev.to/dvddpl/coding-is-boring-why-do-you-love-coding-cl0",
-      "https://forum.freecodecamp.org/t/i-love-programming-but/497502",
-      "https://ilovecoding.org"
-    ]
-  },
-  "response_metadata": {
-    "tokenUsage": {
-      "promptTokens": 15,
-      "completionTokens": 149,
-      "totalTokens": 164
-    }
-  },
-  "tool_calls": [],
-  "invalid_tool_calls": []
-}
-```
+---
 
 ## API reference
 

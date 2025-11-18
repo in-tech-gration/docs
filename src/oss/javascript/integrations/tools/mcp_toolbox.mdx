@@ -11,8 +11,6 @@ started](https://googleapis.github.io/genai-toolbox/getting-started/local_quicks
 Toolbox, see the
 [documentation](https://googleapis.github.io/genai-toolbox/getting-started/introduction/).
 
-![architecture](./assets/mcp_db_toolbox.png)
-
 ### Configure and deploy
 
 Toolbox is an open source server that you deploy and manage yourself. For more
@@ -40,12 +38,12 @@ from your server using the SDK:
 import { ChatVertexAI } from "@langchain/google-vertexai"
 import { ToolboxClient } from "@toolbox-sdk/core";
 import { tool } from "@langchain/core/tools";
-import { createAgent } from "langchain";
+import { createAgent } from "@langchain/classic";
 
 const model = new ChatVertexAI({
-  model: "gemini-2.0-flash",
-  temperature: 0,
-  maxRetries: 2,
+    model: "gemini-2.5-flash-lite",
+    temperature: 0,
+    maxRetries: 2,
 });
 
 // Replace with your Toolbox Server URL

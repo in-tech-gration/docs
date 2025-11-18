@@ -39,7 +39,7 @@ Enter the password for the Couchbase cluster:  ········
 If you want to get best in-class automated tracing of your model calls you can also set your [LangSmith](https://docs.smith.langchain.com/) API key by uncommenting below:
 
 ```python
-# os.environ["LANGSMITH_TRACING"] = "true"
+os.environ["LANGSMITH_TRACING"] = "true"
 # os.environ["LANGSMITH_API_KEY"] = getpass.getpass()
 ```
 
@@ -598,6 +598,8 @@ Filters are [pre-filters](https://docs.couchbase.com/server/current/vector-searc
 Hybrid Queries are additional search queries that can be used to tune the results being returned from the search index.
 
 Both filters and hybrid search queries have the same capabilites with slightly different syntax. Filters are [SearchQuery](https://docs.couchbase.com/python-sdk/current/howtos/full-text-searching-with-sdk.html#search-queries) objects while the hybrid search queries are [dictionaries](https://docs.couchbase.com/server/current/search/search-request-params.html).
+
+---
 
 ## API reference
 

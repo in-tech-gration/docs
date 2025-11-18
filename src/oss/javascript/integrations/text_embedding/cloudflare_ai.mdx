@@ -2,7 +2,7 @@
 title: CloudflareWorkersAIEmbeddings
 ---
 
-This will help you get started with Cloudflare Workers AI [embedding models](/oss/concepts/embedding_models) using LangChain. For detailed documentation on `CloudflareWorkersAIEmbeddings` features and configuration options, please refer to the [API reference](https://api.js.langchain.com/classes/langchain_cloudflare.CloudflareWorkersAIEmbeddings.html).
+This will help you get started with Cloudflare Workers AI [embedding models](/oss/integrations/text_embedding) using LangChain. For detailed documentation on `CloudflareWorkersAIEmbeddings` features and configuration options, please refer to the [API reference](https://api.js.langchain.com/classes/langchain_cloudflare.CloudflareWorkersAIEmbeddings.html).
 
 ## Overview
 
@@ -46,14 +46,17 @@ If you want to get automated tracing of your model calls you can also set your [
 
 The LangChain CloudflareWorkersAIEmbeddings integration lives in the `@langchain/cloudflare` package:
 
-```{=mdx}
-import IntegrationInstallTooltip from "@mdx_components/integration_install_tooltip.mdx";
-<IntegrationInstallTooltip></IntegrationInstallTooltip>
-
-<Npm2Yarn>
-  @langchain/cloudflare @langchain/core
-</Npm2Yarn>
+<CodeGroup>
+```bash npm
+npm install @langchain/cloudflare @langchain/core
 ```
+```bash yarn
+yarn add @langchain/cloudflare @langchain/core
+```
+```bash pnpm
+pnpm add @langchain/cloudflare @langchain/core
+```
+</CodeGroup>
 
 ## Usage
 
@@ -121,6 +124,8 @@ export default {
   },
 };
 ```
+
+---
 
 ## API reference
 

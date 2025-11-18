@@ -36,27 +36,75 @@ npm install -S mysql2
 
 ### Standard usage
 
-import IntegrationInstallTooltip from '/snippets/javascript-integrations/integration-install-tooltip.mdx';
-
-<IntegrationInstallTooltip/>
+<Tip>
+See [this section for general instructions on installing LangChain packages](/oss/langchain/install).
+</Tip>
 
 ```bash npm
 npm install @langchain/openai @langchain/community @langchain/core
 ```
 
-import Singlestore from "/snippets/javascript-integrations/examples/indexes/vector_stores/singlestore.mdx";
+```typescript
+import { SingleStoreVectorStore } from "@langchain/community/vectorstores/singlestore";
+import { OpenAIEmbeddings } from "@langchain/openai";
 
-Below is a straightforward example showcasing how to import the relevant module and perform a base similarity search using the `SingleStoreVectorStore`:
+export const run = async () => {
+  const vectorStore = await SingleStoreVectorStore.fromTexts(
+    ["Hello world", "Bye bye", "hello nice world"],
+    [{ id: 2 }, { id: 1 }, { id: 3 }],
+    new OpenAIEmbeddings(),
+    {
+      connectionOptions: {
+        host: process.env.SINGLESTORE_HOST,
+        port: Number(process.env.SINGLESTORE_PORT),
+        user: process.env.SINGLESTORE_USERNAME,
+        password: process.env.SINGLESTORE_PASSWORD,
+        database: process.env.SINGLESTORE_DATABASE,
+      },
+    }
+  );
 
-<Singlestore />
+  const resultOne = await vectorStore.similaritySearch("hello world", 1);
+  console.log(resultOne);
+  await vectorStore.end();
+};
+```
 
 ### Metadata Filtering
 
-import SinglestoreWithMetadataFilter from "/snippets/javascript-integrations/examples/indexes/vector_stores/singlestore_with_metadata_filter.mdx";
+```typescript
+import { SingleStoreVectorStore } from "@langchain/community/vectorstores/singlestore";
+import { OpenAIEmbeddings } from "@langchain/openai";
 
-If it is needed to filter results based on specific metadata fields, you can pass a filter parameter to narrow down your search to the documents that match all specified fields in the filter object:
+export const run = async () => {
+  const vectorStore = await SingleStoreVectorStore.fromTexts(
+    ["Good afternoon", "Bye bye", "Boa tarde!", "Até logo!"],
+    [
+      { id: 1, language: "English" },
+      { id: 2, language: "English" },
+      { id: 3, language: "Portugese" },
+      { id: 4, language: "Portugese" },
+    ],
+    new OpenAIEmbeddings(),
+    {
+      connectionOptions: {
+        host: process.env.SINGLESTORE_HOST,
+        port: Number(process.env.SINGLESTORE_PORT),
+        user: process.env.SINGLESTORE_USERNAME,
+        password: process.env.SINGLESTORE_PASSWORD,
+        database: process.env.SINGLESTORE_DATABASE,
+      },
+      distanceMetric: "EUCLIDEAN_DISTANCE",
+    }
+  );
 
-<SinglestoreWithMetadataFilter />
+  const resultOne = await vectorStore.similaritySearch("greetings", 1, {
+    language: "Portugese",
+  });
+  console.log(resultOne);
+  await vectorStore.end();
+};
+```
 
 ### Vector indexes
 
@@ -66,18 +114,96 @@ Additionally, if your vectors differ in dimensionality from the default OpenAI e
 
 ### Hybrid search
 
-import SinglestoreHybridSearch from "/snippets/javascript-integrations/examples/indexes/vector_stores/singlestore_hybrid_search.mdx";
+```typescript
+import { SingleStoreVectorStore } from "@langchain/community/vectorstores/singlestore";
+import { OpenAIEmbeddings } from "@langchain/openai";
 
-SingleStoreDB presents a diverse range of search strategies, each meticulously crafted to cater to specific use cases and user preferences.
-The default `VECTOR_ONLY` strategy utilizes vector operations such as `DOT_PRODUCT` or `EUCLIDEAN_DISTANCE` to calculate similarity scores directly between vectors, while `TEXT_ONLY` employs Lucene-based full-text search, particularly advantageous for text-centric applications.
-For users seeking a balanced approach, `FILTER_BY_TEXT` first refines results based on text similarity before conducting vector comparisons, whereas `FILTER_BY_VECTOR` prioritizes vector similarity, filtering results before assessing text similarity for optimal matches.
-Notably, both `FILTER_BY_TEXT` and `FILTER_BY_VECTOR` necessitate a full-text index for operation. Additionally, `WEIGHTED_SUM` emerges as a sophisticated strategy, calculating the final similarity score by weighing vector and text similarities, albeit exclusively utilizing dot_product distance calculations and also requiring a full-text index.
-These versatile strategies empower users to fine-tune searches according to their unique needs, facilitating efficient and precise data retrieval and analysis.
-Moreover, SingleStoreDB's hybrid approaches, exemplified by `FILTER_BY_TEXT`, `FILTER_BY_VECTOR`, and `WEIGHTED_SUM` strategies, seamlessly blend vector and text-based searches to maximize efficiency and accuracy, ensuring users can fully leverage the platform's capabilities for a wide range of applications.
+export const run = async () => {
+  const vectorStore = await SingleStoreVectorStore.fromTexts(
+    [
+      "In the parched desert, a sudden rainstorm brought relief, as the droplets danced upon the thirsty earth, rejuvenating the landscape with the sweet scent of petrichor.",
+      "Amidst the bustling cityscape, the rain fell relentlessly, creating a symphony of pitter-patter on the pavement, while umbrellas bloomed like colorful flowers in a sea of gray.",
+      "High in the mountains, the rain transformed into a delicate mist, enveloping the peaks in a mystical veil, where each droplet seemed to whisper secrets to the ancient rocks below.",
+      "Blanketing the countryside in a soft, pristine layer, the snowfall painted a serene tableau, muffling the world in a tranquil hush as delicate flakes settled upon the branches of trees like nature's own lacework.",
+      "In the urban landscape, snow descended, transforming bustling streets into a winter wonderland, where the laughter of children echoed amidst the flurry of snowballs and the twinkle of holiday lights.",
+      "Atop the rugged peaks, snow fell with an unyielding intensity, sculpting the landscape into a pristine alpine paradise, where the frozen crystals shimmered under the moonlight, casting a spell of enchantment over the wilderness below.",
+    ],
+    [
+      { category: "rain" },
+      { category: "rain" },
+      { category: "rain" },
+      { category: "snow" },
+      { category: "snow" },
+      { category: "snow" },
+    ],
+    new OpenAIEmbeddings(),
+    {
+      connectionOptions: {
+        host: process.env.SINGLESTORE_HOST,
+        port: Number(process.env.SINGLESTORE_PORT),
+        user: process.env.SINGLESTORE_USERNAME,
+        password: process.env.SINGLESTORE_PASSWORD,
+        database: process.env.SINGLESTORE_DATABASE,
+      },
+      distanceMetric: "DOT_PRODUCT",
+      useVectorIndex: true,
+      useFullTextIndex: true,
+    }
+  );
 
-<SinglestoreHybridSearch />
+  const resultOne = await vectorStore.similaritySearch(
+    "rainstorm in parched desert, rain",
+    1,
+    { category: "rain" }
+  );
+  console.log(resultOne[0].pageContent);
+
+  await vectorStore.setSearchConfig({
+    searchStrategy: "TEXT_ONLY",
+  });
+  const resultTwo = await vectorStore.similaritySearch(
+    "rainstorm in parched desert, rain",
+    1
+  );
+  console.log(resultTwo[0].pageContent);
+
+  await vectorStore.setSearchConfig({
+    searchStrategy: "FILTER_BY_TEXT",
+    filterThreshold: 0.1,
+  });
+  const resultThree = await vectorStore.similaritySearch(
+    "rainstorm in parched desert, rain",
+    1
+  );
+  console.log(resultThree[0].pageContent);
+
+  await vectorStore.setSearchConfig({
+    searchStrategy: "FILTER_BY_VECTOR",
+    filterThreshold: 0.1,
+  });
+  const resultFour = await vectorStore.similaritySearch(
+    "rainstorm in parched desert, rain",
+    1
+  );
+  console.log(resultFour[0].pageContent);
+
+  await vectorStore.setSearchConfig({
+    searchStrategy: "WEIGHTED_SUM",
+    textWeight: 0.2,
+    vectorWeight: 0.8,
+    vectorselectCountMultiplier: 10,
+  });
+  const resultFive = await vectorStore.similaritySearch(
+    "rainstorm in parched desert, rain",
+    1
+  );
+  console.log(resultFive[0].pageContent);
+
+  await vectorStore.end();
+};
+```
 
 ## Related
 
-- Vector store [conceptual guide](/oss/concepts/#vectorstores)
-- Vector store [how-to guides](/oss/how-to/#vectorstores)
+- Vector store [conceptual guide](/oss/integrations/vectorstores)
+- Vector store [how-to guides](/oss/integrations/vectorstores)

@@ -20,19 +20,27 @@ Then, set your API key as `process.env.SERPAPI_API_KEY` or pass it in as an `api
 
 ## Usage
 
-import IntegrationInstallTooltip from '/snippets/javascript-integrations/integration-install-tooltip.mdx';
-
-<IntegrationInstallTooltip/>
+<Tip>
+See [this section for general instructions on installing LangChain packages](/oss/langchain/install).
+</Tip>
 
 ```bash npm
 npm install @langchain/openai @langchain/community @langchain/core
 ```
 
-import GoogleTrends from "/snippets/javascript-integrations/examples/tools/google_trends.mdx";
+```typescript
+import { SERPGoogleTrendsTool } from "@langchain/community/tools/google_trends";
 
-<GoogleTrends />
+export async function run() {
+  const tool = new SERPGoogleTrendsTool();
+
+  const res = await tool.invoke("Monster");
+
+  console.log(res);
+}
+```
 
 ## Related
 
 - Tool [conceptual guide](/oss/langchain/tools)
-- Tool [how-to guides](/oss/how-to/#tools)
+- Tool [how-to guides](/oss/langchain/tools)

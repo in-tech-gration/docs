@@ -16,7 +16,7 @@ This will help you get started with Outlines [chat models](/oss/langchain/models
 
 ### Model features
 
-| [Tool calling](/oss/langchain/tools) | [Structured output](/oss/langchain/structured-output) | JSON mode | [Image input](/oss/how-to/multimodal_inputs/) | Audio input | Video input | [Token-level streaming](/oss/langchain/streaming/) | Native async | [Token usage](/oss/how-to/chat_token_usage_tracking/) | [Logprobs](/oss/how-to/logprobs/) |
+| [Tool calling](/oss/langchain/tools) | [Structured output](/oss/langchain/structured-output) | JSON mode | [Image input](/oss/langchain/messages#multimodal) | Audio input | Video input | [Token-level streaming](/oss/langchain/streaming/) | Native async | [Token usage](/oss/langchain/models#token-usage) | [Logprobs](/oss/langchain/models#log-probabilities) |
 | :---: | :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: | :---: |
 | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ |
 
@@ -33,7 +33,7 @@ There is no built-in auth mechanism for Outlines.
 The LangChain Outlines integration lives in the `langchain-community` package and requires the `outlines` library:
 
 ```python
-%pip install -qU langchain-community outlines
+pip install -qU langchain-community outlines
 ```
 
 ## Instantiation
@@ -59,7 +59,7 @@ model = ChatOutlines(model="microsoft/phi-2")  # defaults to transformers backen
 ## Invocation
 
 ```python
-from langchain_core.messages import HumanMessage
+from langchain.messages import HumanMessage
 
 messages = [HumanMessage(content="What will the capital of mars be called?")]
 response = model.invoke(messages)
@@ -178,6 +178,8 @@ result = _model.invoke("What weighs more, a pound of bricks or a pound of feathe
 
 result
 ```
+
+---
 
 ## API reference
 

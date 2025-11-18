@@ -11,9 +11,9 @@ You can sign up for a Nomic account and create an API key [here](https://atlas.n
 
 You'll first need to install the [`@langchain/nomic`](https://www.npmjs.com/package/@langchain/nomic) package:
 
-import IntegrationInstallTooltip from '/snippets/javascript-integrations/integration-install-tooltip.mdx';
-
-<IntegrationInstallTooltip/>
+<Tip>
+See [this section for general instructions on installing LangChain packages](/oss/langchain/install).
+</Tip>
 
 ```bash npm
 npm install @langchain/nomic @langchain/core
@@ -21,11 +21,22 @@ npm install @langchain/nomic @langchain/core
 
 ## Usage
 
-import Nomic from "/snippets/javascript-integrations/examples/models/embeddings/nomic.mdx";
+```typescript
+import { NomicEmbeddings } from "@langchain/nomic";
 
-<Nomic />
+/* Embed queries */
+const nomicEmbeddings = new NomicEmbeddings();
+const res = await nomicEmbeddings.embedQuery("Hello world");
+console.log(res);
+/* Embed documents */
+const documentRes = await nomicEmbeddings.embedDocuments([
+  "Hello world",
+  "Bye bye",
+]);
+console.log(documentRes);
+```
 
 ## Related
 
-- Embedding model [conceptual guide](/oss/concepts/embedding_models)
-- Embedding model [how-to guides](/oss/how-to/#embedding-models)
+- Embedding model [conceptual guide](/oss/integrations/text_embedding)
+- Embedding model [how-to guides](/oss/integrations/text_embedding)

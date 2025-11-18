@@ -41,7 +41,7 @@ from langchain_community.chat_models.azureml_endpoint import (
     AzureMLEndpointApiType,
     CustomOpenAIChatContentFormatter,
 )
-from langchain_core.messages import HumanMessage
+from langchain.messages import HumanMessage
 
 chat = AzureMLChatOnlineEndpoint(
     endpoint_url="https://<your-endpoint>.<your_region>.inference.ml.azure.com/score",

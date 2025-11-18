@@ -166,7 +166,7 @@ Some examples of valid values are:
   - `model = "azure/gpt-4o-mini"`
   - `model = "gemini/gpt-4o-mini"`
   - `model="claude-3-opus-20240229"`
-  - `model = "vertex_ai/gemini-1.5-flash-001"`
+  - `model = "vertex_ai/gemini-2.5-flash"`
   - See more details in [Zerox documentation](https://github.com/getomni-ai/zerox)
   - Defaults to `"gpt-4o-mini".`
 - `**zerox_kwargs` (dict): Additional Zerox-specific parameters such as API key, endpoint, etc.
@@ -174,7 +174,7 @@ Some examples of valid values are:
 
 **Methods**:
 
-- `lazy_load`: Generates an iterator of `Document` instances, each representing a page of the PDF, along with metadata including page number and source.
+- `lazy_load`: Generates an iterator of @[`Document`] instances, each representing a page of the PDF, along with metadata including page number and source.
 
 See full API documentaton [here](https://python.langchain.com/api_reference/community/document_loaders/langchain_community.document_loaders.pdf.ZeroxPDFLoader.html)
 

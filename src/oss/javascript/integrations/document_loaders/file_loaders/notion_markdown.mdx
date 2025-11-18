@@ -10,6 +10,14 @@ Then, unzip the downloaded file and move the unzipped folder into your repositor
 
 Once the folder is in your repository, simply run the example below:
 
-import NotionMarkdown from "/snippets/javascript-integrations/examples/document_loaders/notion_markdown.mdx";
+```typescript
+import { NotionLoader } from "@langchain/community/document_loaders/fs/notion";
 
-<NotionMarkdown />
+export const run = async () => {
+  /** Provide the directory path of your notion folder */
+  const directoryPath = "Notion_DB";
+  const loader = new NotionLoader(directoryPath);
+  const docs = await loader.load();
+  console.log({ docs });
+};
+```

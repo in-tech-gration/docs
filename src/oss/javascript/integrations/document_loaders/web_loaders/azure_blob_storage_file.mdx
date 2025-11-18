@@ -26,6 +26,22 @@ npm install @langchain/community @langchain/core @azure/storage-blob
 
 Once Unstructured is configured, you can use the Azure Blob Storage File loader to load files and then convert them into a Document.
 
-import AzureBlobStorageFile from "/snippets/javascript-integrations/examples/document_loaders/azure_blob_storage_file.mdx";
+```typescript
+import { AzureBlobStorageFileLoader } from "@langchain/community/document_loaders/web/azure_blob_storage_file";
 
-<AzureBlobStorageFile />
+const loader = new AzureBlobStorageFileLoader({
+  azureConfig: {
+    connectionString: "",
+    container: "container_name",
+    blobName: "example.txt",
+  },
+  unstructuredConfig: {
+    apiUrl: "http://localhost:8000/general/v0/general",
+    apiKey: "", // this will be soon required
+  },
+});
+
+const docs = await loader.load();
+
+console.log(docs);
+```

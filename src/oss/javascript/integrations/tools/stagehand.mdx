@@ -2,106 +2,95 @@
 title: Stagehand Toolkit
 ---
 
-import StagehandAiWebBrowser from "/snippets/javascript-integrations/examples/agents/stagehand_ai_web_browser.mdx";
-
-The Stagehand Toolkit equips your AI agent with the following capabilities:
-
-- **navigate()**: Navigate to a specific URL.
-- **act()**: Perform browser automation actions like clicking, typing, and navigation.
-- **extract()**: Extract structured data from web pages using Zod schemas.
-- **observe()**: Get a list of possible actions and elements on the current page.
-
-## Setup
-
-1. Install the required packages:
-
-```bash
-npm install @langchain/langgraph @langchain/community @langchain/core
-```
-
-2. Create a Stagehand Instance
-   If you plan to run the browser locally, you'll also need to install Playwright's browser dependencies.
-
-```bash
-npx playwright install
-```
-
-3. Set up your model provider credentials:
-
-For OpenAI:
-
-```bash
-export OPENAI_API_KEY="your-openai-api-key"
-```
-
-For Anthropic:
-
-```bash
-export ANTHROPIC_API_KEY="your-anthropic-api-key"
-```
-
-## Usage, Standalone, Local Browser
-
 ```typescript
-import { StagehandToolkit } from "langchain/community/agents/toolkits/stagehand";
-import { ChatOpenAI } from "@langchain/openai";
 import { Stagehand } from "@browserbasehq/stagehand";
+import {
+  StagehandActTool,
+  StagehandNavigateTool,
+} from "@langchain/community/agents/toolkits/stagehand";
+import { ChatOpenAI } from "@langchain/openai";
+import { createAgent } from "langchain";
 
-// Specify your Browserbase credentials.
-process.env.BROWSERBASE_API_KEY = "";
-process.env.BROWSERBASE_PROJECT_ID = "";
+async function main() {
+  // Initialize Stagehand once and pass it to the tools
+  const stagehand = new Stagehand({
+    env: "LOCAL",
+    enableCaching: true,
+  });
 
-// Specify OpenAI API key.
-process.env.OPENAI_API_KEY = "";
+  const actTool = new StagehandActTool(stagehand);
+  const navigateTool = new StagehandNavigateTool(stagehand);
 
-const stagehand = new Stagehand({
-  env: "LOCAL",
-  headless: false,
-  verbose: 2,
-  debugDom: true,
-  enableCaching: false,
-});
+  // Initialize the model
+  const model = new ChatOpenAI({
+    modelName: "gpt-4",
+    temperature: 0,
+  });
 
-// Create a Stagehand Toolkit with all the available actions from the Stagehand.
-const stagehandToolkit = await StagehandToolkit.fromStagehand(stagehand);
+  // Create the agent using langgraph
+  const agent = createAgent({
+    model,
+    tools: [actTool, navigateTool],
+  });
 
-const navigateTool = stagehandToolkit.tools.find(
-  (t) => t.name === "stagehand_navigate"
-);
-if (!navigateTool) {
-  throw new Error("Navigate tool not found");
+  // Execute the agent using streams
+  const inputs1 = {
+    messages: [
+      {
+        role: "user",
+        content: "Navigate to https://www.google.com",
+      },
+    ],
+  };
+
+  const stream1 = await agent.stream(inputs1, {
+    streamMode: "values",
+  });
+
+  for await (const { messages } of stream1) {
+    const msg =
+      messages && messages.length > 0
+        ? messages[messages.length - 1]
+        : undefined;
+    if (msg?.content) {
+      console.log(msg.content);
+    } else if (msg?.tool_calls && msg.tool_calls.length > 0) {
+      console.log(msg.tool_calls);
+    } else {
+      console.log(msg);
+    }
+  }
+
+  const inputs2 = {
+    messages: [
+      {
+        role: "user",
+        content: "Search for 'OpenAI'",
+      },
+    ],
+  };
+
+  const stream2 = await agent.stream(inputs2, {
+    streamMode: "values",
+  });
+
+  for await (const { messages } of stream2) {
+    const msg =
+      messages && messages.length > 0
+        ? messages[messages.length - 1]
+        : undefined;
+    if (msg?.content) {
+      console.log(msg.content);
+    } else if (msg?.tool_calls && msg.tool_calls.length > 0) {
+      console.log(msg.tool_calls);
+    } else {
+      console.log(msg);
+    }
+  }
 }
-await navigateTool.invoke("https://www.google.com");
 
-const actionTool = stagehandToolkit.tools.find(
-  (t) => t.name === "stagehand_act"
-);
-if (!actionTool) {
-  throw new Error("Action tool not found");
-}
-await actionTool.invoke('Search for "OpenAI"');
-
-const observeTool = stagehandToolkit.tools.find(
-  (t) => t.name === "stagehand_observe"
-);
-if (!observeTool) {
-  throw new Error("Observe tool not found");
-}
-const result = await observeTool.invoke(
-  "What actions can be performed on the current page?"
-);
-const observations = JSON.parse(result);
-
-// Handle observations as needed
-console.log(observations);
-
-const currentUrl = stagehand.page.url();
-expect(currentUrl).toContain("google.com/search?q=OpenAI");
+main();
 ```
-
-## Usage with LangGraph Agents
-
-<StagehandAiWebBrowser />
 
 ## Usage on Browserbase - remote headless browser
 
@@ -130,5 +119,5 @@ const stagehand = new Stagehand({
 ## Related
 
 - Tool [conceptual guide](/oss/langchain/tools)
-- Tool [how-to guides](/oss/how-to/#tools)
+- Tool [how-to guides](/oss/langchain/tools)
 - [Stagehand Documentation](https://github.com/browserbase/stagehand#readme)

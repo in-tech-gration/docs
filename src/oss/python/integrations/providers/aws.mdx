@@ -1,32 +1,32 @@
 ---
-title: Overview
+title: AWS (Amazon)
 ---
 
-The `LangChain` integrations related to [Amazon AWS](https://aws.amazon.com/) platform.
+This page covers all LangChain integrations with the [Amazon Web Services (AWS)](https://aws.amazon.com/) platform.
 
-First-party AWS integrations are available in the `langchain_aws` package.
-
-<CodeGroup>
-```bash pip
-pip install langchain-aws
-```
-
-```bash uv
-uv add langchain-aws
-```
-</CodeGroup>
-
-And there are also some community integrations available in the `langchain_community` package with the `boto3` optional dependency.
+{/* ## Installation and setup
 
 <CodeGroup>
-```bash pip
-pip install langchain-community boto3
-```
+    ```bash pip
+    pip install langchain-aws
+    ```
 
-```bash uv
-uv add langchain-community boto3
-```
+    ```bash uv
+    uv add langchain-aws
+    ```
 </CodeGroup>
+
+There are also some community integrations available in the `langchain_community` package with the `boto3` optional dependency.
+
+<CodeGroup>
+    ```bash pip
+    pip install langchain-community boto3
+    ```
+
+    ```bash uv
+    uv add langchain-community boto3
+    ```
+</CodeGroup> */}
 
 ## Chat models
 
@@ -55,9 +55,7 @@ yet support custom models. You can see a list of all
 [models that are supported here](https://docs.aws.amazon.com/bedrock/latest/userguide/conversation-inference.html).
 
 <Info>
-**We recommend the Converse API for users who do not need to use custom models. It can be accessed using [ChatBedrockConverse](https://python.langchain.com/api_reference/aws/chat_models/langchain_aws.chat_models.bedrock_converse.ChatBedrockConverse.html).**
-
-
+    **We recommend the Converse API for users who do not need to use custom models. It can be accessed using [ChatBedrockConverse](https://python.langchain.com/api_reference/aws/chat_models/langchain_aws.chat_models.bedrock_converse.ChatBedrockConverse.html).**
 </Info>
 
 See a [usage example](/oss/integrations/chat/bedrock).
@@ -193,13 +191,13 @@ from langchain_community.document_loaders.glue_catalog import GlueCatalogLoader
 We need to install several python libraries.
 
 <CodeGroup>
-```bash pip
-pip install boto3 requests requests-aws4auth
-```
+    ```bash pip
+    pip install boto3 requests requests-aws4auth
+    ```
 
-```bash uv
-uv add boto3 requests requests-aws4auth
-```
+    ```bash uv
+    uv add boto3 requests requests-aws4auth
+    ```
 </CodeGroup>
 
 See a [usage example](/oss/integrations/vectorstores/opensearch#using-aos-amazon-opensearch-service).
@@ -221,13 +219,13 @@ See [detail configuration instructions](/oss/integrations/vectorstores/documentd
 We need to install the `pymongo` python package.
 
 <CodeGroup>
-```bash pip
-pip install pymongo
-```
+    ```bash pip
+    pip install pymongo
+    ```
 
-```bash uv
-uv add pymongo
-```
+    ```bash uv
+    uv add pymongo
+    ```
 </CodeGroup>
 
 #### Deploy DocumentDB on AWS
@@ -242,6 +240,7 @@ See a [usage example](/oss/integrations/vectorstores/documentdb).
 from langchain_community.vectorstores import DocumentDBVectorSearch
 ```
 ### Amazon MemoryDB
+
 [Amazon MemoryDB](https://aws.amazon.com/memorydb/) is a durable, in-memory database service that delivers ultra-fast performance. MemoryDB is compatible with Redis OSS, a popular open source data store,
 enabling you to quickly build applications using the same flexible and friendly Redis OSS APIs, and commands that they already use today.
 
@@ -277,13 +276,13 @@ See a [usage example](/oss/integrations/vectorstores/memorydb).
 We need to install the `langchain-aws` library.
 
 <CodeGroup>
-```bash pip
-pip install langchain-aws
-```
+    ```bash pip
+    pip install langchain-aws
+    ```
 
-```bash uv
-uv add langchain-aws
-```
+    ```bash uv
+    uv add langchain-aws
+    ```
 </CodeGroup>
 
 See a [usage example](/oss/integrations/retrievers/amazon_kendra_retriever).
@@ -301,13 +300,13 @@ from langchain_aws import AmazonKendraRetriever
 We need to install the `langchain-aws` library.
 
 <CodeGroup>
-```bash pip
-pip install langchain-aws
-```
+    ```bash pip
+    pip install langchain-aws
+    ```
 
-```bash uv
-uv add langchain-aws
-```
+    ```bash uv
+    uv add langchain-aws
+    ```
 </CodeGroup>
 
 See a [usage example](/oss/integrations/retrievers/bedrock).
@@ -329,39 +328,16 @@ from langchain_aws import AmazonKnowledgeBasesRetriever
 We need to install `boto3` python library.
 
 <CodeGroup>
-```bash pip
-pip install boto3
-```
+    ```bash pip
+    pip install boto3
+    ```
 
-```bash uv
-uv add boto3
-```
+    ```bash uv
+    uv add boto3
+    ```
 </CodeGroup>
 
 See a [usage example](/oss/integrations/tools/awslambda).
-
-## Memory
-
-### AWS DynamoDB
-
->[AWS DynamoDB](https://awscli.amazonaws.com/v2/documentation/api/latest/reference/dynamodb/index.html)
-> is a fully managed `NoSQL` database service that provides fast and predictable performance with seamless scalability.
-
-We have to configure the [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html).
-
-We need to install the `boto3` library.
-
-<CodeGroup>
-```bash pip
-pip install boto3
-```
-
-```bash uv
-uv add boto3
-```
-</CodeGroup>
-
-See a [usage example](/oss/integrations/memory/aws_dynamodb).
 
 ```python
 from langchain_community.chat_message_histories import DynamoDBChatMessageHistory
@@ -377,13 +353,13 @@ from langchain_community.chat_message_histories import DynamoDBChatMessageHistor
 For the Cypher and SPARQL integrations below, we need to install the `langchain-aws` library.
 
 <CodeGroup>
-```bash pip
-pip install langchain-aws
-```
+    ```bash pip
+    pip install langchain-aws
+    ```
 
-```bash uv
-uv add langchain-aws
-```
+    ```bash uv
+    uv add langchain-aws
+    ```
 </CodeGroup>
 
 ### Amazon Neptune with Cypher
@@ -398,14 +374,10 @@ from langchain_aws.chains import create_neptune_opencypher_qa_chain
 
 ### Amazon Neptune with SPARQL
 
-See a [usage example](/oss/integrations/graphs/amazon_neptune_sparql).
-
 ```python
 from langchain_aws.graphs import NeptuneRdfGraph
 from langchain_aws.chains import create_neptune_sparql_qa_chain
 ```
-
-
 
 ## Callbacks
 
@@ -427,13 +399,13 @@ from langchain_community.callbacks.bedrock_anthropic_callback import BedrockAnth
 We need to install several python libraries.
 
 <CodeGroup>
-```bash pip
-pip install google-search-results sagemaker
-```
+    ```bash pip
+    pip install google-search-results sagemaker
+    ```
 
-```bash uv
-uv add google-search-results sagemaker
-```
+    ```bash uv
+    uv add google-search-results sagemaker
+    ```
 </CodeGroup>
 
 See a [usage example](/oss/integrations/callbacks/sagemaker_tracking).
@@ -453,13 +425,13 @@ from langchain_community.callbacks import SageMakerCallbackHandler
 We need to install the `boto3` and `nltk` libraries.
 
 <CodeGroup>
-```bash pip
-pip install boto3 nltk
-```
+    ```bash pip
+    pip install boto3 nltk
+    ```
 
-```bash uv
-uv add boto3 nltk
-```
+    ```bash uv
+    uv add boto3 nltk
+    ```
 </CodeGroup>
 
 See a [usage example](https://python.langchain.com/v0.1/docs/guides/productionization/safety/amazon_comprehend_chain/).

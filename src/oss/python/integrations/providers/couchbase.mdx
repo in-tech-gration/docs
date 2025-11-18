@@ -106,8 +106,6 @@ docs = loader.load()
 ### CouchbaseCache
 Use Couchbase as a cache for prompts and responses.
 
-See a [usage example](/oss/integrations/llm_caching/#couchbase-caches).
-
 To import this cache:
 ```python
 from langchain_couchbase.cache import CouchbaseCache
@@ -134,8 +132,6 @@ API Reference: [CouchbaseCache](https://couchbase-ecosystem.github.io/langchain-
 ### CouchbaseSemanticCache
 Semantic caching allows users to retrieve cached prompts based on the semantic similarity between the user input and previously cached inputs. Under the hood it uses Couchbase as both a cache and a vectorstore.
 The CouchbaseSemanticCache needs a Search Index defined to work. Please look at the [usage example](/oss/integrations/vectorstores/couchbase) on how to set up the index.
-
-See a [usage example](/oss/integrations/llm_caching/#couchbase-caches).
 
 To import this cache:
 ```python
@@ -166,24 +162,3 @@ set_llm_cache(
 
 API Reference: [CouchbaseSemanticCache](https://couchbase-ecosystem.github.io/langchain-couchbase/langchain_couchbase.html#langchain_couchbase.cache.CouchbaseSemanticCache)
 
-## Chat Message History
-Use Couchbase as the storage for your chat messages.
-
-See a [usage example](/oss/integrations/memory/couchbase_chat_message_history).
-
-To use the chat message history in your applications:
-```python
-from langchain_couchbase.chat_message_histories import CouchbaseChatMessageHistory
-
-message_history = CouchbaseChatMessageHistory(
-    cluster=cluster,
-    bucket_name=BUCKET_NAME,
-    scope_name=SCOPE_NAME,
-    collection_name=COLLECTION_NAME,
-    session_id="test-session",
-)
-
-message_history.add_user_message("hi!")
-```
-
-API Reference: [CouchbaseChatMessageHistory](https://couchbase-ecosystem.github.io/langchain-couchbase/langchain_couchbase.html#module-langchain_couchbase.chat_message_histories)

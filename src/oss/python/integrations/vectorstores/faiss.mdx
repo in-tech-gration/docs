@@ -8,7 +8,7 @@ title: Faiss
 
 You can find the FAISS documentation at [this page](https://faiss.ai/).
 
-This notebook shows how to use functionality related to the `FAISS` vector database. It will show functionality specific to this integration. After going through, it may be useful to explore [relevant use-case pages](/docs/how_to#qa-with-rag) to learn how to use this vectorstore as part of a larger chain.
+This notebook shows how to use functionality related to the `FAISS` vector database. It will show functionality specific to this integration. After going through, it may be useful to explore [relevant use-case pages](/oss/langchain/rag) to learn how to use this vectorstore as part of a larger chain.
 
 ## Setup
 
@@ -23,7 +23,7 @@ pip install -qU langchain-community faiss-cpu
 If you want to get best in-class automated tracing of your model calls you can also set your [LangSmith](https://docs.smith.langchain.com/) API key by uncommenting below:
 
 ```python
-# os.environ["LANGSMITH_TRACING"] = "true"
+os.environ["LANGSMITH_TRACING"] = "true"
 # os.environ["LANGSMITH_API_KEY"] = getpass.getpass()
 ```
 
@@ -307,6 +307,8 @@ db1.docstore._dict
 {'b752e805-350e-4cf5-ba54-0883d46a3a44': Document(page_content='foo'),
  '08192d92-746d-4cd1-b681-bdfba411f459': Document(page_content='bar')}
 ```
+
+---
 
 ## API reference
 

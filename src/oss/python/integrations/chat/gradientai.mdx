@@ -41,8 +41,8 @@ if not os.getenv("DIGITALOCEAN_INFERENCE_KEY"):
 If you want to get automated tracing of your model calls you can also set your [LangSmith](https://docs.smith.langchain.com/) API key by uncommenting below:
 
 ```python
-# os.environ["LANGSMITH_TRACING"] = "true"
-# os.environ["LANGSMITH_API_KEY"] = getpass.getpass("Enter your LangSmith API key: ")
+os.environ["LANGSMITH_TRACING"] = "true"
+os.environ["LANGSMITH_API_KEY"] = getpass.getpass("Enter your LangSmith API key: ")
 ```
 
 ### Installation
@@ -50,7 +50,7 @@ If you want to get automated tracing of your model calls you can also set your [
 The DigitalOcean Gradient integration lives in the `langchain-gradient` package:
 
 ```python
-%pip install -qU langchain-gradient
+pip install -qU langchain-gradient
 ```
 
 ```output
@@ -145,6 +145,8 @@ chain.invoke(
 ```output
 AIMessage(content='The Eiffel Tower was designed by Gustave Eiffel\'s engineering company and was completed in 1889. (Sentence: "It was designed by Gustave Eiffel\'s engineering company. The tower is one of the most recognizable structures in the world. ...  The Eiffel Tower is located in Paris and was completed in 1889.")', additional_kwargs={}, response_metadata={'finish_reason': 'stop'}, id='run--c23ffab6-06ae-4130-87b1-d5b2e7744906-0', usage_metadata={'input_tokens': 153, 'output_tokens': 74, 'total_tokens': 227})
 ```
+
+---
 
 ## API reference
 

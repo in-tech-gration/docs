@@ -20,9 +20,9 @@ Lets construct a simple ReACT agent to start:
 ```python
 from typing import Annotated, Literal, TypedDict
 from langchain.chat_models import init_chat_model
-from langchain_core.tools import tool
-from langgraph.graph import END, START, StateGraph
+from langchain.tools import tool
 from langgraph.prebuilt import ToolNode
+from langgraph.graph import END, START, StateGraph
 from langgraph.graph.message import add_messages
 
 class State(TypedDict):
@@ -42,15 +42,17 @@ def search(query: str) -> str:
 
 tools = [search]
 tool_node = ToolNode(tools)
-model = init_chat_model("claude-3-5-sonnet-latest").bind_tools(tools)
+model = init_chat_model("claude-sonnet-4-5-20250929").bind_tools(tools)
 
 # Define the function that determines whether to continue or not
 def should_continue(state: State) -> Literal["tools", END]:
     messages = state['messages']
     last_message = messages[-1]
+
     # If the LLM makes a tool call, then we route to the "tools" node
     if last_message.tool_calls:
         return "tools"
+
     # Otherwise, we stop (reply to the user)
     return END
 
@@ -58,6 +60,7 @@ def should_continue(state: State) -> Literal["tools", END]:
 def call_model(state: State):
     messages = state['messages']
     response = model.invoke(messages)
+
     # We return a list, because this will get added to the existing list
     return {"messages": [response]}
 
@@ -255,9 +258,9 @@ node_experiment_results = await aevaluate(
 ```python
 from typing import Annotated, Literal, TypedDict
 from langchain.chat_models import init_chat_model
-from langchain_core.tools import tool
-from langgraph.graph import END, START, StateGraph
+from langchain.tools import tool
 from langgraph.prebuilt import ToolNode
+from langgraph.graph import END, START, StateGraph
 from langgraph.graph.message import add_messages
 from langsmith import Client, aevaluate
 
@@ -279,15 +282,17 @@ def search(query: str) -> str:
 
 tools = [search]
 tool_node = ToolNode(tools)
-model = init_chat_model("claude-3-5-sonnet-latest").bind_tools(tools)
+model = init_chat_model("claude-sonnet-4-5-20250929").bind_tools(tools)
 
 # Define the function that determines whether to continue or not
 def should_continue(state: State) -> Literal["tools", END]:
     messages = state['messages']
     last_message = messages[-1]
+
     # If the LLM makes a tool call, then we route to the "tools" node
     if last_message.tool_calls:
         return "tools"
+
     # Otherwise, we stop (reply to the user)
     return END
 

@@ -40,7 +40,7 @@ A set of agentic examples for each tool.
 ```typescript
 import dotenv from "dotenv";
 import { ChatOpenAI } from "@langchain/openai";
-import { createReactAgent } from "@langchain/langgraph/prebuilt";
+import { createAgent } from "@langchain/agents";
 import { DecodoUniversalTool } from "@decodo/langchain-ts";
 
 dotenv.config();
@@ -55,7 +55,7 @@ const main = async () => {
     model: "gpt-4o-mini",
   });
 
-  const agent = createReactAgent({
+  const agent = createAgent({
     llm: model,
     tools: [decodoUniversalTool],
   });
@@ -96,7 +96,7 @@ const main = async () => {
     model: "gpt-5-mini",
   });
 
-  const agent = createReactAgent({
+  const agent = createAgent({
     llm: model,
     tools: [decodoGoogleSearchTool],
   });
@@ -133,7 +133,7 @@ const main = async () => {
     model: "gpt-5-mini",
   });
 
-  const agent = createReactAgent({
+  const agent = createAgent({
     llm: model,
     tools: [decodoAmazonSearchTool],
   });

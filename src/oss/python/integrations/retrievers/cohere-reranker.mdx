@@ -4,18 +4,18 @@ title: Cohere reranker
 
 >[Cohere](https://cohere.ai/about) is a Canadian startup that provides natural language processing models that help companies improve human-machine interactions.
 
-This notebook shows how to use [Cohere's rerank endpoint](https://docs.cohere.com/docs/reranking) in a retriever. This builds on top of ideas in the [ContextualCompressionRetriever](/oss/how-to/contextual_compression).
+This notebook shows how to use [Cohere's rerank endpoint](https://docs.cohere.com/docs/reranking) in a retriever.
 
 ```python
-%pip install -qU  cohere
+pip install -qU  cohere
 ```
 
 ```python
-%pip install -qU  faiss
+pip install -qU  faiss
 
 # OR  (depending on Python version)
 
-%pip install -qU  faiss-cpu
+pip install -qU  faiss-cpu
 ```
 
 ```python
@@ -26,6 +26,9 @@ import os
 
 if "COHERE_API_KEY" not in os.environ:
     os.environ["COHERE_API_KEY"] = getpass.getpass("Cohere API Key:")
+
+if "LANGSMITH_API_KEY" not in os.environ:
+    os.environ["LANGSMITH_API_KEY"] = getpass.getpass("Langsmith API Key:")
 ```
 
 ```python
@@ -46,7 +49,7 @@ Let's start by initializing a simple vector store retriever and storing the 2023
 
 ```python
 from langchain_community.document_loaders import TextLoader
-from langchain_community.embeddings import CohereEmbeddings
+from langchain_cohere import CohereEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
@@ -272,11 +275,13 @@ Now let's wrap our base retriever with a `ContextualCompressionRetriever`. We'll
 Do note that it is mandatory to specify the model name in CohereRerank!
 
 ```python
-from langchain.retrievers.contextual_compression import ContextualCompressionRetriever
-from langchain_cohere import CohereRerank
-from langchain_community.llms import Cohere
+from langsmith import Client
+from langchain_classic.retrievers.contextual_compression import (
+    ContextualCompressionRetriever,
+)
+from langchain_cohere import ChatCohere, CohereRerank
 
-llm = Cohere(temperature=0)
+llm = ChatCohere(temperature=0)
 compressor = CohereRerank(model="rerank-english-v3.0")
 compression_retriever = ContextualCompressionRetriever(
     base_compressor=compressor, base_retriever=retriever
@@ -290,21 +295,30 @@ pretty_print_docs(compressed_docs)
 
 You can of course use this retriever within a QA pipeline
 
-```python
-from langchain.chains import RetrievalQA
-```
 
 ```python
-chain = RetrievalQA.from_chain_type(
-    llm=Cohere(temperature=0), retriever=compression_retriever
+client = Client()
+prompt = client.pull_prompt("rlm/rag-prompt", include_model=True)
+
+
+def format_docs(docs):
+    return "\n\n".join(doc.page_content for doc in docs)
+
+qa_chain = (
+    {
+        "context": compression_retriever | format_docs,
+        "question": RunnablePassthrough(),
+    }
+    | prompt
+    | llm
+    | StrOutputParser()
 )
 ```
 
 ```python
-chain({"query": query})
+qa_chain.invoke("What did the president say about Ketanji Jackson Brown?")
 ```
 
 ```output
-{'query': 'What did the president say about Ketanji Brown Jackson',
- 'result': " The president speaks highly of Ketanji Brown Jackson, stating that she is one of the nation's top legal minds, and will continue the legacy of excellence of Justice Breyer. The president also mentions that he worked with her family and that she comes from a family of public school educators and police officers. Since her nomination, she has received support from various groups, including the Fraternal Order of Police and judges from both major political parties. \n\nWould you like me to extract another sentence from the provided text? "}
+ " The president speaks highly of Ketanji Brown Jackson, stating that she is one of the nation's top legal minds, and will continue the legacy of excellence of Justice Breyer. The president also mentions that he worked with her family and that she comes from a family of public school educators and police officers. Since her nomination, she has received support from various groups, including the Fraternal Order of Police and judges from both major political parties. \n\nWould you like me to extract another sentence from the provided text? "
 ```

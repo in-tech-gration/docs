@@ -12,9 +12,9 @@ This is an experimental community implementation, and it is not officially suppo
 
 ## Setup
 
-import IntegrationInstallTooltip from '/snippets/javascript-integrations/integration-install-tooltip.mdx';
-
-<IntegrationInstallTooltip/>
+<Tip>
+See [this section for general instructions on installing LangChain packages](/oss/langchain/install).
+</Tip>
 
 ```bash npm
 npm install @langchain/community @langchain/core
@@ -22,6 +22,35 @@ npm install @langchain/community @langchain/core
 
 ## Usage
 
-import DatadogTracer from '/snippets/javascript-integrations/examples/callbacks/datadog_tracer.mdx';
+```typescript
+import { OpenAI } from "@langchain/openai";
+import { DatadogLLMObsTracer } from "@langchain/community/experimental/callbacks/handlers/datadog";
 
-<DatadogTracer />
+/**
+ * This example demonstrates how to use the DatadogLLMObsTracer with the OpenAI model.
+ * It will produce a "llm" span with the input and output of the model inside the meta field.
+ *
+ * To run this example, you need to have a valid Datadog API key and OpenAI API key.
+ */
+export const run = async () => {
+  const model = new OpenAI({
+    model: "gpt-4",
+    temperature: 0.7,
+    maxTokens: 1000,
+    maxRetries: 5,
+  });
+
+  const res = await model.invoke(
+    "Question: What would be a good company name a company that makes colorful socks?\nAnswer:",
+    {
+      callbacks: [
+        new DatadogLLMObsTracer({
+          mlApp: "my-ml-app",
+        }),
+      ],
+    }
+  );
+
+  console.log({ res });
+};
+```

@@ -98,14 +98,12 @@ web_search_tool = WebSearchTool(
 ## Instantiation
 
 ```python
-from typing import Optional
-
-from langchain_core.tools import tool
+from langchain.tools import tool
 from pydantic import BaseModel, Field
 
 
 @tool
-def get_supercopa_trophies_count(club_name: str) -> Optional[int]:
+def get_supercopa_trophies_count(club_name: str) -> int | None:
     """Returns information about supercopa trophies count.
 
     Args:
@@ -201,7 +199,7 @@ llm_with_translation_tool = chat_with_translation.bind_tools([translation_tool])
 The model will automatically choose the tool during invocation with all modes (streaming/non-streaming, sync/async).
 
 ```python
-from langchain_core.messages import HumanMessage
+from langchain.messages import HumanMessage
 
 # Example with graph tool and function tools
 llm_with_tools = chat.bind_tools([graph_tool, get_supercopa_trophies_count])
@@ -268,6 +266,8 @@ print(response.content)
 ## Chaining
 
 The WRITER Graph tool works differently from other tools; when used, the WRITER server automatically handles calling the Knowledge Graph and generating responses using RAG. Because of this automated server-side handling, you cannot invoke the `GraphTool` independently or use it as part of a LangChain chain. You must use the `GraphTool` directly with a `ChatWriter` instance as shown in the examples above.
+
+---
 
 ## API reference
 

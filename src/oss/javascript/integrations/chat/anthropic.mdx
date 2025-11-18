@@ -18,7 +18,7 @@ This will help you getting started with Anthropic [chat models](/oss/langchain/m
 
 See the links in the table headers below for guides on how to use specific features.
 
-| [Tool calling](/oss/langchain/tools) | [Structured output](/oss/langchain/structured-output) | JSON mode | [Image input](/oss/how-to/multimodal_inputs/) | Audio input | Video input | [Token-level streaming](/oss/langchain/streaming/) | [Token usage](/oss/how-to/chat_token_usage_tracking/) | [Logprobs](/oss/how-to/logprobs/) |
+| [Tool calling](/oss/langchain/tools) | [Structured output](/oss/langchain/structured-output) | JSON mode | [Image input](/oss/langchain/messages#multimodal) | Audio input | Video input | [Token-level streaming](/oss/langchain/streaming/) | [Token usage](/oss/langchain/models#token-usage) | [Logprobs](/oss/langchain/models#log-probabilities) |
 | :---: | :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: |
 | ✅ | ✅ | ❌ | ✅ | ❌ | ❌ | ✅ | ✅ | ❌ |
 
@@ -45,16 +45,17 @@ If you want to get automated tracing of your model calls you can also set your [
 
 The LangChain `ChatAnthropic` integration lives in the `@langchain/anthropic` package:
 
-```{=mdx}
-
-import IntegrationInstallTooltip from "@mdx_components/integration_install_tooltip.mdx";
-<IntegrationInstallTooltip></IntegrationInstallTooltip>
-
-<Npm2Yarn>
-  @langchain/anthropic @langchain/core
-</Npm2Yarn>
-
+<CodeGroup>
+```bash npm
+npm install @langchain/anthropic @langchain/core
 ```
+```bash yarn
+yarn add @langchain/anthropic @langchain/core
+```
+```bash pnpm
+pnpm add @langchain/anthropic @langchain/core
+```
+</CodeGroup>
 
 ## Instantiation
 
@@ -64,7 +65,7 @@ Now we can instantiate our model object and generate chat completions:
 import { ChatAnthropic } from "@langchain/anthropic"
 
 const llm = new ChatAnthropic({
-    model: "claude-3-haiku-20240307",
+    model: "claude-haiku-4-5-20251001",
     temperature: 0,
     maxTokens: undefined,
     maxRetries: 2,
@@ -93,7 +94,7 @@ AIMessage {
     "id": "msg_013WBXXiggy6gMbAUY6NpsuU",
     "type": "message",
     "role": "assistant",
-    "model": "claude-3-haiku-20240307",
+    "model": "claude-haiku-4-5-20251001",
     "stop_reason": "end_turn",
     "stop_sequence": null,
     "usage": {
@@ -103,7 +104,7 @@ AIMessage {
   },
   "response_metadata": {
     "id": "msg_013WBXXiggy6gMbAUY6NpsuU",
-    "model": "claude-3-haiku-20240307",
+    "model": "claude-haiku-4-5-20251001",
     "stop_reason": "end_turn",
     "stop_sequence": null,
     "usage": {
@@ -133,79 +134,14 @@ Voici la traduction en français :
 J'adore la programmation.
 ```
 
-## Chaining
-
-We can [chain](/oss/how-to/sequence/) our model with a prompt template like so:
-
-```typescript
-import { ChatPromptTemplate } from "@langchain/core/prompts"
-
-const prompt = ChatPromptTemplate.fromMessages(
-    [
-        [
-            "system",
-            "You are a helpful assistant that translates {input_language} to {output_language}.",
-        ],
-        ["human", "{input}"],
-    ]
-)
-
-const chain = prompt.pipe(llm);
-await chain.invoke(
-    {
-        input_language: "English",
-        output_language: "German",
-        input: "I love programming.",
-    }
-)
-```
-
-```output
-AIMessage {
-  "id": "msg_01Ca52fpd1mcGRhH4spzAWr4",
-  "content": "Ich liebe das Programmieren.",
-  "additional_kwargs": {
-    "id": "msg_01Ca52fpd1mcGRhH4spzAWr4",
-    "type": "message",
-    "role": "assistant",
-    "model": "claude-3-haiku-20240307",
-    "stop_reason": "end_turn",
-    "stop_sequence": null,
-    "usage": {
-      "input_tokens": 23,
-      "output_tokens": 11
-    }
-  },
-  "response_metadata": {
-    "id": "msg_01Ca52fpd1mcGRhH4spzAWr4",
-    "model": "claude-3-haiku-20240307",
-    "stop_reason": "end_turn",
-    "stop_sequence": null,
-    "usage": {
-      "input_tokens": 23,
-      "output_tokens": 11
-    },
-    "type": "message",
-    "role": "assistant"
-  },
-  "tool_calls": [],
-  "invalid_tool_calls": [],
-  "usage_metadata": {
-    "input_tokens": 23,
-    "output_tokens": 11,
-    "total_tokens": 34
-  }
-}
-```
-
 ## Content blocks
 
-One key difference to note between Anthropic models and most others is that the contents of a single Anthropic AI message can either be a single string or a **list of content blocks**. For example when an Anthropic model [calls a tool](/oss/langchain/tools), the tool invocation is part of the message content (as well as being exposed in the standardized `AIMessage.tool_calls` field):
+One key difference to note between Anthropic models and most others is that the contents of a single Anthropic @[`AIMessage`] can either be a single string or a **list of content blocks**. For example when an Anthropic model [calls a tool](/oss/langchain/tools), the tool invocation is part of the message content (as well as being exposed in the standardized `AIMessage.tool_calls` field):
 
 ```typescript
 import { ChatAnthropic } from "@langchain/anthropic";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
-import { z } from "zod";
+import * as z from "zod";
 import { zodToJsonSchema } from "zod-to-json-schema";
 
 const calculatorSchema = z.object({
@@ -223,7 +159,7 @@ const calculatorTool = {
 };
 
 const toolCallingLlm = new ChatAnthropic({
-  model: "claude-3-haiku-20240307",
+  model: "claude-haiku-4-5-20251001",
 }).bindTools([calculatorTool]);
 
 const toolPrompt = ChatPromptTemplate.fromMessages([
@@ -265,7 +201,7 @@ AIMessage {
     "id": "msg_01DZGs9DyuashaYxJ4WWpWUP",
     "type": "message",
     "role": "assistant",
-    "model": "claude-3-haiku-20240307",
+    "model": "claude-haiku-4-5-20251001",
     "stop_reason": "tool_use",
     "stop_sequence": null,
     "usage": {
@@ -275,7 +211,7 @@ AIMessage {
   },
   "response_metadata": {
     "id": "msg_01DZGs9DyuashaYxJ4WWpWUP",
-    "model": "claude-3-haiku-20240307",
+    "model": "claude-haiku-4-5-20251001",
     "stop_reason": "tool_use",
     "stop_sequence": null,
     "usage": {
@@ -314,7 +250,7 @@ You can pass custom headers in your requests like this:
 import { ChatAnthropic } from "@langchain/anthropic";
 
 const llmWithCustomHeaders = new ChatAnthropic({
-  model: "claude-3-sonnet-20240229",
+  model: "claude-sonnet-4-5-20250929",
   maxTokens: 1024,
   clientOptions: {
     defaultHeaders: {
@@ -366,21 +302,15 @@ AIMessage {
 
 ## Prompt caching
 
-```{=mdx}
-
 <Warning>
-**Compatibility**
-
-This feature is currently in beta.
+**Compatibility**: This feature is currently in beta.
 </Warning>
 
-```
-
-Anthropic supports [caching parts of your prompt](https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching) in order to reduce costs for use-cases that require long context. You can cache tools and both entire messages and individual blocks.
+Anthropic supports [caching parts of your prompt](https://docs.claude.com/en/docs/build-with-claude/prompt-caching) in order to reduce costs for use-cases that require long context. You can cache tools and both entire messages and individual blocks.
 
 The initial request containing one or more blocks or tool definitions with a `"cache_control": { "type": "ephemeral" }` field will automatically cache that part of the prompt. This initial caching step will cost extra, but subsequent requests will be billed at a reduced rate. The cache has a lifetime of 5 minutes, but this is refereshed each time the cache is hit.
 
-There is also currently a minimum cacheable prompt length, which varies according to model. You can see this information [here](https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching#structuring-your-prompt).
+There is also currently a minimum cacheable prompt length, which varies according to model. You can see this information [here](https://docs.claude.com/en/docs/build-with-claude/prompt-caching#structuring-your-prompt).
 
 This currently requires you to initialize your model with a beta header. Here's an example of caching part of a system message that contains the LangChain [conceptual docs](/oss/concepts/):
 
@@ -458,7 +388,7 @@ When messages are passed in as input, they will be formatted into a string under
 
 LangChain does not host any LLMs, rather we rely on third party integrations.
 
-For specifics on how to use LLMs, see the [relevant how-to guides here](/oss/how-to/#llms).
+For specifics on how to use LLMs, see the [relevant how-to guides here](/oss/langchain/models).
 
 ### Message types
 
@@ -662,7 +592,7 @@ void 0;
 import { ChatAnthropic } from "@langchain/anthropic";
 
 const modelWithCaching = new ChatAnthropic({
-  model: "claude-3-haiku-20240307",
+  model: "claude-haiku-4-5-20251001",
   clientOptions: {
     defaultHeaders: {
       "anthropic-beta": "prompt-caching-2024-07-31",
@@ -729,7 +659,7 @@ USAGE: {
 
 ### Tool caching
 
-You can also cache tools by setting the same `"cache_control": { "type": "ephemeral" }` within a tool definition. This currently requires you to bind a tool in [Anthropic's raw tool format](https://docs.anthropic.com/en/docs/build-with-claude/tool-use) Here's an example:
+You can also cache tools by setting the same `"cache_control": { "type": "ephemeral" }` within a tool definition. This currently requires you to bind a tool in [Anthropic's raw tool format](https://docs.claude.com/en/docs/agents-and-tools/tool-use/overview) Here's an example:
 
 ```typescript
 const SOME_LONG_DESCRIPTION = "...";
@@ -761,11 +691,11 @@ const modelWithCachedTools = modelWithCaching.bindTools(anthropicTools);
 await modelWithCachedTools.invoke("what is the weather in SF?");
 ```
 
-For more on how prompt caching works, see [Anthropic's docs](https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching#how-prompt-caching-works).
+For more on how prompt caching works, see [Anthropic's docs](https://docs.claude.com/en/docs/build-with-claude/prompt-caching#how-prompt-caching-works).
 
 ## Custom clients
 
-Anthropic models [may be hosted on cloud services such as Google Vertex](https://docs.anthropic.com/en/api/claude-on-vertex-ai) that rely on a different underlying client with the same interface as the primary Anthropic client. You can access these services by providing a `createClient` method that returns an initialized instance of an Anthropic client. Here's an example:
+Anthropic models [may be hosted on cloud services such as Google Vertex](https://docs.claude.com/en/api/claude-on-vertex-ai) that rely on a different underlying client with the same interface as the primary Anthropic client. You can access these services by providing a `createClient` method that returns an initialized instance of an Anthropic client. Here's an example:
 
 ```typescript
 import { AnthropicVertex } from "@anthropic-ai/vertex-sdk";
@@ -783,17 +713,17 @@ await modelWithCustomClient.invoke([{ role: "user", content: "Hello!" }]);
 
 ## Citations
 
-Anthropic supports a [citations](https://docs.anthropic.com/en/docs/build-with-claude/citations) feature that lets Claude attach context to its answers based on source material supplied by the user. This source material can be provided either as [document content blocks](https://docs.anthropic.com/en/docs/build-with-claude/citations#document-types), which describe full documents, or as [search results](https://docs.anthropic.com/en/docs/build-with-claude/search-results), which describe relevant passages or snippets returned from a retrieval system. When `"citations": { "enabled": true }` is included in a query, Claude may generate direct citations to the provided material in its response.
+Anthropic supports a [citations](https://docs.claude.com/en/docs/build-with-claude/citations) feature that lets Claude attach context to its answers based on source material supplied by the user. This source material can be provided either as [document content blocks](https://docs.claude.com/en/docs/build-with-claude/citations#document-types), which describe full documents, or as [search results](https://docs.claude.com/en/docs/build-with-claude/search-results), which describe relevant passages or snippets returned from a retrieval system. When `"citations": { "enabled": true }` is included in a query, Claude may generate direct citations to the provided material in its response.
 
 ### Document example
 
-In this example we pass a [plain text document](https://docs.anthropic.com/en/docs/build-with-claude/citations#plain-text-documents). In the background, Claude [automatically chunks](https://docs.anthropic.com/en/docs/build-with-claude/citations#plain-text-documents) the input text into sentences, which are used when generating citations.
+In this example we pass a [plain text document](https://docs.claude.com/en/docs/build-with-claude/citations#plain-text-documents). In the background, Claude [automatically chunks](https://docs.claude.com/en/docs/build-with-claude/citations#plain-text-documents) the input text into sentences, which are used when generating citations.
 
 ```typescript
 import { ChatAnthropic } from "@langchain/anthropic";
 
 const citationsModel = new ChatAnthropic({
-  model: "claude-3-5-haiku-latest",
+  model: "claude-haiku-4-5-20251001",
 });
 
 const messagesWithCitations = [
@@ -869,7 +799,7 @@ console.log(JSON.stringify(responseWithCitations.content, null, 2));
 
 ### Search results example
 
-In this example, we pass in [search results](https://docs.anthropic.com/en/docs/build-with-claude/search-results) as part of our message content. This allows Claude to cite specific passages or snippets from your own retrieval system in its response.
+In this example, we pass in [search results](https://docs.claude.com/en/docs/build-with-claude/search-results) as part of our message content. This allows Claude to cite specific passages or snippets from your own retrieval system in its response.
 
 This approach is helpful when you want Claude to cite information from a specific set of knowledge, but you want to bring your own pre-fetched/cached content directly rather than having the model search or retrieve them automatically.
 
@@ -877,7 +807,7 @@ This approach is helpful when you want Claude to cite information from a specifi
 import { ChatAnthropic } from "@langchain/anthropic";
 
 const citationsModel = new ChatAnthropic({
-  model: "claude-3-5-haiku-latest",
+  model: "claude-haiku-4-5-20251001",
 });
 
 const messagesWithCitations = [
@@ -915,7 +845,7 @@ console.log(JSON.stringify(responseWithCitations.content, null, 2));
 
 #### Search results from a tool
 
-You can also use a tool to provide search results that the model can cite in its responses. This is well suited for RAG (or [Retrieval-Augmented Generation](https://en.wikipedia.org/wiki/Retrieval-augmented_generation)) workflows where Claude can decide when and where to retrieve information from. When returning this information as [search results](https://docs.anthropic.com/en/docs/build-with-claude/search-results), it gives Claude the ability to create citations from the material returned from the tool.
+You can also use a tool to provide search results that the model can cite in its responses. This is well suited for RAG (or [Retrieval-Augmented Generation](https://en.wikipedia.org/wiki/Retrieval-augmented_generation)) workflows where Claude can decide when and where to retrieve information from. When returning this information as [search results](https://docs.claude.com/en/docs/build-with-claude/search-results), it gives Claude the ability to create citations from the material returned from the tool.
 
 Here's how you can create a tool that returns search results in the format expected by Anthropic's citations API:
 
@@ -970,7 +900,7 @@ const ragTool = tool(
 
 // Create model with search results beta header
 const model = new ChatAnthropic({
-  model: "claude-3-5-haiku-latest",
+  model: "claude-haiku-4-5-20251001",
 }).bindTools([ragTool]);
 
 const result = await model.invoke([
@@ -990,11 +920,11 @@ Learn more about tool calling [here](https://js.langchain.com/docs/how_to/tool_c
 
 ### Using with text splitters
 
-Anthropic also lets you specify your own splits using [custom document](https://docs.anthropic.com/en/docs/build-with-claude/citations#custom-content-documents) types. LangChain [text splitters](/oss/concepts/text_splitters/) can be used to generate meaningful splits for this purpose. See the below example, where we split the LangChain.js README (a markdown document) and pass it to Claude as context:
+Anthropic also lets you specify your own splits using [custom document](https://docs.claude.com/en/docs/build-with-claude/citations#custom-content-documents) types. LangChain text splitters can be used to generate meaningful splits for this purpose. See the below example, where we split the LangChain.js README (a markdown document) and pass it to Claude as context:
 
 ```typescript
 import { ChatAnthropic } from "@langchain/anthropic";
-import { MarkdownTextSplitter } from "langchain/text_splitter";
+import { MarkdownTextSplitter } from "@langchain/classic/text_splitter";
 
 function formatToAnthropicDocuments(documents: string[]) {
   return {
@@ -1032,7 +962,7 @@ const messageWithSplitDocuments = {
 
 // Query LLM
 const citationsModelWithSplits = new ChatAnthropic({
-  model: "claude-3-5-sonnet-latest",
+  model: "claude-sonnet-4-5-20250929",
 });
 const resWithSplits = await citationsModelWithSplits.invoke([messageWithSplitDocuments]);
 
@@ -1061,6 +991,34 @@ console.log(JSON.stringify(resWithSplits.content, null, 2));
   }
 ]
 ```
+
+## Context management
+
+Anthropic supports a context editing feature that will automatically manage the model's context window (e.g., by clearing tool results).
+
+See [Anthropic documentation](https://docs.claude.com/en/docs/build-with-claude/context-editing) for details and configuration options.
+
+<Info>
+    **Context management is supported since `@langchain/anthropic@0.3.29`**
+</Info>
+
+```typescript
+import { ChatAnthropic } from "@langchain/anthropic";
+
+const llm = new ChatAnthropic({
+  model: "claude-sonnet-4-5-20250929",
+  clientOptions: {
+    defaultHeaders: {
+      "anthropic-beta": "context-management-2025-06-27",
+    },
+  },
+  contextManagement: { edits: [{ type: "clear_tool_uses_20250919" }] },
+)
+const llmWithTools = llm.bindTools([{ type: "web_search_20250305", name: "web_search" }]);
+const response = await llmWithTools.invoke("Search for recent developments in AI");
+```
+
+---
 
 ## API reference
 

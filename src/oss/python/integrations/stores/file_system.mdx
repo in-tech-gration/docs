@@ -2,7 +2,7 @@
 title: LocalFileStore
 ---
 
-This will help you get started with local filesystem [key-value stores](/oss/concepts/key_value_stores). For detailed documentation of all LocalFileStore features and configurations head to the [API reference](https://python.langchain.com/api_reference/langchain/storage/langchain.storage.file_system.LocalFileStore.html).
+This will help you get started with local filesystem [key-value stores](/oss/integrations/stores). For detailed documentation of all LocalFileStore features and configurations head to the [API reference](https://python.langchain.com/api_reference/langchain/storage/langchain.storage.file_system.LocalFileStore.html).
 
 ## Overview
 
@@ -19,7 +19,7 @@ The `LocalFileStore` is a persistent implementation of `ByteStore` that stores e
 The LangChain `LocalFileStore` integration lives in the `langchain` package:
 
 ```python
-%pip install -qU langchain
+pip install -qU langchain-classic
 ```
 
 ## Instantiation
@@ -29,7 +29,7 @@ Now we can instantiate our byte store:
 ```python
 from pathlib import Path
 
-from langchain.storage import LocalFileStore
+from langchain_classic.storage import LocalFileStore
 
 root_path = Path.cwd() / "data"  # can also be a path set by a string
 
@@ -91,6 +91,8 @@ kv_store.mget(
 ```output
 [None, None]
 ```
+
+---
 
 ## API reference
 

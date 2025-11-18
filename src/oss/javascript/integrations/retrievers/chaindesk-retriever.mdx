@@ -6,17 +6,27 @@ This example shows how to use the Chaindesk Retriever in a retrieval chain to re
 
 ## Usage
 
-import IntegrationInstallTooltip from '/snippets/javascript-integrations/integration-install-tooltip.mdx';
-
-<IntegrationInstallTooltip/>
+<Tip>
+See [this section for general instructions on installing LangChain packages](/oss/langchain/install).
+</Tip>
 
 ```bash npm
 npm install @langchain/community @langchain/core
 ```
 
-import Chaindesk from "/snippets/javascript-integrations/examples/retrievers/chaindesk.mdx";
+```typescript
+import { ChaindeskRetriever } from "@langchain/community/retrievers/chaindesk";
 
-<Chaindesk />
+const retriever = new ChaindeskRetriever({
+  datastoreId: "DATASTORE_ID",
+  apiKey: "CHAINDESK_API_KEY", // optional: needed for private datastores
+  topK: 8, // optional: default value is 3
+});
+
+const docs = await retriever.invoke("hello");
+
+console.log(docs);
+```
 
 ## Related
 

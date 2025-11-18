@@ -4,7 +4,7 @@ title: AzionVectorStore
 
 The `AzionVectorStore` is used to manage and search through a collection of documents using vector embeddings, directly on Azion's Edge Plataform using Edge SQL.
 
-This guide provides a quick overview for getting started with Azion EdgeSQL [vector stores](/oss/concepts/#vectorstores). For detailed documentation of all `AzionVectorStore` features and configurations head to the [API reference](https://api.js.langchain.com/classes/_langchain_community.vectorstores_azion_edgesql.AzionVectorStore.html).
+This guide provides a quick overview for getting started with Azion EdgeSQL [vector stores](/oss/integrations/vectorstores). For detailed documentation of all `AzionVectorStore` features and configurations head to the [API reference](https://api.js.langchain.com/classes/_langchain_community.vectorstores_azion_edgesql.AzionVectorStore.html).
 
 ## Overview
 
@@ -20,14 +20,17 @@ To use the `AzionVectorStore` vector store, you will need to install the `@langc
 
 This guide will also use [OpenAI embeddings](/oss/integrations/text_embedding/openai), which require you to install the `@langchain/openai` integration package. You can also use [other supported embeddings models](/oss/integrations/text_embedding) if you wish.
 
-```{=mdx}
-import IntegrationInstallTooltip from "@mdx_components/integration_install_tooltip.mdx";
-<IntegrationInstallTooltip></IntegrationInstallTooltip>
-
-<Npm2Yarn>
-  azion @langchain/openai @langchain/community
-</Npm2Yarn>
+<CodeGroup>
+```bash npm
+npm install azion @langchain/openai @langchain/community
 ```
+```bash yarn
+yarn add azion @langchain/openai @langchain/community
+```
+```bash pnpm
+pnpm add azion @langchain/openai @langchain/community
+```
+</CodeGroup>
 
 ### Credentials
 
@@ -194,6 +197,8 @@ For guides on how to use this vector store for retrieval-augmented generation (R
 - [Build a RAG app with LangChain](/oss/langchain/rag).
 - [Agentic RAG](/oss/langgraph/agentic-rag)
 - [Retrieval docs](/oss/langchain/retrieval)
+
+---
 
 ## API reference
 

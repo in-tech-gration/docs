@@ -13,17 +13,27 @@ export PREM_API_KEY=your-api-key
 
 You can use models provided by Prem AI as follows:
 
-import IntegrationInstallTooltip from '/snippets/javascript-integrations/integration-install-tooltip.mdx';
-
-<IntegrationInstallTooltip/>
+<Tip>
+See [this section for general instructions on installing LangChain packages](/oss/langchain/install).
+</Tip>
 
 ```bash npm
 npm install @langchain/community @langchain/core
 ```
 
-import IntegrationPremai from "/snippets/javascript-integrations/examples/models/chat/integration_premai.mdx";
+```typescript
+import { ChatPrem } from "@langchain/community/chat_models/premai";
+import { HumanMessage } from "@langchain/core/messages";
 
-<IntegrationPremai />
+const model = new ChatPrem({
+  // In Node.js defaults to process.env.PREM_API_KEY
+  apiKey: "YOUR-API-KEY",
+  // In Node.js defaults to process.env.PREM_PROJECT_ID
+  project_id: "YOUR-PROJECT_ID",
+});
+
+console.log(await model.invoke([new HumanMessage("Hello there!")]));
+```
 
 ## Related
 

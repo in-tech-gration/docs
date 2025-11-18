@@ -1,90 +1,138 @@
 <Tabs>
     <Tab title="OpenAI">
-    ```shell
-    pip install -U "langchain[openai]"
-    ```
+        👉 Read the [OpenAI chat model integration docs](/oss/python/integrations/chat/openai/)
 
-    ```python
-    import os
-    from langchain.chat_models import init_chat_model
+        ```shell
+        pip install -U "langchain[openai]"
+        ```
 
-    os.environ["OPENAI_API_KEY"] = "sk-..."
+        <CodeGroup>
+            ```python init_chat_model
+            import os
+            from langchain.chat_models import init_chat_model
 
-    llm = init_chat_model("openai:gpt-4.1")
-    ```
+            os.environ["OPENAI_API_KEY"] = "sk-..."
 
-    👉 Read the [OpenAI integration docs](https://python.langchain.com/docs/integrations/chat/openai/)
+            model = init_chat_model("gpt-4.1")
+            ```
+            ```python Model Class
+            import os
+            from langchain_openai import ChatOpenAI
+
+            os.environ["OPENAI_API_KEY"] = "sk-..."
+
+            model = ChatOpenAI(model="gpt-4.1")
+            ```
+        </CodeGroup>
     </Tab>
     <Tab title="Anthropic">
-    ```shell
-    pip install -U "langchain[anthropic]"
-    ```
+        👉 Read the [Anthropic chat model integration docs](/oss/python/integrations/chat/anthropic/)
+        ```shell
+        pip install -U "langchain[anthropic]"
+        ```
 
-    ```python
-    import os
-    from langchain.chat_models import init_chat_model
+        <CodeGroup>
+            ```python init_chat_model
+            import os
+            from langchain.chat_models import init_chat_model
 
-    os.environ["ANTHROPIC_API_KEY"] = "sk-..."
+            os.environ["ANTHROPIC_API_KEY"] = "sk-..."
 
-    llm = init_chat_model("anthropic:claude-3-5-sonnet-latest")
-    ```
+            model = init_chat_model("claude-sonnet-4-5-20250929")
+            ```
+            ```python Model Class
+            import os
+            from langchain_anthropic import ChatAnthropic
 
-    👉 Read the [Anthropic integration docs](https://python.langchain.com/docs/integrations/chat/anthropic/)
+            os.environ["ANTHROPIC_API_KEY"] = "sk-..."
+
+            model = ChatAnthropic(model="claude-sonnet-4-5-20250929")
+            ```
+        </CodeGroup>
     </Tab>
     <Tab title="Azure">
-    ```shell
-    pip install -U "langchain[openai]"
-    ```
+        👉 Read the [Azure chat model integration docs](/oss/python/integrations/chat/azure_chat_openai/)
+        ```shell
+        pip install -U "langchain[openai]"
+        ```
 
-    ```python
-    import os
-    from langchain.chat_models import init_chat_model
+        <CodeGroup>
+            ```python init_chat_model
+            import os
+            from langchain.chat_models import init_chat_model
 
-    os.environ["AZURE_OPENAI_API_KEY"] = "..."
-    os.environ["AZURE_OPENAI_ENDPOINT"] = "..."
-    os.environ["OPENAI_API_VERSION"] = "2025-03-01-preview"
+            os.environ["AZURE_OPENAI_API_KEY"] = "..."
+            os.environ["AZURE_OPENAI_ENDPOINT"] = "..."
+            os.environ["OPENAI_API_VERSION"] = "2025-03-01-preview"
 
-    llm = init_chat_model(
-        "azure_openai:gpt-4.1",
-        azure_deployment=os.environ["AZURE_OPENAI_DEPLOYMENT_NAME"],
-    )
-    ```
+            model = init_chat_model(
+                "azure_openai:gpt-4.1",
+                azure_deployment=os.environ["AZURE_OPENAI_DEPLOYMENT_NAME"],
+            )
+            ```
+            ```python Model Class
+            import os
+            from langchain_openai import AzureChatOpenAI
 
-    👉 Read the [Azure integration docs](https://python.langchain.com/docs/integrations/chat/azure_chat_openai/)
+            os.environ["AZURE_OPENAI_API_KEY"] = "..."
+            os.environ["AZURE_OPENAI_ENDPOINT"] = "..."
+            os.environ["OPENAI_API_VERSION"] = "2025-03-01-preview"
+
+            model = AzureChatOpenAI(
+                model="gpt-4.1",
+                azure_deployment=os.environ["AZURE_OPENAI_DEPLOYMENT_NAME"]
+            )
+            ```
+        </CodeGroup>
     </Tab>
     <Tab title="Google Gemini">
-    ```shell
-    pip install -U "langchain[google-genai]"
-    ```
+        👉 Read the [Google GenAI chat model integration docs](/oss/python/integrations/chat/google_generative_ai/)
+        ```shell
+        pip install -U "langchain[google-genai]"
+        ```
 
-    ```python
-    import os
-    from langchain.chat_models import init_chat_model
+        <CodeGroup>
+            ```python init_chat_model
+            import os
+            from langchain.chat_models import init_chat_model
 
-    os.environ["GOOGLE_API_KEY"] = "..."
+            os.environ["GOOGLE_API_KEY"] = "..."
 
-    llm = init_chat_model("google_genai:gemini-2.0-flash")
-    ```
+            model = init_chat_model("google_genai:gemini-2.5-flash-lite")
+            ```
+            ```python Model Class
+            import os
+            from langchain_google_genai import ChatGoogleGenerativeAI
 
-    👉 Read the [Google GenAI integration docs](https://python.langchain.com/docs/integrations/chat/google_generative_ai/)
+            os.environ["GOOGLE_API_KEY"] = "..."
+
+            model = ChatGoogleGenerativeAI(model="gemini-2.5-flash-lite")
+            ```
+        </CodeGroup>
     </Tab>
     <Tab title="AWS Bedrock">
-    ```shell
-    pip install -U "langchain[aws]"
-    ```
+        👉 Read the [AWS Bedrock chat model integration docs](/oss/python/integrations/chat/bedrock/)
+        ```shell
+        pip install -U "langchain[aws]"
+        ```
 
-    ```python
-    from langchain.chat_models import init_chat_model
+        <CodeGroup>
+            ```python init_chat_model
+            from langchain.chat_models import init_chat_model
 
-    # Follow the steps here to configure your credentials:
-    # https://docs.aws.amazon.com/bedrock/latest/userguide/getting-started.html
+            # Follow the steps here to configure your credentials:
+            # https://docs.aws.amazon.com/bedrock/latest/userguide/getting-started.html
 
-    llm = init_chat_model(
-        "anthropic.claude-3-5-sonnet-20240620-v1:0",
-        model_provider="bedrock_converse",
-    )
-    ```
+            model = init_chat_model(
+                "anthropic.claude-3-5-sonnet-20240620-v1:0",
+                model_provider="bedrock_converse",
+            )
+            ```
+            ```python Model Class
+            from langchain_aws import ChatBedrock
 
-    👉 Read the [AWS Bedrock integration docs](https://python.langchain.com/docs/integrations/chat/bedrock/)
+            model = ChatBedrock(model="anthropic.claude-3-5-sonnet-20240620-v1:0")
+            ```
+        </CodeGroup>
     </Tab>
 </Tabs>

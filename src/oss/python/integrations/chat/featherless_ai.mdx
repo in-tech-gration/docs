@@ -16,7 +16,7 @@ This will help you get started with FeatherlessAi [chat models](/oss/langchain/m
 
 ### Model features
 
-| [Tool calling](/oss/langchain/tools) | [Structured output](/oss/langchain/structured-output) | JSON mode | [Image input](/oss/how-to/multimodal_inputs/) | Audio input | Video input | [Token-level streaming](/oss/langchain/streaming/) | Native async | [Token usage](/oss/how-to/chat_token_usage_tracking/) | [Logprobs](/oss/how-to/logprobs/) |
+| [Tool calling](/oss/langchain/tools) | [Structured output](/oss/langchain/structured-output) | JSON mode | [Image input](/oss/langchain/messages#multimodal) | Audio input | Video input | [Token-level streaming](/oss/langchain/streaming/) | Native async | [Token usage](/oss/langchain/models#token-usage) | [Logprobs](/oss/langchain/models#log-probabilities) |
 | :---: | :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: | :---: |
 | ❌ | ❌ | ✅| ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ❌ |
 
@@ -41,8 +41,8 @@ if not os.getenv("FEATHERLESSAI_API_KEY"):
 If you want to get automated tracing of your model calls you can also set your [LangSmith](https://docs.smith.langchain.com/) API key by uncommenting below:
 
 ```python
-# os.environ["LANGSMITH_TRACING"] = "true"
-# os.environ["LANGSMITH_API_KEY"] = getpass.getpass("Enter your LangSmith API key: ")
+os.environ["LANGSMITH_TRACING"] = "true"
+os.environ["LANGSMITH_API_KEY"] = getpass.getpass("Enter your LangSmith API key: ")
 ```
 
 ### Installation
@@ -50,7 +50,7 @@ If you want to get automated tracing of your model calls you can also set your [
 The LangChain FeatherlessAi integration lives in the `langchain-featherless-ai` package:
 
 ```python
-%pip install -qU langchain-featherless-ai
+pip install -qU langchain-featherless-ai
 ```
 
 ```output
@@ -104,45 +104,7 @@ print(ai_msg.content)
 J'aime programmer.
 ```
 
-## Chaining
-
-We can [chain](/oss/how-to/sequence/) our model with a prompt template like so:
-
-```python
-```
-
-```python
-from langchain_core.prompts import ChatPromptTemplate
-
-prompt = ChatPromptTemplate(
-    [
-        (
-            "system",
-            "You are a helpful assistant that translates {input_language} to {output_language}.",
-        ),
-        ("human", "{input}"),
-    ]
-)
-
-chain = prompt | llm
-chain.invoke(
-    {
-        "input_language": "English",
-        "output_language": "German",
-        "input": "I love programming.",
-    }
-)
-```
-
-```output
-c:\Python311\Lib\site-packages\pydantic\main.py:463: UserWarning: Pydantic serializer warnings:
-  PydanticSerializationUnexpectedValue(Expected `int` - serialized value may not be as expected [input_value=1747322423.487, input_type=float])
-  return self.__pydantic_serializer__.to_python(
-```
-
-```output
-AIMessage(content='Ich liebe Programmieren.', additional_kwargs={'refusal': None}, response_metadata={'token_usage': {'completion_tokens': 5, 'prompt_tokens': 22, 'total_tokens': 27, 'completion_tokens_details': None, 'prompt_tokens_details': None}, 'model_name': 'featherless-ai/Qwerky-72B', 'system_fingerprint': '', 'id': 'BoBqht', 'service_tier': None, 'finish_reason': 'stop', 'logprobs': None}, id='run--67464357-83d1-4591-9a62-303ed74b8148-0', usage_metadata={'input_tokens': 22, 'output_tokens': 5, 'total_tokens': 27, 'input_token_details': {}, 'output_token_details': {}})
-```
+---
 
 ## API reference
 

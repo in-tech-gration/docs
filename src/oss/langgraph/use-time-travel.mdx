@@ -3,9 +3,7 @@ title: Use time-travel
 sidebarTitle: Time travel
 ---
 
-import AlphaCallout from '/snippets/alpha-lg-callout.mdx';
 
-<AlphaCallout />
 
 When working with non-deterministic systems that make model-based decisions (e.g., agents powered by LLMs), it can be useful to examine their decision-making process in detail:
 
@@ -19,17 +17,17 @@ To use [time-travel](/oss/langgraph/use-time-travel) in LangGraph:
 
 :::python
 1. [Run the graph](#1-run-the-graph) with initial inputs using @[`invoke`][CompiledStateGraph.invoke] or @[`stream`][CompiledStateGraph.stream] methods.
-2. [Identify a checkpoint in an existing thread](#2-identify-a-checkpoint): Use the @[`get_state_history()`][get_state_history] method to retrieve the execution history for a specific `thread_id` and locate the desired `checkpoint_id`.
-  Alternatively, set an [interrupt](/oss/langgraph/add-human-in-the-loop) before the node(s) where you want execution to pause. You can then find the most recent checkpoint recorded up to that interrupt.
-3. [Update the graph state (optional)](#3-update-the-state-optional): Use the @[`update_state`][update_state] method to modify the graph's state at the checkpoint and resume execution from alternative state.
+2. [Identify a checkpoint in an existing thread](#2-identify-a-checkpoint): Use the @[`get_state_history`] method to retrieve the execution history for a specific `thread_id` and locate the desired `checkpoint_id`.
+  Alternatively, set an [interrupt](/oss/langgraph/interrupts) before the node(s) where you want execution to pause. You can then find the most recent checkpoint recorded up to that interrupt.
+3. [Update the graph state (optional)](#3-update-the-state-optional): Use the @[`update_state`] method to modify the graph's state at the checkpoint and resume execution from alternative state.
 4. [Resume execution from the checkpoint](#4-resume-execution-from-the-checkpoint): Use the `invoke` or `stream` methods with an input of `None` and a configuration containing the appropriate `thread_id` and `checkpoint_id`.
 :::
 
 :::js
 1. [Run the graph](#1-run-the-graph) with initial inputs using @[`invoke`][CompiledStateGraph.invoke] or @[`stream`][CompiledStateGraph.stream] methods.
-2. [Identify a checkpoint in an existing thread](#2-identify-a-checkpoint): Use the @[`getStateHistory()`][get_state_history] method to retrieve the execution history for a specific `thread_id` and locate the desired `checkpoint_id`.
-  Alternatively, set a [breakpoint](/oss/langgraph/add-human-in-the-loop) before the node(s) where you want execution to pause. You can then find the most recent checkpoint recorded up to that breakpoint.
-3. [Update the graph state (optional)](#3-update-the-state-optional): Use the @[`updateState`][update_state] method to modify the graph's state at the checkpoint and resume execution from alternative state.
+2. [Identify a checkpoint in an existing thread](#2-identify-a-checkpoint): Use the @[`getStateHistory`] method to retrieve the execution history for a specific `thread_id` and locate the desired `checkpoint_id`.
+  Alternatively, set a [breakpoint](/oss/langgraph/interrupts) before the node(s) where you want execution to pause. You can then find the most recent checkpoint recorded up to that breakpoint.
+3. [Update the graph state (optional)](#3-update-the-state-optional): Use the @[`updateState`] method to modify the graph's state at the checkpoint and resume execution from alternative state.
 4. [Resume execution from the checkpoint](#4-resume-execution-from-the-checkpoint): Use the `invoke` or `stream` methods with an input of `null` and a configuration containing the appropriate `thread_id` and `checkpoint_id`.
 :::
 
@@ -48,7 +46,7 @@ First we need to install the packages required
 :::python
 ```python
 %%capture --no-stderr
-%pip install --quiet -U langgraph langchain_anthropic
+pip install --quiet -U langgraph langchain_anthropic
 ```
 :::
 
@@ -100,21 +98,21 @@ class State(TypedDict):
     joke: NotRequired[str]
 
 
-llm = init_chat_model(
-    "anthropic:claude-3-7-sonnet-latest",
+model = init_chat_model(
+    "claude-sonnet-4-5-20250929",
     temperature=0,
 )
 
 
 def generate_topic(state: State):
     """LLM call to generate a topic for the joke"""
-    msg = llm.invoke("Give me a funny topic for a joke")
+    msg = model.invoke("Give me a funny topic for a joke")
     return {"topic": msg.content}
 
 
 def write_joke(state: State):
     """LLM call to write a joke based on the topic"""
-    msg = llm.invoke(f"Write a short joke about {state['topic']}")
+    msg = model.invoke(f"Write a short joke about {state['topic']}")
     return {"joke": msg.content}
 
 
@@ -150,8 +148,8 @@ const State = z.object({
   joke: z.string().optional(),
 });
 
-const llm = new ChatAnthropic({
-  model: "claude-3-5-sonnet-latest",
+const model = new ChatAnthropic({
+  model: "claude-sonnet-4-5-20250929",
   temperature: 0,
 });
 
@@ -160,12 +158,12 @@ const workflow = new StateGraph(State)
   // Add nodes
   .addNode("generateTopic", async (state) => {
     // LLM call to generate a topic for the joke
-    const msg = await llm.invoke("Give me a funny topic for a joke");
+    const msg = await model.invoke("Give me a funny topic for a joke");
     return { topic: msg.content };
   })
   .addNode("writeJoke", async (state) => {
     // LLM call to write a joke based on the topic
-    const msg = await llm.invoke(`Write a short joke about ${state.topic}`);
+    const msg = await model.invoke(`Write a short joke about ${state.topic}`);
     return { joke: msg.content };
   })
   // Add edges to connect nodes
@@ -322,7 +320,7 @@ console.log(selectedState.values);
 ### 3. Update the state
 
 :::python
-`update_state` will create a new checkpoint. The new checkpoint will be associated with the same thread, but a new checkpoint ID.
+@[`update_state`] will create a new checkpoint. The new checkpoint will be associated with the same thread, but a new checkpoint ID.
 
 ```python
 new_config = graph.update_state(selected_state.config, values={"topic": "chickens"})

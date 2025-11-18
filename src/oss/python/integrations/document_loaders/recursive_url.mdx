@@ -29,7 +29,7 @@ No credentials are required to use the `RecursiveUrlLoader`.
 The `RecursiveUrlLoader` lives in the `langchain-community` package. There's no other required packages, though you will get richer default Document metadata if you have ``beautifulsoup4` installed as well.
 
 ```python
-%pip install -qU langchain-community beautifulsoup4 lxml
+pip install -qU langchain-community beautifulsoup4 lxml
 ```
 
 ## Instantiation
@@ -177,6 +177,8 @@ Python 3.9 (securit
 This looks much nicer!
 
 You can similarly pass in a `metadata_extractor` to customize how Document metadata is extracted from the HTTP response. See the [API reference](https://python.langchain.com/api_reference/community/document_loaders/langchain_community.document_loaders.recursive_url_loader.RecursiveUrlLoader.html) for more on this.
+
+---
 
 ## API reference
 

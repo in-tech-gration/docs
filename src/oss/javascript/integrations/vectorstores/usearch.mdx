@@ -17,9 +17,9 @@ Install the [usearch](https://github.com/unum-cloud/usearch/tree/main/javascript
 ```bash npm
 npm install -S usearch
 ```
-import IntegrationInstallTooltip from '/snippets/javascript-integrations/integration-install-tooltip.mdx';
-
-<IntegrationInstallTooltip/>
+<Tip>
+See [this section for general instructions on installing LangChain packages](/oss/langchain/install).
+</Tip>
 
 ```bash npm
 npm install @langchain/openai @langchain/community @langchain/core
@@ -29,17 +29,40 @@ npm install @langchain/openai @langchain/community @langchain/core
 
 ### Create a new index from texts
 
-import Usearch from "/snippets/javascript-integrations/examples/indexes/vector_stores/usearch.mdx";
+```typescript
+import { USearch } from "@langchain/community/vectorstores/usearch";
+import { OpenAIEmbeddings } from "@langchain/openai";
 
-<Usearch />
+const vectorStore = await USearch.fromTexts(
+  ["Hello world", "Bye bye", "hello nice world"],
+  [{ id: 2 }, { id: 1 }, { id: 3 }],
+  new OpenAIEmbeddings()
+);
+
+const resultOne = await vectorStore.similaritySearch("hello world", 1);
+console.log(resultOne);
+```
 
 ### Create a new index from a loader
 
-import UsearchFromdocs from "/snippets/javascript-integrations/examples/indexes/vector_stores/usearch_fromdocs.mdx";
+```typescript
+import { USearch } from "@langchain/community/vectorstores/usearch";
+import { OpenAIEmbeddings } from "@langchain/openai";
+import { TextLoader } from "@langchain/classic/document_loaders/fs/text";
 
-<UsearchFromdocs />
+// Create docs with a loader
+const loader = new TextLoader("src/document_loaders/example_data/example.txt");
+const docs = await loader.load();
+
+// Load the docs into the vector store
+const vectorStore = await USearch.fromDocuments(docs, new OpenAIEmbeddings());
+
+// Search for the most similar document
+const resultOne = await vectorStore.similaritySearch("hello world", 1);
+console.log(resultOne);
+```
 
 ## Related
 
-- Vector store [conceptual guide](/oss/concepts/#vectorstores)
-- Vector store [how-to guides](/oss/how-to/#vectorstores)
+- Vector store [conceptual guide](/oss/integrations/vectorstores)
+- Vector store [how-to guides](/oss/integrations/vectorstores)

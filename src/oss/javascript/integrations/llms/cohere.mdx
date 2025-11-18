@@ -9,7 +9,7 @@ Cohere has marked their `generate` endpoint for LLMs as deprecated. Follow their
 </Warning>
 
 <Warning>
-**You are currently on a page documenting the use of Cohere models as [text completion models](/oss/concepts/text_llms). Many popular models available on Cohere are [chat completion models](/oss/langchain/models).**
+**You are currently on a page documenting the use of Cohere models as text completion models. Many popular models available on Cohere are [chat completion models](/oss/langchain/models).**
 
 You may be looking for [this page instead](/oss/integrations/chat/cohere/).
 </Warning>
@@ -47,15 +47,17 @@ If you want to get automated tracing of your model calls you can also set your [
 
 The LangChain Cohere integration lives in the `@langchain/cohere` package:
 
-```{=mdx}
-import IntegrationInstallTooltip from "@mdx_components/integration_install_tooltip.mdx";
-<IntegrationInstallTooltip></IntegrationInstallTooltip>
-
-<Npm2Yarn>
-  @langchain/cohere @langchain/core
-</Npm2Yarn>
-
+<CodeGroup>
+```bash npm
+npm install @langchain/cohere @langchain/core
 ```
+```bash yarn
+yarn add @langchain/cohere @langchain/core
+```
+```bash pnpm
+pnpm add @langchain/cohere @langchain/core
+```
+</CodeGroup>
 
 ## Instantiation
 
@@ -108,38 +110,7 @@ completion
 Cohere is a company that provides natural language processing models that help companies improve human-machine interactions. Cohere was founded in 2019 by Aidan Gomez, Ivan Zhang, and Nick Frosst.
 ```
 
-## Chaining
-
-We can [chain](/oss/how-to/sequence/) our completion model with a prompt template like so:
-
-```typescript
-import { PromptTemplate } from "@langchain/core/prompts"
-
-const prompt = new PromptTemplate({
-  template: "How to say {input} in {output_language}:\n",
-  inputVariables: ["input", "output_language"],
-})
-
-const chain = prompt.pipe(llm);
-await chain.invoke(
-  {
-    output_language: "German",
-    input: "I love programming.",
-  }
-)
-```
-
-```output
- Ich liebe Programming.
-
-But for day to day purposes Ich mag Programming. would be enough and perfectly understood.
-
-I love programming is "Ich liebe Programming" and I like programming is "Ich mag Programming" respectively.
-
-There are also other ways to express this feeling, such as "Ich habe Spaß mit Programming", which means "I enjoy programming". But "Ich mag" and "Ich liebe" are the most common expressions for this.
-
-Let me know if I can be of further help with something else!
-```
+---
 
 ## API reference
 

@@ -2,7 +2,7 @@
 title: IBM watsonx.ai
 ---
 
-This will help you get started with IBM watsonx.ai [embedding models](/oss/concepts/embedding_models) using LangChain. For detailed documentation on `IBM watsonx.ai` features and configuration options, please refer to the [API reference](https://api.js.langchain.com/modules/_langchain_community.embeddings_ibm.html).
+This will help you get started with IBM watsonx.ai [embedding models](/oss/integrations/text_embedding) using LangChain. For detailed documentation on `IBM watsonx.ai` features and configuration options, please refer to the [API reference](https://api.js.langchain.com/modules/_langchain_community.embeddings_ibm.html).
 
 ## Overview
 
@@ -105,15 +105,17 @@ If you want to get automated tracing of your model calls you can also set your [
 
 The LangChain IBM watsonx.ai integration lives in the `@langchain/community` package:
 
-```{=mdx}
-import IntegrationInstallTooltip from "@mdx_components/integration_install_tooltip.mdx";
-<IntegrationInstallTooltip></IntegrationInstallTooltip>
-
-<Npm2Yarn>
-  @langchain/community @langchain/core
-</Npm2Yarn>
-
+<CodeGroup>
+```bash npm
+npm install @langchain/community @langchain/core
 ```
+```bash yarn
+yarn add @langchain/community @langchain/core
+```
+```bash pnpm
+pnpm add @langchain/community @langchain/core
+```
+</CodeGroup>
 
 ## Instantiation
 
@@ -136,6 +138,18 @@ Note:
 - You must provide `spaceId` or `projectId` in order to proceed.
 - Depending on the region of your provisioned service instance, use correct serviceUrl.
 
+### Model Gateway
+```typescript
+import { WatsonxEmbeddings } from "@langchain/community/embeddings/ibm";
+
+const instance = new WatsonxEmbeddings({
+  version: "YYYY-MM-DD",
+  serviceUrl: process.env.API_URL,
+  model: "<ALIAS_MODEL_ID>",
+  modelGateway: true,
+});
+```
+
 ## Indexing and Retrieval
 
 Embedding models are often used in retrieval-augmented generation (RAG) flows, both as part of indexing data as well as later retrieving it. For more detailed instructions, please see our RAG tutorials under the [**Learn** tab](/oss/learn/).
@@ -144,7 +158,7 @@ Below, see how to index and retrieve data using the `embeddings` object we initi
 
 ```javascript
 // Create a vector store with a sample text
-import { MemoryVectorStore } from "langchain/vectorstores/memory";
+import { MemoryVectorStore } from "@langchain/classic/vectorstores/memory";
 
 const text = "LangChain is the framework for building context-aware reasoning applications";
 
@@ -221,6 +235,8 @@ You can embed multiple texts for indexing with `embedDocuments`. The internals u
     -0.03899479,  0.039327156
 ]
 ```
+
+---
 
 ## API reference
 

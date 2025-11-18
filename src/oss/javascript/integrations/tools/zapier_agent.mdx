@@ -26,20 +26,20 @@ Review [auth docs](https://docs.zapier.com/platform/build/auth) for more details
 
 The example below demonstrates how to use the Zapier integration as an Agent:
 
-import IntegrationInstallTooltip from '/snippets/javascript-integrations/integration-install-tooltip.mdx';
-
-<IntegrationInstallTooltip/>
+<Tip>
+See [this section for general instructions on installing LangChain packages](/oss/langchain/install).
+</Tip>
 
 ```bash npm
 npm install @langchain/openai @langchain/core
 ```
 ```typescript
 import { OpenAI } from "@langchain/openai";
-import { ZapierNLAWrapper } from "langchain/tools";
+import { ZapierNLAWrapper } from "@langchain/classic/tools";
 import {
   initializeAgentExecutorWithOptions,
   ZapierToolKit,
-} from "langchain/agents";
+} from "@langchain/classic/agents";
 
 const model = new OpenAI({ temperature: 0 });
 const zapier = new ZapierNLAWrapper();
@@ -67,4 +67,4 @@ console.log(`Got output ${result.output}`);
 ## Related
 
 - Tool [conceptual guide](/oss/langchain/tools)
-- Tool [how-to guides](/oss/how-to/#tools)
+- Tool [how-to guides](/oss/langchain/tools)

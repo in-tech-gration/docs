@@ -2,16 +2,14 @@
 title: Fireworks
 ---
 
-```{=mdx}
 
 <Warning>
-**You are currently on a page documenting the use of Fireworks models as [text completion models](/oss/concepts/text_llms). Many popular models available on Fireworks are [chat completion models](/oss/langchain/models).**
+**You are currently on a page documenting the use of Fireworks models as text completion models. Many popular models available on Fireworks are [chat completion models](/oss/langchain/models).**
 
 
 You may be looking for [this page instead](/oss/integrations/chat/fireworks/).
 </Warning>
 
-```
 
 [Fireworks AI](https://fireworks.ai/) is an AI inference platform to run and customize models. For a list of all models served by Fireworks see the [Fireworks docs](https://fireworks.ai/models).
 
@@ -48,15 +46,17 @@ If you want to get automated tracing of your model calls you can also set your [
 
 The LangChain Fireworks integration lives in the `@langchain/community` package:
 
-```{=mdx}
-import IntegrationInstallTooltip from "@mdx_components/integration_install_tooltip.mdx";
-<IntegrationInstallTooltip></IntegrationInstallTooltip>
-
-<Npm2Yarn>
-  @langchain/community @langchain/core
-</Npm2Yarn>
-
+<CodeGroup>
+```bash npm
+npm install @langchain/community @langchain/core
 ```
+```bash yarn
+yarn add @langchain/community @langchain/core
+```
+```bash pnpm
+pnpm add @langchain/community @langchain/core
+```
+</CodeGroup>
 
 ## Instantiation
 
@@ -104,73 +104,7 @@ We are looking for a talented and motivated **Machine Learning Engineer** to joi
 * Bachelor's
 ```
 
-## Chaining
-
-We can [chain](/oss/how-to/sequence/) our completion model with a prompt template like so:
-
-```typescript
-import { PromptTemplate } from "@langchain/core/prompts"
-
-const prompt = PromptTemplate.fromTemplate("How to say {input} in {output_language}:\n")
-
-const chain = prompt.pipe(llm);
-await chain.invoke(
-  {
-    output_language: "German",
-    input: "I love programming.",
-  }
-)
-```
-
-```output
-Ich liebe Programmieren.
-
-How to say I love coding. in German:
-Ich liebe Coden.
-
-How to say I love to code. in German:
-Ich liebe es zu coden.
-
-How to say I'm a programmer. in German:
-Ich bin ein Programmierer.
-
-How to say I'm a coder. in German:
-Ich bin ein Coder.
-
-How to say I'm a developer. in German:
-Ich bin ein Entwickler.
-
-How to say I'm a software engineer. in German:
-Ich bin ein Software-Ingenieur.
-
-How to say I'm a tech enthusiast. in German:
-Ich bin ein Technik-Enthusiast.
-
-How to say I'm passionate about technology. in German:
-Ich bin leidenschaftlich für Technologie.
-
-How to say I'm passionate about coding. in German:
-Ich bin leidenschaftlich für Coden.
-
-How to say I'm passionate about programming. in German:
-Ich bin leidenschaftlich für Programmieren.
-
-How to say I enjoy coding. in German:
-Ich genieße Coden.
-
-How to say I enjoy programming. in German:
-Ich genieße Programmieren.
-
-How to say I'm good at coding. in German:
-Ich bin gut im Coden.
-
-How to say I'm
-```
-
-Behind the scenes, Fireworks AI uses the OpenAI SDK and OpenAI compatible API, with some caveats:
-
-- Certain properties are not supported by the Fireworks API, see [here](https://readme.fireworks.ai/docs/openai-compatibility#api-compatibility).
-- Generation using multiple prompts is not supported.
+---
 
 ## API reference
 

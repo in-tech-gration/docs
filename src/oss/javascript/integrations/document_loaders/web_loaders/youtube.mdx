@@ -16,6 +16,15 @@ npm install @langchain/community @langchain/core youtubei.js
 
 You need to specify a link to the video in the `url`. You can also specify `language` in [ISO 639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) and `addVideoInfo` flag.
 
-import Youtube from "/snippets/javascript-integrations/examples/document_loaders/youtube.mdx";
+```typescript
+import { YoutubeLoader } from "@langchain/community/document_loaders/web/youtube";
 
-<Youtube />
+const loader = YoutubeLoader.createFromUrl("https://youtu.be/bZQun8Y4L2A", {
+  language: "en",
+  addVideoInfo: true,
+});
+
+const docs = await loader.load();
+
+console.log(docs);
+```

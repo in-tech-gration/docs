@@ -8,9 +8,30 @@ Please refer to [Vespa.ai](https://vespa.ai) for more information.
 
 The following sets up a retriever that fetches results from Vespa's documentation search:
 
-import Vespa from "/snippets/javascript-integrations/examples/retrievers/vespa.mdx";
+```typescript
+import { VespaRetriever } from "@langchain/community/retrievers/vespa";
 
-<Vespa />
+export const run = async () => {
+  const url = "https://doc-search.vespa.oath.cloud";
+  const query_body = {
+    yql: "select content from paragraph where userQuery()",
+    hits: 5,
+    ranking: "documentation",
+    locale: "en-us",
+  };
+  const content_field = "content";
+
+  const retriever = new VespaRetriever({
+    url,
+    auth: false,
+    query_body,
+    content_field,
+  });
+
+  const result = await retriever.invoke("what is vespa?");
+  console.log(result);
+};
+```
 
 Here, up to 5 results are retrieved from the `content` field in the `paragraph` document type,
 using `documentation` as the ranking method. The `userQuery()` is replaced with the actual query

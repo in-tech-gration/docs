@@ -1,105 +1,245 @@
 ---
 title: Prompt engineering quickstart
-sidebarTitle: Test prompts
+sidebarTitle: Quickstart
 ---
 
-While traditional software applications are built by writing code, AI applications involve writing **prompts to instruct the LLM on what to do**. LangSmith gives you tools to **iterate, version, and collaborate on prompts** so you can continuously improve your application.
+import WorkspaceSecret from '/snippets/langsmith/set-workspace-secrets.mdx';
 
-This guide will walk through how to create, test, and iterate on prompts using the SDK and in the UI. In this guide we will use OpenAI, but you can also use other LLM providers.
+Prompts guide the behavior of large language models (LLM). [_Prompt engineering_](/langsmith/prompt-engineering-concepts) is the process of crafting, testing, and refining the instructions you give to an LLM so it produces reliable and useful responses.
 
-## SDK
+LangSmith provides tools to create, version, test, and collaborate on prompts. You’ll also encounter common concepts like [_prompt templates_](/langsmith/prompt-engineering-concepts#prompts-vs-prompt-templates), which let you reuse structured prompts, and [_variables_](/langsmith/prompt-engineering-concepts#f-string-vs-mustache), which allow you to dynamically insert values (such as a user’s question) into a prompt.
 
-    ### 1. Setup
+In this quickstart, you’ll create, test, and improve prompts using either the UI or the SDK. This quickstart will use OpenAI as the example LLM provider, but the same workflow applies across other providers.
 
-    First, install the required packages:
+<Tip>
+If you prefer to watch a video on getting started with prompt engineering, refer to the quickstart [Video guide](#video-guide).
+</Tip>
 
-        <CodeGroup>
+## Prerequisites
+
+Before you begin, make sure you have:
+
+- **A LangSmith account**: Sign up or log in at [smith.langchain.com](https://smith.langchain.com).
+- **A LangSmith API key**: Follow the [Create an API key](/langsmith/create-account-api-key#create-an-api-key) guide.
+- **An OpenAI API key**: Generate this from the [OpenAI dashboard](https://platform.openai.com/account/api-keys).
+
+Select the tab for UI or SDK workflows:
+
+<Tabs>
+<Tab title="UI" icon="window">
+
+## 1. Set workspace secret
+
+<WorkspaceSecret/>
+
+## 2. Create a prompt
+
+1. In the [LangSmith UI](https://smith.langchain.com), navigate to the **Prompts** section in the left-hand menu.
+1. Click on **+ Prompt** to create a prompt.
+1. Modify the prompt by editing or adding prompts and input variables as needed.
+
+<div style={{ textAlign: 'center' }}>
+<img
+    className="block dark:hidden"
+    src="/langsmith/images/create-a-prompt-light.png"
+    alt="Prompt playground with the system prompt ready for editing."
+/>
+
+<img
+    className="hidden dark:block"
+    src="/langsmith/images/create-a-prompt-dark.png"
+    alt="Prompt playground with the system prompt ready for editing."
+/>
+</div>
+
+
+## 3. Test a prompt
+
+1. Under the **Prompts** heading select the gear <Icon icon="gear" iconType="solid" /> icon next to the model name, which will launch the **Prompt Settings** window on the **Model Configuration** tab.
+1. Set the [model configuration](/langsmith/managing-model-configurations) you want to use. The **Provider** and **Model** you select will determine the parameters that are configurable on this configuration page. Once set, click **Save as**.
+
+    <div style={{ textAlign: 'center' }}>
+    <img
+        className="block dark:hidden"
+        src="/langsmith/images/model-config-light.png"
+        alt="Model Configuration window in the LangSmith UI, settings for Provider, Model, Temperature, Max Output Tokens, Top P, Presence Penalty, Frequency Penalty, Reasoning Effort, etc."
+    />
+
+    <img
+        className="hidden dark:block"
+        src="/langsmith/images/model-config-dark.png"
+        alt="Model Configuration window in the LangSmith UI, settings for Provider, Model, Temperature, Max Output Tokens, Top P, Presence Penalty, Frequency Penalty, Reasoning Effort, etc."
+    />
+    </div>
+
+1. Specify the input variables you would like to test in the **Inputs** box and then click <Icon icon="circle-play" iconType="solid" /> **Start**.
+
+
+    <div style={{ textAlign: 'center' }}>
+    <img
+        className="block dark:hidden"
+        src="/langsmith/images/set-input-start-light.png"
+        alt="The input box with a question entered. The output box contains the response to the prompt."
+    />
+
+    <img
+        className="hidden dark:block"
+        src="/langsmith/images/set-input-start-dark.png"
+        alt="The input box with a question entered. The output box contains the response to the prompt."
+    />
+    </div>
+
+    To learn about more options for configuring your prompt in the Playground, refer to [Configure prompt settings](/langsmith/managing-model-configurations).
+
+1. After testing and refining your prompt, click **Save** to store it for future use.
+
+## 4. Iterate on a prompt
+
+LangSmith allows for team-based prompt iteration. [Workspace](/langsmith/administration-overview#workspaces) members can experiment with prompts in the playground and save their changes as a new [_commit_](/langsmith/prompt-engineering-concepts#commits) when ready.
+
+To improve your prompts:
+
+- Reference the documentation provided by your model provider for best practices in prompt creation, such as:
+    - [Best practices for prompt engineering with the OpenAI API](https://help.openai.com/en/articles/6654000-best-practices-for-prompt-engineering-with-the-openai-api)
+    - [Gemini's Introduction to prompt design](https://ai.google.dev/gemini-api/docs/prompting-intro)
+- Build and refine your prompts with the Prompt Canvas—an interactive tool in LangSmith. Learn more in the [Prompt Canvas guide](/langsmith/write-prompt-with-ai).
+- Tag specific commits to mark important moments in your commit history.
+    1. To create a commit, navigate to the **Playground** and select **Commit**. Choose the prompt to commit changes to and then **Commit**.
+    1. Navigate to **Prompts** in the left-hand menu. Select the prompt. Once on the prompt's detail page, move to the **Commits** tab. Find the tag icon <Icon icon="tag" iconType="solid" /> to **Add a Commit Tag**.
+
+    <div style={{ textAlign: 'center' }}>
+    <img
+        className="block dark:hidden"
+        src="/langsmith/images/add-commit-tag-light.png"
+        alt="The tag, the commit tag box with the commit label, and the commit tag name box to create the tag."
+    />
+
+    <img
+        className="hidden dark:block"
+        src="/langsmith/images/add-commit-tag-dark.png"
+        alt="The tag, the commit tag box with the commit label, and the commit tag name box to create the tag."
+    />
+    </div>
+
+</Tab>
+<Tab title="SDK" icon="code">
+
+## 1. Set up your environment
+
+1. In your terminal, prepare your environment:
+
+    <CodeGroup>
 
     ```bash Python
+    mkdir ls-prompt-quickstart && cd ls-prompt-quickstart
+    python -m venv .venv
+    source .venv/bin/activate
     pip install -qU langsmith openai langchain_core
     ```
 
     ```bash TypeScript
-    yarn add langsmith @langchain/core langchain openai
+    mkdir ls-prompt-quickstart-ts && cd ls-prompt-quickstart-ts
+    npm init -y
+    npm install langsmith openai typescript ts-node
+    npx tsc --init
     ```
 
-        </CodeGroup>
+    </CodeGroup>
 
-    Next, make sure you have signed up for a [LangSmith](https://langsmith.com) account, then [create](/langsmith/create-account-api-key#create-an-api-key) and set your API key. You will also want to sign up for an OpenAI API key to run the code in this tutorial.
+1. Set your API keys:
 
+    ```bash
+    export LANGSMITH_API_KEY='<your_api_key>'
+    export OPENAI_API_KEY='<your_api_key>'
     ```
-    LANGSMITH_API_KEY = '<your_api_key>'
-    OPENAI_API_KEY = '<your_api_key>'
-    ```
 
-    ### 2. Create a prompt
+## 2. Create a prompt
 
-    To create a prompt in LangSmith, define the list of messages you want in your prompt and then wrap them using the `ChatPromptTemplate` function ([Python](https://python.langchain.com/api_reference/core/prompts/langchain_core.prompts.chat.ChatPromptTemplate.html)) or [TypeScript](https://v03.api.js.langchain.com/classes/_langchain_core/prompts.ChatPromptTemplate.html) function. Then all you have to do is call [`push_prompt`](https://docs.smith.langchain.com/reference/python/client/langsmith.client.Client#langsmith.client.Client.push_prompt) (Python) or [`pushPrompt`](https://langsmith-docs-7jgx2bq8f-langchain.vercel.app/reference/js/classes/client.Client#pushprompt) (TypeScript) to send your prompt to LangSmith!
+To create a prompt, you'll define a list of messages that you want in your prompt and then push to LangSmith.
 
-        <CodeGroup>
+Use the language-specific constructor and push method:
+
+- Python: [`ChatPromptTemplate`](https://python.langchain.com/api_reference/core/prompts/langchain_core.prompts.chat.ChatPromptTemplate.html) → [`client.push_prompt(...)`](https://docs.smith.langchain.com/reference/python/client/langsmith.client.Client#langsmith.client.Client.push_prompt)
+- TypeScript: [`ChatPromptTemplate.fromMessages(...)`](https://v03.api.js.langchain.com/classes/_langchain_core.prompts.ChatPromptTemplate.html#fromMessages) → [`client.pushPrompt(...)`](https://langsmith-docs-7jgx2bq8f-langchain.vercel.app/reference/js/classes/client.Client#pushprompt)
+
+1. Add the following code to a `create_prompt` file:
+
+    <CodeGroup>
 
     ```python Python
     from langsmith import Client
     from langchain_core.prompts import ChatPromptTemplate
 
-    # Connect to the LangSmith client
     client = Client()
 
-    # Define the prompt
     prompt = ChatPromptTemplate([
         ("system", "You are a helpful chatbot."),
         ("user", "{question}"),
     ])
 
-    # Push the prompt
-    client.push_prompt("my-prompt", object=prompt)
+    client.push_prompt("prompt-quickstart", object=prompt)
     ```
 
     ```typescript TypeScript
     import { Client } from "langsmith";
     import { ChatPromptTemplate } from "@langchain/core/prompts";
 
-    // Connect to the LangSmith client
     const client = new Client();
 
-    // Define the prompt
     const prompt = ChatPromptTemplate.fromMessages([
-        ["system", "You are a helpful chatbot."],
-        ["user", "{question}"]
+    ["system", "You are a helpful chatbot."],
+    ["user", "{question}"],
     ]);
 
-    // Push the prompt
-    await client.pushPrompt("my-prompt", {
-        object: prompt
+    await client.pushPrompt("prompt-quickstart", {
+    object: prompt,
     });
     ```
 
-        </CodeGroup>
+    </CodeGroup>
 
-    ### 3. Test a prompt
+    This creates an ordered list of messages, wraps them in `ChatPromptTemplate`, and then pushes the prompt by name to your [workspace](/langsmith/administration-overview#workspaces) for versioning and reuse.
 
-    To test a prompt, you need to pull the prompt, invoke it with the input values you want to test and then call the model with those input values. your LLM or application expects.
+1. Run `create_prompt`:
 
-        <CodeGroup>
+    <CodeGroup>
+
+    ```python Python
+    python create_prompt.py
+    ```
+
+    ```typescript TypeScript
+    npx tsx create_prompt.ts
+    ```
+
+    </CodeGroup>
+
+Follow the resulting link to view the newly created Prompt Hub prompt in the LangSmith UI.
+
+## 3. Test a prompt
+
+In this step, you'll pull the prompt you created in [step 2](#2-create-a-prompt) by name (`"prompt-quickstart"`), format it with a test input, convert it to OpenAI’s chat format, and call the OpenAI Chat Completions API.
+
+Then, you'll iterate on the prompt by creating a new version. Members of your workspace can open an existing prompt, experiment with changes in the [UI](https://smith.langchain.com), and save those changes as a new commit on the same prompt, which preserves history for the whole team.
+
+1. Add the following to a `test_prompt` file:
+
+    <CodeGroup>
 
     ```python Python
     from langsmith import Client
     from openai import OpenAI
     from langchain_core.messages import convert_to_openai_messages
 
-    # Connect to LangSmith and OpenAI
     client = Client()
     oai_client = OpenAI()
 
-    # Pull the prompt to use
-    # You can also specify a specific commit by passing the commit hash "my-prompt:<commit-hash>"
-    prompt = client.pull_prompt("my-prompt")
+    prompt = client.pull_prompt("prompt-quickstart")
 
-    # Since our prompt only has one variable we could also pass in the value directly
-    # The code below is equivalent to formatted_prompt = prompt.invoke("What is the color of the sky?")
+    # Since the prompt only has one variable you could also pass in the value directly
+    # Equivalent to formatted_prompt = prompt.invoke("What is the color of the sky?")
     formatted_prompt = prompt.invoke({"question": "What is the color of the sky?"})
 
-    # Test the prompt
     response = oai_client.chat.completions.create(
         model="gpt-4o",
         messages=convert_to_openai_messages(formatted_prompt.messages),
@@ -111,137 +251,104 @@ This guide will walk through how to create, test, and iterate on prompts using t
     import { pull } from "langchain/hub"
     import { convertPromptToOpenAI } from "@langchain/openai";
 
-    // Connect to LangSmith and OpenAI
     const oaiClient = new OpenAI();
 
-    // Pull the prompt to use
-    // You can also specify a specific commit by passing the commit hash "my-prompt:<commit-hash>"
-    const prompt = await pull("my-prompt");
+    const prompt = await pull("prompt-quickstart");
 
     // Format the prompt with the question
     const formattedPrompt = await prompt.invoke({ question: "What is the color of the sky?" });
 
-    // Test the prompt
     const response = await oaiClient.chat.completions.create({
         model: "gpt-4o",
         messages: convertPromptToOpenAI(formattedPrompt).messages,
     });
     ```
+    </CodeGroup>
 
-        </CodeGroup>
+    This loads the prompt by name using `pull` for the latest committed version of the prompt that you're testing. You can also specify a specific commit by passing the commit hash `"<prompt-name>:<commit-hash>"`
 
-    ### 4. Iterate on a prompt
+1. Run `test_prompt` :
 
-    LangSmith makes it easy to iterate on prompts with your entire team. Members of your workspace can select a prompt to iterate on, and once they are happy with their changes, they can simply save it as a new commit.
+    <CodeGroup>
 
-    To improve your prompts:
+    ```python Python
+    python test_prompt.py
+    ```
 
-    * We recommend referencing the documentation provided by your model provider for best practices in prompt creation, such as [Best practices for prompt engineering with the OpenAI API](https://help.openai.com/en/articles/6654000-best-practices-for-prompt-engineering-with-the-openai-api) and [Gemini's Introduction to prompt design](https://ai.google.dev/gemini-api/docs/prompting-intro).
+    ```typescript TypeScript
+    npx tsx test_prompt.ts
+    ```
 
-    * To help with iterating on your prompts in LangSmith, we've created Prompt Canvas — an interactive tool to build and optimize your prompts. Learn about how to use [Prompt Canvas](/langsmith/observability-concepts#prompt-canvas).
+    </CodeGroup>
 
-    To add a new commit to a prompt, you can use the same [`push_prompt`](https://docs.smith.langchain.com/reference/python/client/langsmith.client.Client#langsmith.client.Client.push_prompt) (Python) or [`pushPrompt`](https://langsmith-docs-7jgx2bq8f-langchain.vercel.app/reference/js/classes/client.Client#pushprompt) (TypeScript) methods as when you first created the prompt.
+1. To create a new version of a prompt, call the same push method you used initially with the same prompt name and your updated template. LangSmith will record it as a new commit and preserve prior versions.
 
-        <CodeGroup>
+    Copy the following code to an `iterate_prompt` file:
+
+    <CodeGroup>
 
     ```python Python
     from langsmith import Client
     from langchain_core.prompts import ChatPromptTemplate
 
-    # Connect to the LangSmith client
     client = Client()
 
-    # Define the prompt to update
     new_prompt = ChatPromptTemplate([
         ("system", "You are a helpful chatbot. Respond in Spanish."),
         ("user", "{question}"),
     ])
 
-    # Push the updated prompt making sure to use the correct prompt name
-    # Tags can help you remember specific versions in your commit history
-    client.push_prompt("my-prompt", object=new_prompt, tags=["Spanish"])
+    client.push_prompt("prompt-quickstart", object=new_prompt)
     ```
 
     ```typescript TypeScript
     import { Client } from "langsmith";
     import { ChatPromptTemplate } from "@langchain/core/prompts";
 
-    // Connect to the LangSmith client
     const client = new Client();
 
-    // Define the prompt
     const newPrompt = ChatPromptTemplate.fromMessages([
         ["system", "You are a helpful chatbot. Speak in Spanish."],
         ["user", "{question}"]
     ]);
 
-    // Push the updated prompt making sure to use the correct prompt name
-    // Tags can help you remember specific versions in your commit history
-    await client.pushPrompt("my-prompt", {
-        object: newPrompt,
-        tags: ["Spanish"]
+    await client.pushPrompt("prompt-quickstart", {
+        object: newPrompt
     });
     ```
 
-        </CodeGroup>
+    </CodeGroup>
 
-    ### 5. Next steps
+1. Run `iterate_prompt` :
 
-    * Learn more about how to store and manage prompts using the Prompt Hub in [these how-to guides](/langsmith/manage-prompts-programmatically)
-    * Learn more about how to use the playground for prompt engineering in [these how-to guides](/langsmith/create-a-prompt)
+    <CodeGroup>
 
-## UI
+    ```python Python
+    python iterate_prompt.py
+    ```
 
-    This quick start will walk through how to create, test, and iterate on prompts in LangSmith.
+    ```typescript TypeScript
+    npx tsx iterate_prompt.ts
+    ```
+    </CodeGroup>
 
-        <Info>
-        This tutorial uses the UI for prompt engineering, if you are interested in using the SDK instead, read [this guide](/langsmith/prompt-engineering-quickstart).
-        </Info>
+    Now your prompt will contain two commits.
 
-    ### 1. Setup
+To improve your prompts:
 
-    The only setup needed for this guide is to make sure you have signed up for a [LangSmith](https://langsmith.com) account.
+- Reference the documentation provided by your model provider for best practices in prompt creation, such as:
+    - [Best practices for prompt engineering with the OpenAI API](https://help.openai.com/en/articles/6654000-best-practices-for-prompt-engineering-with-the-openai-api)
+    - [Gemini's Introduction to prompt design](https://ai.google.dev/gemini-api/docs/prompting-intro)
+- Build and refine your prompts with the Prompt Canvas—an interactive tool in LangSmith. Learn more in the [Prompt Canvas guide](/langsmith/write-prompt-with-ai).
 
-    ### 2. Create a prompt
+</Tab>
+</Tabs>
 
-    To create a prompt in LangSmith, navigate to the **Prompts** section of the left-hand sidebar and click on the "+ New Prompt" button. You can then modify the prompt by editing/adding messages and input variables.
+## Next steps
 
-    ![Gif of the LangSmith UI Prompts section creating a chat-style prompt](/langsmith/images/create-prompt-ui.gif)
-
-    ### 3. Test a prompt
-
-    To test a prompt, set the model configuration you want to use, add your LLM provider's API key, specify the prompt input values you want to test, and then click "Start".
-
-    To learn about more options for configuring your prompt in the playground, check out this [guide](/langsmith/managing-model-configurations). If you are interested in testing how your prompt performs over a dataset instead of individual examples, read [this page](/langsmith/run-evaluation-from-prompt-playground).
-
-    ![Gif of the LangSmith UI selecting model configurations for testing prompts](/langsmith/images/test-prompt-ui.gif)
-
-    ### 4. Save a prompt
-
-    Once you have run some tests and made your desired changes to your prompt you can click the "Save" button to save your prompt for future use.
-
-    ![Gif showing the UI for saving a prompt after testing](/langsmith/images/save-prompt-ui.gif)
-
-    ### 5. Iterate on a prompt
-
-    LangSmith makes it easy to iterate on prompts with your entire team. Members of your workspace can select a prompt to iterate on in the playground, and once they are happy with their changes, they can simply save it as a new commit.
-
-    To improve your prompts:
-
-    * We recommend referencing the documentation provided by your model provider for best practices in prompt creation, such as [Best practices for prompt engineering with the OpenAI API](https://help.openai.com/en/articles/6654000-best-practices-for-prompt-engineering-with-the-openai-api) and [Gemini's Introduction to prompt design](https://ai.google.dev/gemini-api/docs/prompting-intro).
-
-    * To help with iterating on your prompts in LangSmith, we've created Prompt Canvas — an interactive tool to build and optimize your prompts. Learn about how to use [Prompt Canvas](/langsmith/observability-concepts#prompt-canvas).
-
-    ![Gif showing the LangSmith UI creating a commit on a prompt](/langsmith/images/save-prompt-commit-ui.gif)
-
-    You can also tag specific commits to mark important moments in your commit history:
-
-    ![Gif showing LangSmith UI tagging a specific commit with create tag](/langsmith/images/tag-prompt-ui.gif)
-
-    ### 6. Next steps
-
-    * Learn more about how to store and manage prompts using the Prompt Hub in [these how-to guides](/langsmith/create-a-prompt)
-    * Learn more about how to use the playground for prompt engineering in [these how-to guides](/langsmith/create-a-prompt)
+- Learn more about how to store and manage prompts using the Prompt Hub in the [Create a prompt guide](/langsmith/create-a-prompt).
+- Learn how to set up the Playground to [Test multi-turn conversations](/langsmith/multiple-messages) in this tutorial.
+- Learn how to test your prompt's performance over a dataset instead of individual examples, refer to [Run an evaluation from the Prompt Playground](/langsmith/run-evaluation-from-prompt-playground).
 
 ## Video guide
 <iframe

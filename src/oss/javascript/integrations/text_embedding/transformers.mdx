@@ -20,9 +20,9 @@ import the embeddings from `"@langchain/community/embeddings/hf_transformers"` b
 ```bash npm
 npm install @huggingface/transformers
 ```
-import IntegrationInstallTooltip from '/snippets/javascript-integrations/integration-install-tooltip.mdx';
-
-<IntegrationInstallTooltip/>
+<Tip>
+See [this section for general instructions on installing LangChain packages](/oss/langchain/install).
+</Tip>
 
 ```bash npm
 npm install @langchain/community @langchain/core
@@ -36,11 +36,24 @@ blocking the main thread.
 See [this guide](https://huggingface.co/docs/transformers.js/tutorials/next) and the other resources in the Transformers.js docs for an idea of how to
 set up your project.
 
-import HfTransformers from "/snippets/javascript-integrations/examples/models/embeddings/hf_transformers.mdx";
+```typescript
+import { HuggingFaceTransformersEmbeddings } from "@langchain/community/embeddings/huggingface_transformers";
 
-<HfTransformers />
+const model = new HuggingFaceTransformersEmbeddings({
+  model: "Xenova/all-MiniLM-L6-v2",
+});
+
+/* Embed queries */
+const res = await model.embedQuery(
+  "What would be a good company name for a company that makes colorful socks?"
+);
+console.log({ res });
+/* Embed documents */
+const documentRes = await model.embedDocuments(["Hello world", "Bye bye"]);
+console.log({ documentRes });
+```
 
 ## Related
 
-- Embedding model [conceptual guide](/oss/concepts/embedding_models)
-- Embedding model [how-to guides](/oss/how-to/#embedding-models)
+- Embedding model [conceptual guide](/oss/integrations/text_embedding)
+- Embedding model [how-to guides](/oss/integrations/text_embedding)

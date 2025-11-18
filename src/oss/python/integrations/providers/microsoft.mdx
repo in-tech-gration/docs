@@ -1,10 +1,10 @@
 ---
-title: Overview
+title: Microsoft
 ---
 
-All functionality related to [Microsoft Azure](https://portal.azure.com) and other [Microsoft](https://www.microsoft.com) products.
+This page covers all LangChain integrations with [Microsoft Azure](https://portal.azure.com) and other [Microsoft](https://www.microsoft.com) products.
 
-## Chat Models
+## Chat models
 
 Microsoft offers three main options for accessing chat models through Azure:
 
@@ -16,16 +16,16 @@ Microsoft offers three main options for accessing chat models through Azure:
 
 >[Microsoft Azure](https://en.wikipedia.org/wiki/Microsoft_Azure), often referred to as `Azure` is a cloud computing platform run by `Microsoft`, which offers access, management, and development of applications and services through global data centers. It provides a range of capabilities, including software as a service (SaaS), platform as a service (PaaS), and infrastructure as a service (IaaS). `Microsoft Azure` supports many programming languages, tools, and frameworks, including Microsoft-specific and third-party software and systems.
 
->[Azure OpenAI](https://learn.microsoft.com/en-us/azure/cognitive-services/openai/) is an `Azure` service with powerful language models from `OpenAI` including the `GPT-3`, `Codex` and `Embeddings model` series for content generation, summarization, semantic search, and natural language to code translation.
+>[Azure OpenAI](https://learn.microsoft.com/en-us/azure/cognitive-services/openai/) is an `Azure` service with powerful language models from OpenAI including the `GPT-3`, `Codex` and Embeddings model series for content generation, summarization, semantic search, and natural language to code translation.
 
 <CodeGroup>
-```bash pip
-pip install langchain-openai
-```
+    ```bash pip
+    pip install langchain-openai
+    ```
 
-```bash uv
-uv add langchain-openai
-```
+    ```bash uv
+    uv add langchain-openai
+    ```
 </CodeGroup>
 
 Set the environment variables to get access to the `Azure OpenAI` service.
@@ -48,20 +48,20 @@ from langchain_openai import AzureChatOpenAI
 >[Azure AI Foundry](https://learn.microsoft.com/en-us/azure/developer/python/get-started) provides access to a wide range of models from various providers including Azure OpenAI, DeepSeek R1, Cohere, Phi and Mistral through the `AzureAIChatCompletionsModel` class.
 
 <CodeGroup>
-```bash pip
-pip install -U langchain-azure-ai
-```
+    ```bash pip
+    pip install -U langchain-azure-ai
+    ```
 
-```bash uv
-uv add langchain-azure-ai
-```
+    ```bash uv
+    uv add langchain-azure-ai
+    ```
 </CodeGroup>
 
 Configure your API key and Endpoint.
 
 ```bash
-export AZURE_INFERENCE_CREDENTIAL=your-api-key
-export AZURE_INFERENCE_ENDPOINT=your-endpoint
+export AZURE_AI_CREDENTIAL=your-api-key
+export AZURE_AI_ENDPOINT=your-endpoint
 ```
 
 ```python
@@ -105,7 +105,7 @@ Microsoft offers two main options for accessing embedding models through Azure:
 
 ### Azure OpenAI
 
-See a [usage example](/oss/integrations/text_embedding/azureopenai)
+See a [usage example](/oss/integrations/text_embedding/azure_openai)
 
 ```python
 from langchain_openai import AzureOpenAIEmbeddings
@@ -114,20 +114,20 @@ from langchain_openai import AzureOpenAIEmbeddings
 ### Azure AI
 
 <CodeGroup>
-```bash pip
-pip install -U langchain-azure-ai
-```
+    ```bash pip
+    pip install -U langchain-azure-ai
+    ```
 
-```bash uv
-uv add langchain-azure-ai
-```
+    ```bash uv
+    uv add langchain-azure-ai
+    ```
 </CodeGroup>
 
 Configure your API key and Endpoint.
 
 ```bash
-export AZURE_INFERENCE_CREDENTIAL=your-api-key
-export AZURE_INFERENCE_ENDPOINT=your-endpoint
+export AZURE_AI_CREDENTIAL=your-api-key
+export AZURE_AI_ENDPOINT=your-endpoint
 ```
 
 ```python
@@ -152,13 +152,13 @@ embed_model = AzureAIEmbeddingsModel(
 First, you need to install several python packages.
 
 <CodeGroup>
-```bash pip
-pip install azureml-fsspec, azure-ai-generative
-```
+    ```bash pip
+    pip install azureml-fsspec, azure-ai-generative
+    ```
 
-```bash uv
-uv add azureml-fsspec, azure-ai-generative
-```
+    ```bash uv
+    uv add azureml-fsspec, azure-ai-generative
+    ```
 </CodeGroup>
 
 See a [usage example](/oss/integrations/document_loaders/azure_ai_data).
@@ -181,13 +181,13 @@ from langchain.document_loaders import AzureAIDataLoader
 First, you need to install a python package.
 
 <CodeGroup>
-```bash pip
-pip install azure-ai-documentintelligence
-```
+    ```bash pip
+    pip install azure-ai-documentintelligence
+    ```
 
-```bash uv
-uv add azure-ai-documentintelligence
-```
+    ```bash uv
+    uv add azure-ai-documentintelligence
+    ```
 </CodeGroup>
 
 See a [usage example](/oss/integrations/document_loaders/azure_document_intelligence).
@@ -201,10 +201,6 @@ from langchain.document_loaders import AzureAIDocumentIntelligenceLoader
 
 >[Azure Blob Storage](https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blobs-introduction) is Microsoft's object storage solution for the cloud. Blob Storage is optimized for storing massive amounts of unstructured data. Unstructured data is data that doesn't adhere to a particular data model or definition, such as text or binary data.
 
->[Azure Files](https://learn.microsoft.com/en-us/azure/storage/files/storage-files-introduction) offers fully managed
-> file shares in the cloud that are accessible via the industry standard Server Message Block (`SMB`) protocol,
-> Network File System (`NFS`) protocol, and `Azure Files REST API`. `Azure Files` are based on the `Azure Blob Storage`.
-
 `Azure Blob Storage` is designed for:
 - Serving images or documents directly to a browser.
 - Storing files for distributed access.
@@ -214,25 +210,19 @@ from langchain.document_loaders import AzureAIDocumentIntelligenceLoader
 - Storing data for analysis by an on-premises or Azure-hosted service.
 
 <CodeGroup>
-```bash pip
-pip install azure-storage-blob
-```
+    ```bash pip
+    pip install langchain-azure-storage
+    ```
 
-```bash uv
-uv add azure-storage-blob
-```
+    ```bash uv
+    uv add langchain-azure-storage
+    ```
 </CodeGroup>
 
-See a [usage example for the Azure Blob Storage](/oss/integrations/document_loaders/azure_blob_storage_container).
+See [usage examples for the Azure Blob Storage Loader](/oss/integrations/document_loaders/azure_blob_storage).
 
 ```python
-from langchain_community.document_loaders import AzureBlobStorageContainerLoader
-```
-
-See a [usage example for the Azure Files](/oss/integrations/document_loaders/azure_blob_storage_file).
-
-```python
-from langchain_community.document_loaders import AzureBlobStorageFileLoader
+from langchain_azure_storage.document_loaders import AzureBlobStorageLoader
 ```
 
 
@@ -243,13 +233,13 @@ from langchain_community.document_loaders import AzureBlobStorageFileLoader
 First, you need to install a python package.
 
 <CodeGroup>
-```bash pip
-pip install o365
-```
+    ```bash pip
+    pip install o365
+    ```
 
-```bash uv
-uv add o365
-```
+    ```bash uv
+    uv add o365
+    ```
 </CodeGroup>
 
 See a [usage example](/oss/integrations/document_loaders/microsoft_onedrive).
@@ -265,19 +255,18 @@ from langchain_community.document_loaders import OneDriveLoader
 First, you need to install a python package.
 
 <CodeGroup>
-```bash pip
-pip install o365
-```
+    ```bash pip
+    pip install o365
+    ```
 
-```bash uv
-uv add o365
-```
+    ```bash uv
+    uv add o365
+    ```
 </CodeGroup>
 
 ```python
 from langchain_community.document_loaders import OneDriveFileLoader
 ```
-
 
 ### Microsoft Word
 
@@ -288,7 +277,6 @@ See a [usage example](/oss/integrations/document_loaders/microsoft_word).
 ```python
 from langchain_community.document_loaders import UnstructuredWordDocumentLoader
 ```
-
 
 ### Microsoft Excel
 
@@ -336,13 +324,13 @@ from langchain_community.document_loaders import UnstructuredPowerPointLoader
 First, let's install dependencies:
 
 <CodeGroup>
-```bash pip
-pip install bs4 msal
-```
+    ```bash pip
+    pip install bs4 msal
+    ```
 
-```bash uv
-uv add bs4 msal
-```
+    ```bash uv
+    uv add bs4 msal
+    ```
 </CodeGroup>
 
 See a [usage example](/oss/integrations/document_loaders/microsoft_onenote).
@@ -362,19 +350,50 @@ from langchain_community.document_loaders.onenote import OneNoteLoader
 First, let's install dependencies:
 
 <CodeGroup>
-```bash pip
-pip install playwright unstructured
-```
+    ```bash pip
+    pip install playwright unstructured
+    ```
 
-```bash uv
-uv add playwright unstructured
-```
+    ```bash uv
+    uv add playwright unstructured
+    ```
 </CodeGroup>
 
 See a [usage example](/oss/integrations/document_loaders/url/#playwright-url-loader).
 
 ```python
 from langchain_community.document_loaders.onenote import OneNoteLoader
+```
+
+## Memory
+
+### Azure Cosmos DB Chat Message History
+
+>[Azure Cosmos DB](https://learn.microsoft.com/azure/cosmos-db/) provides chat message history storage for conversational AI applications, enabling you to persist and retrieve conversation history with low latency and high availability.
+
+<CodeGroup>
+    ```bash pip
+    pip install langchain-azure-ai
+    ```
+
+    ```bash uv
+    uv add langchain-azure-ai
+    ```
+</CodeGroup>
+
+Configure your Azure Cosmos DB connection:
+
+```python
+from langchain_azure_ai.chat_message_histories import CosmosDBChatMessageHistory
+
+history = CosmosDBChatMessageHistory(
+    cosmos_endpoint="https://<your-account>.documents.azure.com:443/",
+    cosmos_database="<your-database>",
+    cosmos_container="<your-container>",
+    session_id="<session-id>",
+    user_id="<user-id>",
+    credential="<your-credential>"  # or use connection_string
+)
 ```
 
 ## Vector Stores
@@ -392,18 +411,18 @@ Below are two available Azure Cosmos DB APIs that can provide vector store funct
 
 ##### Installation and Setup
 
-See [detail configuration instructions](/oss/integrations/vectorstores/azure_cosmos_db).
+See [detailed configuration instructions](/oss/integrations/vectorstores/azure_cosmos_db_mongo_vcore).
 
-We need to install `pymongo` python package.
+We need to install `langchain-azure-ai` and `pymongo` python packages.
 
 <CodeGroup>
-```bash pip
-pip install pymongo
-```
+    ```bash pip
+    pip install langchain-azure-ai pymongo
+    ```
 
-```bash uv
-uv add pymongo
-```
+    ```bash uv
+    uv add langchain-azure-ai pymongo
+    ```
 </CodeGroup>
 
 ##### Deploy Azure Cosmos DB on Microsoft Azure
@@ -414,10 +433,10 @@ With Cosmos DB for MongoDB vCore, developers can enjoy the benefits of native Az
 
 [Sign Up](https://azure.microsoft.com/en-us/free/) for free to get started today.
 
-See a [usage example](/oss/integrations/vectorstores/azure_cosmos_db).
+See a [usage example](/oss/integrations/vectorstores/azure_cosmos_db_mongo_vcore).
 
 ```python
-from langchain_community.vectorstores import AzureCosmosDBVectorSearch
+from langchain_azure_ai.vectorstores import AzureCosmosDBMongoVCoreVectorSearch
 ```
 
 #### Azure Cosmos DB NoSQL
@@ -433,16 +452,16 @@ efficiency of vector-based operations.
 
 See [detail configuration instructions](/oss/integrations/vectorstores/azure_cosmos_db_no_sql).
 
-We need to install `azure-cosmos` python package.
+We need to install `langchain-azure-ai` and `azure-cosmos` python packages.
 
 <CodeGroup>
-```bash pip
-pip install azure-cosmos
-```
+    ```bash pip
+    pip install langchain-azure-ai azure-cosmos
+    ```
 
-```bash uv
-uv add azure-cosmos
-```
+    ```bash uv
+    uv add langchain-azure-ai azure-cosmos
+    ```
 </CodeGroup>
 
 ##### Deploy Azure Cosmos DB on Microsoft Azure
@@ -455,7 +474,7 @@ in every Azure region and can automatically replicate data closer to users. It h
 See a [usage example](/oss/integrations/vectorstores/azure_cosmos_db_no_sql).
 
 ```python
-from langchain_community.vectorstores import AzureCosmosDBNoSQLVectorSearch
+from langchain_azure_ai.vectorstores import AzureCosmosDBNoSqlVectorSearch
 ```
 
 ### Azure Database for PostgreSQL
@@ -464,7 +483,7 @@ from langchain_community.vectorstores import AzureCosmosDBNoSQLVectorSearch
 
 See [set up instructions](https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/quickstart-create-server-portal) for Azure Database for PostgreSQL.
 
-See a [usage example](/oss/integrations/memory/postgres_chat_message_history/). Simply use the [connection string](https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/connect-python?tabs=cmd%2Cpassword#add-authentication-code) from your Azure Portal.
+Simply use the [connection string](https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/connect-python?tabs=cmd%2Cpassword#add-authentication-code) from your Azure Portal.
 
 Since Azure Database for PostgreSQL is open-source Postgres, you can use the [LangChain's Postgres support](/oss/integrations/vectorstores/pgvector/) to connect to Azure Database for PostgreSQL.
 
@@ -546,13 +565,13 @@ See the instructions [here](/oss/integrations/tools/azure_dynamic_sessions/#setu
 We need to install a python package.
 
 <CodeGroup>
-```bash pip
-pip install langchain-azure-dynamic-sessions
-```
+    ```bash pip
+    pip install langchain-azure-dynamic-sessions
+    ```
 
-```bash uv
-uv add langchain-azure-dynamic-sessions
-```
+    ```bash uv
+    uv add langchain-azure-dynamic-sessions
+    ```
 </CodeGroup>
 
 See a [usage example](/oss/integrations/tools/azure_dynamic_sessions).
@@ -582,13 +601,13 @@ tool = BingSearchResults(api_wrapper=api_wrapper)
 We need to install several python packages.
 
 <CodeGroup>
-```bash pip
-pip install azure-ai-formrecognizer azure-cognitiveservices-speech azure-ai-vision-imageanalysis
-```
+    ```bash pip
+    pip install azure-ai-formrecognizer azure-cognitiveservices-speech azure-ai-vision-imageanalysis
+    ```
 
-```bash uv
-uv add azure-ai-formrecognizer azure-cognitiveservices-speech azure-ai-vision-imageanalysis
-```
+    ```bash uv
+    uv add azure-ai-formrecognizer azure-cognitiveservices-speech azure-ai-vision-imageanalysis
+    ```
 </CodeGroup>
 
 See a [usage example](/oss/integrations/tools/azure_ai_services).
@@ -612,13 +631,13 @@ The `azure_ai_services` toolkit includes the following tools:
 We need to install several python packages.
 
 <CodeGroup>
-```bash pip
-pip install azure-ai-formrecognizer azure-cognitiveservices-speech azure-ai-vision-imageanalysis
-```
+    ```bash pip
+    pip install azure-ai-formrecognizer azure-cognitiveservices-speech azure-ai-vision-imageanalysis
+    ```
 
-```bash uv
-uv add azure-ai-formrecognizer azure-cognitiveservices-speech azure-ai-vision-imageanalysis
-```
+    ```bash uv
+    uv add azure-ai-formrecognizer azure-cognitiveservices-speech azure-ai-vision-imageanalysis
+    ```
 </CodeGroup>
 
 See a [usage example](/oss/integrations/tools/azure_cognitive_services).
@@ -651,13 +670,13 @@ from langchain_community.tools.azure_cognitive_services import (
 We need to install `O365` python package.
 
 <CodeGroup>
-```bash pip
-pip install O365
-```
+    ```bash pip
+    pip install O365
+    ```
 
-```bash uv
-uv add O365
-```
+    ```bash uv
+    uv add O365
+    ```
 </CodeGroup>
 
 
@@ -689,13 +708,13 @@ from langchain_community.tools.office365 import O365SendMessage
 We need to install `azure-identity` python package.
 
 <CodeGroup>
-```bash pip
-pip install azure-identity
-```
+    ```bash pip
+    pip install azure-identity
+    ```
 
-```bash uv
-uv add azure-identity
-```
+    ```bash uv
+    uv add azure-identity
+    ```
 </CodeGroup>
 
 See a [usage example](/oss/integrations/tools/powerbi).
@@ -729,13 +748,13 @@ from langchain_community.tools.powerbi.tool import QueryPowerBITool
 We need to install several python packages.
 
 <CodeGroup>
-```bash pip
-pip install playwright lxml
-```
+    ```bash pip
+    pip install playwright lxml
+    ```
 
-```bash uv
-uv add playwright lxml
-```
+    ```bash uv
+    uv add playwright lxml
+    ```
 </CodeGroup>
 
 See a [usage example](/oss/integrations/tools/playwright).
@@ -765,13 +784,13 @@ from langchain_community.tools.playwright import NavigateBackTool
 We need to install a python package.
 
 <CodeGroup>
-```bash pip
-pip install gremlinpython
-```
+    ```bash pip
+    pip install gremlinpython
+    ```
 
-```bash uv
-uv add gremlinpython
-```
+    ```bash uv
+    uv add gremlinpython
+    ```
 </CodeGroup>
 
 See a [usage example](/oss/integrations/graphs/azure_cosmosdb_gremlin).
@@ -806,15 +825,15 @@ from langchain_community.utilities import BingSearchAPIWrapper
 First, you need to install several python packages and download a `SpaCy` model.
 
 <CodeGroup>
-```bash pip
-pip install langchain-experimental openai presidio-analyzer presidio-anonymizer spacy Faker
-python -m spacy download en_core_web_lg
-```
+    ```bash pip
+    pip install langchain-experimental openai presidio-analyzer presidio-anonymizer spacy Faker
+    python -m spacy download en_core_web_lg
+    ```
 
-```bash uv
-uv add langchain-experimental openai presidio-analyzer presidio-anonymizer spacy Faker
-python -m spacy download en_core_web_lg
-```
+    ```bash uv
+    uv add langchain-experimental openai presidio-analyzer presidio-anonymizer spacy Faker
+    python -m spacy download en_core_web_lg
+    ```
 </CodeGroup>
 
 See [usage examples](https://python.langchain.com/v0.1/docs/guides/productionization/safety/presidio_data_anonymization).

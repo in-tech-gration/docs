@@ -1,4 +1,7 @@
-.PHONY: dev build format lint test install clean lint_md lint_md_fix mint-broken-links mint-broken-links-all format-check
+.PHONY: all dev build format lint test install clean lint_md lint_md_fix broken-links build-references preview-references format-check
+
+# Default target
+all: help
 
 dev:
 	@echo "Starting development mode..."
@@ -64,27 +67,35 @@ clean:
 
 # Mintlify commands (run from build directory where final docs are generated)
 # Note: mint must be installed globally via npm
-mint-broken-links: build
-	@echo "Checking for broken links (excluding integrations directories)..."
-	@command -v mint >/dev/null 2>&1 || { echo "Error: mint is not installed. Run 'npm install -g mint@4.1.0'"; exit 1; }
-	@cd build && mint broken-links 2>&1 | python3 ../scripts/filter_broken_links.py --exclude-integrations
+broken-links: build
+	@echo "Checking for broken links..."
+	@command -v mint >/dev/null 2>&1 || { echo "Error: mint is not installed. Run 'npm install -g mint@4.2.126'"; exit 1; }
+	@cd build && output=$$(mint broken-links) && echo "$$output" && count=$$(echo "$$output" | sed -n 's/.*found \([0-9][0-9]*\) broken links.*/\1/p'); if [ -n "$$count" ] && [ "$$count" -gt 5 ]; then echo "❌ More than 5 broken links detected!"; exit 1; else echo "✅ Broken links check passed (≤5 broken links)"; fi
 
-mint-broken-links-all: build
-	@echo "Checking for broken links (including all directories)..."
-	@command -v mint >/dev/null 2>&1 || { echo "Error: mint is not installed. Run 'npm install -g mint@4.1.0'"; exit 1; }
-	@cd build && mint broken-links 2>&1 | python3 ../scripts/filter_broken_links.py
+check-pnpm:
+	@command -v pnpm >/dev/null 2>&1 || { echo >&2 "pnpm is not installed. Please install pnpm to proceed (https://pnpm.io/installation)"; exit 1; }
+
+# Reference docs commands (in reference/ subdirectory)
+build-references: check-pnpm
+	@echo "Building references..."
+	cd reference && pnpm i && pnpm build
+
+preview-references: check-pnpm
+	@echo "Previewing references..."
+	cd reference && pnpm i && pnpm run preview
 
 help:
 	@echo "Available commands:"
-	@echo "  make dev             - Start development mode with file watching and mint dev"
-	@echo "  make build           - Build documentation to ./build directory"
-	@echo "  make mint-broken-links - Check for broken links in built documentation (excludes integrations)"
-	@echo "  make mint-broken-links-all - Check for broken links in built documentation (includes all directories)"
-	@echo "  make format          - Format code"
-	@echo "  make lint            - Lint code"
-	@echo "  make lint_md         - Lint markdown files"
-	@echo "  make lint_md_fix     - Lint and fix markdown files"
-	@echo "  make test            - Run tests"
-	@echo "  make install         - Install dependencies"
-	@echo "  make clean           - Clean build artifacts"
-	@echo "  make help            - Show this help message"
+	@echo "  make dev                - Start development mode with file watching and mint dev"
+	@echo "  make build              - Build documentation to ./build directory"
+	@echo "  make broken-links       - Check for broken links in built documentation"
+	@echo "  make build-references   - Build reference docs"
+	@echo "  make preview-references - Preview reference docs"
+	@echo "  make format             - Format code"
+	@echo "  make lint               - Lint code"
+	@echo "  make lint_md            - Lint markdown files"
+	@echo "  make lint_md_fix        - Lint and fix markdown files"
+	@echo "  make test               - Run tests"
+	@echo "  make install            - Install dependencies"
+	@echo "  make clean              - Clean build artifacts"
+	@echo "  make help               - Show this help message"

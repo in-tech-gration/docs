@@ -23,7 +23,7 @@ POOL_MANAGEMENT_ENDPOINT = getpass.getpass()
 You'll also need to install the `langchain-azure-dynamic-sessions` package:
 
 ```python
-%pip install -qU langchain-azure-dynamic-sessions langchain-openai langchainhub langchain langchain-community
+pip install -qU langchain-azure-dynamic-sessions langchain-openai langchainhub langchain langchain-community
 ```
 
 ## Use tool
@@ -156,7 +156,7 @@ display(img)
 ## Simple agent example
 
 ```python
-from langchain import hub
+from langchain_classic import hub
 from langchain.agents import AgentExecutor, create_tool_calling_agent
 from langchain_azure_dynamic_sessions import SessionsPythonREPLTool
 from langchain_openai import ChatOpenAI
@@ -205,7 +205,7 @@ else:
 
 ## LangGraph data analyst agent
 
-For a more complex agent example check out the LangGraph data analyst example [github.com/langchain-ai/langchain/blob/master/cookbook/azure_container_apps_dynamic_sessions_data_analyst.ipynb](https://github.com/langchain-ai/langchain/blob/master/cookbook/azure_container_apps_dynamic_sessions_data_analyst.ipynb)
+For a more complex agent example check out the [LangGraph data analyst example](https://github.com/langchain-ai/langchain/blob/v0.3/cookbook/azure_container_apps_dynamic_sessions_data_analyst.ipynb)
 
 ```python
 

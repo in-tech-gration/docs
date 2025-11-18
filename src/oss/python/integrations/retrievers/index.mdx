@@ -9,9 +9,8 @@ Retrievers can be created from vector stores, but are also broad enough to inclu
 
 Retrievers accept a string query as input and return a list of [Documents](https://python.langchain.com/api_reference/core/documents/langchain_core.documents.base.Document.html) as output.
 
-Note that all [vector stores](/oss/concepts/vectorstores) can be [cast to retrievers](/oss/how-to/vectorstore_retriever/).
-Refer to the vector store [integration docs](/oss/integrations/vectorstores/) for available vector stores.
-This page lists custom retrievers, implemented via subclassing [BaseRetriever](/oss/how-to/custom_retriever/).
+Note that all [vector stores](/oss/integrations/vectorstores) can be cast to retrievers. Refer to the vector store [integration docs](/oss/integrations/vectorstores/) for available vector stores.
+This page lists custom retrievers, implemented via subclassing BaseRetriever.
 
 ## Bring-your-own documents
 
@@ -19,10 +18,10 @@ The below retrievers allow you to index and search a custom corpus of documents.
 
 | Retriever | Self-host | Cloud offering | Package |
 |-----------|-----------|----------------|---------|
-| [AmazonKnowledgeBasesRetriever](/oss/integrations/retrievers/bedrock) | ❌ | ✅ | [langchain-aws](https://python.langchain.com/api_reference/aws/retrievers/langchain_aws.retrievers.bedrock.AmazonKnowledgeBasesRetriever.html) |
-| [AzureAISearchRetriever](/oss/integrations/retrievers/azure_ai_search) | ❌ | ✅ | [langchain-community](https://python.langchain.com/api_reference/community/retrievers/langchain_community.retrievers.azure_ai_search.AzureAISearchRetriever.html) |
-| [ElasticsearchRetriever](/oss/integrations/retrievers/elasticsearch_retriever) | ✅ | ✅ | [langchain-elasticsearch](https://python.langchain.com/api_reference/elasticsearch/retrievers/langchain_elasticsearch.retrievers.ElasticsearchRetriever.html) |
-| [VertexAISearchRetriever](/oss/integrations/retrievers/google_vertex_ai_search) | ❌ | ✅ | [langchain-google-community](https://python.langchain.com/api_reference/google_community/vertex_ai_search/langchain_google_community.vertex_ai_search.VertexAISearchRetriever.html) |
+| [`AmazonKnowledgeBasesRetriever`](/oss/integrations/retrievers/bedrock) | ❌ | ✅ | [`langchain-aws`](https://python.langchain.com/api_reference/aws/retrievers/langchain_aws.retrievers.bedrock.AmazonKnowledgeBasesRetriever.html) |
+| [`AzureAISearchRetriever`](/oss/integrations/retrievers/azure_ai_search) | ❌ | ✅ | [`langchain-community`](https://python.langchain.com/api_reference/community/retrievers/langchain_community.retrievers.azure_ai_search.AzureAISearchRetriever.html) |
+| [`ElasticsearchRetriever`](/oss/integrations/retrievers/elasticsearch_retriever) | ✅ | ✅ | [`langchain-elasticsearch`](https://python.langchain.com/api_reference/elasticsearch/retrievers/langchain_elasticsearch.retrievers.ElasticsearchRetriever.html) |
+| [`VertexAISearchRetriever`](/oss/integrations/retrievers/google_vertex_ai_search) | ❌ | ✅ | [`langchain-google-community`](https://python.langchain.com/api_reference/google_community/vertex_ai_search/langchain_google_community.vertex_ai_search.VertexAISearchRetriever.html) |
 
 
 ## External index
@@ -31,9 +30,9 @@ The below retrievers will search over an external index (e.g., constructed from 
 
 | Retriever | Source | Package |
 |-----------|---------|---------|
-| [ArxivRetriever](/oss/integrations/retrievers/arxiv) | Scholarly articles on [arxiv.org](https://arxiv.org/) | [langchain-community](https://python.langchain.com/api_reference/community/retrievers/langchain_community.retrievers.arxiv.ArxivRetriever.html) |
-| [TavilySearchAPIRetriever](/oss/integrations/retrievers/tavily) | Internet search | [langchain-community](https://python.langchain.com/api_reference/community/retrievers/langchain_community.retrievers.tavily_search_api.TavilySearchAPIRetriever.html) |
-| [WikipediaRetriever](/oss/integrations/retrievers/wikipedia) | [Wikipedia](https://www.wikipedia.org/) articles | [langchain-community](https://python.langchain.com/api_reference/community/retrievers/langchain_community.retrievers.wikipedia.WikipediaRetriever.html) |
+| [`ArxivRetriever`](/oss/integrations/retrievers/arxiv) | Scholarly articles on [arxiv.org](https://arxiv.org/) | [`langchain-community`](https://python.langchain.com/api_reference/community/retrievers/langchain_community.retrievers.arxiv.ArxivRetriever.html) |
+| [`TavilySearchAPIRetriever`](/oss/integrations/retrievers/tavily) | Internet search | [`langchain-community`](https://python.langchain.com/api_reference/community/retrievers/langchain_community.retrievers.tavily_search_api.TavilySearchAPIRetriever.html) |
+| [`WikipediaRetriever`](/oss/integrations/retrievers/wikipedia) | [Wikipedia](https://www.wikipedia.org/) articles | [`langchain-community`](https://python.langchain.com/api_reference/community/retrievers/langchain_community.retrievers.wikipedia.WikipediaRetriever.html) |
 
 
 ## All retrievers
@@ -93,7 +92,6 @@ The below retrievers will search over an external index (e.g., constructed from 
 <Card title="RePhraseQuery" icon="link" href="/oss/integrations/retrievers/re_phrase" arrow="true" cta="View guide" />
 <Card title="Rememberizer" icon="link" href="/oss/integrations/retrievers/rememberizer" arrow="true" cta="View guide" />
 <Card title="SEC filing" icon="link" href="/oss/integrations/retrievers/sec_filings" arrow="true" cta="View guide" />
-<Card title="Self-querying retrievers" icon="link" href="/oss/integrations/retrievers/self_query" arrow="true" cta="View guide" />
 <Card title="SVM" icon="link" href="/oss/integrations/retrievers/svm" arrow="true" cta="View guide" />
 <Card title="TavilySearchAPI" icon="link" href="/oss/integrations/retrievers/tavily" arrow="true" cta="View guide" />
 <Card title="TF-IDF" icon="link" href="/oss/integrations/retrievers/tf_idf" arrow="true" cta="View guide" />
@@ -105,7 +103,6 @@ The below retrievers will search over an external index (e.g., constructed from 
 <Card title="You.com" icon="link" href="/oss/integrations/retrievers/you-retriever" arrow="true" cta="View guide" />
 <Card title="Zep Cloud" icon="link" href="/oss/integrations/retrievers/zep_cloud_memorystore" arrow="true" cta="View guide" />
 <Card title="Zep Open Source" icon="link" href="/oss/integrations/retrievers/zep_memorystore" arrow="true" cta="View guide" />
-<Card title="Zilliz Cloud Pipeline" icon="link" href="/oss/integrations/retrievers/zilliz_cloud_pipeline" arrow="true" cta="View guide" />
 <Card title="Zotero" icon="link" href="/oss/integrations/retrievers/zotero" arrow="true" cta="View guide" />
 </Columns>
 

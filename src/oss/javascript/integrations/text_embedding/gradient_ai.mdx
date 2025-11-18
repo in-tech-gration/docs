@@ -29,11 +29,17 @@ const model = new GradientEmbeddings({
 
 ## Usage
 
-import GradientAi from "/snippets/javascript-integrations/examples/embeddings/gradient_ai.mdx";
+```typescript
+import { GradientEmbeddings } from "@langchain/community/embeddings/gradient_ai";
 
-<GradientAi />
+const model = new GradientEmbeddings({});
+const res = await model.embedQuery(
+  "What would be a good company name a company that makes colorful socks?"
+);
+console.log({ res });
+```
 
 ## Related
 
-- Embedding model [conceptual guide](/oss/concepts/embedding_models)
-- Embedding model [how-to guides](/oss/how-to/#embedding-models)
+- Embedding model [conceptual guide](/oss/integrations/text_embedding)
+- Embedding model [how-to guides](/oss/integrations/text_embedding)

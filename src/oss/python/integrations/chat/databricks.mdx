@@ -18,7 +18,7 @@ This guide provides a quick overview for getting started with Databricks [chat m
 
 ### Model features
 
-| [Tool calling](/oss/langchain/tools/) | [Structured output](/oss/langchain/structured-output) | JSON mode | [Image input](/oss/how-to/multimodal_inputs/) | Audio input | Video input | [Token-level streaming](/oss/langchain/streaming/) | Native async | [Token usage](/oss/how-to/chat_token_usage_tracking/) | [Logprobs](/oss/how-to/logprobs/) |
+| [Tool calling](/oss/langchain/tools/) | [Structured output](/oss/langchain/structured-output) | JSON mode | [Image input](/oss/langchain/messages#multimodal) | Audio input | Video input | [Token-level streaming](/oss/langchain/streaming/) | Native async | [Token usage](/oss/langchain/models#token-usage) | [Logprobs](/oss/langchain/models#log-probabilities) |
 | :---: | :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: | :---: |
 | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ |  ✅ | ✅ | ✅ | ❌ |
 
@@ -65,7 +65,7 @@ Enter your Databricks access token:  ········
 The LangChain Databricks integration lives in the `databricks-langchain` package.
 
 ```python
-%pip install -qU databricks-langchain
+pip install -qU databricks-langchain
 ```
 
 We first demonstrates how to query DBRX-instruct model hosted as Foundation Models endpoint with `ChatDatabricks`.
@@ -307,7 +307,9 @@ messages = [{"role": "user", "content": "What is the current temperature of Chic
 print(model.invoke(messages))
 ```
 
-See [Databricks Unity Catalog](docs/integrations/tools/databricks.ipynb) about how to use UC functions in chains.
+See [Databricks Unity Catalog](/oss/integrations/tools/databricks) about how to use UC functions in chains.
+
+---
 
 ## API reference
 

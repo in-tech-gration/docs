@@ -11,9 +11,9 @@ Use the [`@langchain/baidu-qianfan`](/oss/integrations/chat/baidu_qianfan/) pack
 
 LangChain.js supports Baidu's ERNIE-bot family of models. Here's an example:
 
-import IntegrationInstallTooltip from '/snippets/javascript-integrations/integration-install-tooltip.mdx';
-
-<IntegrationInstallTooltip/>
+<Tip>
+See [this section for general instructions on installing LangChain packages](/oss/langchain/install).
+</Tip>
 
 ```bash npm
 npm install @langchain/community @langchain/core
@@ -25,9 +25,46 @@ Available models: `ERNIE-Bot`,`ERNIE-Bot-turbo`,`ERNIE-Bot-4`,`ERNIE-Speed-8K`,`
 
 Abandoned models: `ERNIE-Bot-turbo`
 
-import IntegrationBaiduwenxin from "/snippets/javascript-integrations/examples/models/chat/integration_baiduwenxin.mdx";
+```typescript
+import { ChatBaiduWenxin } from "@langchain/community/chat_models/baiduwenxin";
+import { HumanMessage } from "@langchain/core/messages";
 
-<IntegrationBaiduwenxin />
+// Default model is ERNIE-Bot-turbo
+const ernieTurbo = new ChatBaiduWenxin({
+  baiduApiKey: "YOUR-API-KEY", // In Node.js defaults to process.env.BAIDU_API_KEY
+  baiduSecretKey: "YOUR-SECRET-KEY", // In Node.js defaults to process.env.BAIDU_SECRET_KEY
+});
+
+// Use ERNIE-Bot
+const ernie = new ChatBaiduWenxin({
+  model: "ERNIE-Bot", // Available models are shown above
+  temperature: 1,
+  baiduApiKey: "YOUR-API-KEY", // In Node.js defaults to process.env.BAIDU_API_KEY
+  baiduSecretKey: "YOUR-SECRET-KEY", // In Node.js defaults to process.env.BAIDU_SECRET_KEY
+});
+
+const messages = [new HumanMessage("Hello")];
+
+let res = await ernieTurbo.invoke(messages);
+/*
+AIChatMessage {
+  text: 'Hello! How may I assist you today?',
+  name: undefined,
+  additional_kwargs: {}
+  }
+}
+*/
+
+res = await ernie.invoke(messages);
+/*
+AIChatMessage {
+  text: 'Hello! How may I assist you today?',
+  name: undefined,
+  additional_kwargs: {}
+  }
+}
+*/
+```
 
 ## Related
 

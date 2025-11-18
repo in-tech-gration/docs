@@ -16,12 +16,10 @@ In TypeScript, you must use the LangChain npm package for pulling prompts (it al
 <CodeGroup>
 ```bash pip
 pip install -U langsmith # version >= 0.1.99
-pip install -U langchain langsmith # langsmith version >= 0.1.99 and langchain >= 0.2.13
 ```
 
 ```bash uv
 uv add langsmith  # version >= 0.1.99
-uv add langchain langsmith # langsmith version >= 0.1.99 and langchain >= 0.2.13
 ```
 
 ```bash TypeScript
@@ -63,7 +61,7 @@ print(url)
 ```
 
 ```python LangChain (Python)
-from langchain import hub as prompts
+from langchain_classic import hub as prompts
 from langchain_core.prompts import ChatPromptTemplate
 
 prompt = ChatPromptTemplate.from_template("tell me a joke about {topic}")
@@ -103,7 +101,7 @@ client.push_prompt("joke-generator-with-model", object=chain)
 ```
 
 ```python LangChain (Python)
-from langchain import hub as prompts
+from langchain_classic import hub as prompts
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 
@@ -152,7 +150,7 @@ chain.invoke({"topic": "cats"})
 ```
 
 ```python LangChain (Python)
-from langchain import hub as prompts
+from langchain_classic import hub as prompts
 from langchain_openai import ChatOpenAI
 
 prompt = prompts.pull("joke-generator")
@@ -186,7 +184,7 @@ chain.invoke({"topic": "cats"})
 ```
 
 ```python LangChain (Python)
-from langchain import hub as prompts
+from langchain_classic import hub as prompts
 
 chain = prompts.pull("joke-generator-with-model", include_model=True)
 chain.invoke({"topic": "cats"})
@@ -347,7 +345,7 @@ const { messages, system } = convertPromptToAnthropic(formattedPrompt);
 
 const anthropicClient = new Anthropic();
 const anthropicResponse = await anthropicClient.messages.create({
-  model: "claude-3-haiku-20240307",
+  model: "claude-haiku-4-5-20251001",
   system,
   messages,
   max_tokens: 1024,

@@ -28,6 +28,22 @@ Once Unstructured is configured, you can use the Google Cloud Storage loader to 
 
 In addition, you can optionally provide a `storageOptions` parameter to specify not only your storage options but also other authentication ways if you don't want Application Default Credentials(ADC) as default manner.
 
-import GoogleCloudStorage from "/snippets/javascript-integrations/examples/document_loaders/google_cloud_storage.mdx";
+```typescript
+import { GoogleCloudStorageLoader } from "@langchain/community/document_loaders/web/google_cloud_storage";
 
-<GoogleCloudStorage />
+const loader = new GoogleCloudStorageLoader({
+  bucket: "my-bucket-123",
+  file: "path/to/file.pdf",
+  storageOptions: {
+    keyFilename: "/path/to/keyfile.json",
+  },
+  unstructuredLoaderOptions: {
+    apiUrl: "http://localhost:8000/general/v0/general",
+    apiKey: "", // this will be soon required
+  },
+});
+
+const docs = await loader.load();
+
+console.log(docs);
+```

@@ -6,9 +6,9 @@ This example shows how to use the Metal Retriever in a retrieval chain to retrie
 
 ## Setup
 
-import IntegrationInstallTooltip from '/snippets/javascript-integrations/integration-install-tooltip.mdx';
-
-<IntegrationInstallTooltip/>
+<Tip>
+See [this section for general instructions on installing LangChain packages](/oss/langchain/install).
+</Tip>
 
 ```bash npm
 npm i @getmetal/metal-sdk @langchain/community @langchain/core
@@ -16,9 +16,26 @@ npm i @getmetal/metal-sdk @langchain/community @langchain/core
 
 ## Usage
 
-import Metal from "/snippets/javascript-integrations/examples/retrievers/metal.mdx";
+```typescript
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+import Metal from "@getmetal/metal-sdk";
+import { MetalRetriever } from "@langchain/community/retrievers/metal";
 
-<Metal />
+export const run = async () => {
+  const MetalSDK = Metal;
+
+  const client = new MetalSDK(
+    process.env.METAL_API_KEY!,
+    process.env.METAL_CLIENT_ID!,
+    process.env.METAL_INDEX_ID
+  );
+  const retriever = new MetalRetriever({ client });
+
+  const docs = await retriever.invoke("hello");
+
+  console.log(docs);
+};
+```
 
 ## Related
 

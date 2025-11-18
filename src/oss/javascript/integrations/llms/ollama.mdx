@@ -2,18 +2,16 @@
 title: Ollama
 ---
 
-```{=mdx}
 
 <Warning>
-**You are currently on a page documenting the use of Ollama models as [text completion models](/oss/concepts/text_llms). Many popular models available on Ollama are [chat completion models](/oss/langchain/models).**
+**You are currently on a page documenting the use of Ollama models as text completion models. Many popular models available on Ollama are [chat completion models](/oss/langchain/models).**
 
 
 You may be looking for [this page instead](/oss/integrations/chat/ollama/).
 </Warning>
 
-```
 
-This will help you get started with Ollama [text completion models (LLMs)](/oss/concepts/text_llms) using LangChain. For detailed documentation on `Ollama` features and configuration options, please refer to the [API reference](https://api.js.langchain.com/classes/langchain_ollama.Ollama.html).
+This will help you get started with Ollama text completion models (LLMs) using LangChain. For detailed documentation on `Ollama` features and configuration options, please refer to the [API reference](https://api.js.langchain.com/classes/langchain_ollama.Ollama.html).
 
 ## Overview
 
@@ -47,15 +45,17 @@ If you want to get automated tracing of your model calls you can also set your [
 
 The LangChain Ollama integration lives in the `@langchain/ollama` package:
 
-```{=mdx}
-import IntegrationInstallTooltip from "@mdx_components/integration_install_tooltip.mdx";
-<IntegrationInstallTooltip></IntegrationInstallTooltip>
-
-<Npm2Yarn>
-  @langchain/ollama @langchain/core
-</Npm2Yarn>
-
+<CodeGroup>
+```bash npm
+npm install @langchain/ollama @langchain/core
 ```
+```bash yarn
+yarn add @langchain/ollama @langchain/core
+```
+```bash pnpm
+pnpm add @langchain/ollama @langchain/core
+```
+</CodeGroup>
 
 ## Instantiation
 
@@ -91,42 +91,6 @@ I think you meant to say "Olivia" instead of "Ollama". Olivia is not a well-know
 If you meant something else by "Ollama", please let me know and I'll do my best to help!
 ```
 
-## Chaining
-
-We can [chain](/oss/how-to/sequence/) our completion model with a prompt template like so:
-
-```typescript
-import { PromptTemplate } from "@langchain/core/prompts"
-
-const prompt = PromptTemplate.fromTemplate("How to say {input} in {output_language}:\n")
-
-const chain = prompt.pipe(llm);
-await chain.invoke(
-  {
-    output_language: "German",
-    input: "I love programming.",
-  }
-)
-```
-
-```output
-A programmer's passion!
-
-In German, you can express your love for programming with the following phrases:
-
-1. Ich liebe Programmieren: This is a direct translation of "I love programming."
-2. Programmieren ist meine Leidenschaft: This means "Programming is my passion."
-3. Ich bin total verliebt in Programmieren: This translates to "I'm totally in love with programming."
-4. Programmieren macht mich glücklich: This phrase means "Programming makes me happy" or "I'm joyful when programming."
-
-If you want to be more casual, you can use:
-
-1. Ich bin ein Programmier-Fan: This is a playful way to say "I'm a fan of programming."
-2. Programmieren ist mein Ding: This translates to "Programming is my thing" or "I'm all about programming."
-
-Remember that German has different forms for formal and informal speech, so adjust the phrases according to your relationship with the person you're speaking to!
-```
-
 ## Multimodal models
 
 Ollama supports open source multimodal models like [LLaVA](https://ollama.ai/library/llava) in versions 0.1.15 and up.
@@ -154,8 +118,9 @@ console.log(res);
 
 ## Related
 
-- LLM [conceptual guide](/oss/concepts/text_llms)
-- LLM [how-to guides](/oss/how-to/#llms)
+- [Models guide](/oss/langchain/models)
+
+---
 
 ## API reference
 

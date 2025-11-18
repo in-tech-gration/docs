@@ -5,7 +5,7 @@ title: BedrockEmbeddings
 
 [Amazon Bedrock](https://aws.amazon.com/bedrock/) is a fully managed service that offers a choice of high-performing foundation models (FMs) from leading AI companies like AI21 Labs, Anthropic, Cohere, Meta, Stability AI, and Amazon via a single API, along with a broad set of capabilities you need to build generative AI applications with security, privacy, and responsible AI.
 
-This will help you get started with Amazon Bedrock [embedding models](/oss/concepts/embedding_models) using LangChain. For detailed documentation on `Bedrock` features and configuration options, please refer to the [API reference](https://api.js.langchain.com/classes/langchain_aws.BedrockEmbeddings.html).
+This will help you get started with Amazon Bedrock [embedding models](/oss/integrations/text_embedding) using LangChain. For detailed documentation on `Bedrock` features and configuration options, please refer to the [API reference](https://api.js.langchain.com/classes/langchain_aws.BedrockEmbeddings.html).
 
 ## Overview
 
@@ -34,14 +34,17 @@ If you want to get automated tracing of your model calls you can also set your [
 
 The LangChain Bedrock integration lives in the `@langchain/aws` package:
 
-```{=mdx}
-import IntegrationInstallTooltip from "@mdx_components/integration_install_tooltip.mdx";
-<IntegrationInstallTooltip></IntegrationInstallTooltip>
-
-<Npm2Yarn>
-  @langchain/aws @langchain/core
-</Npm2Yarn>
+<CodeGroup>
+```bash npm
+npm install @langchain/aws @langchain/core
 ```
+```bash yarn
+yarn add @langchain/aws @langchain/core
+```
+```bash pnpm
+pnpm add @langchain/aws @langchain/core
+```
+</CodeGroup>
 
 ## Instantiation
 
@@ -70,7 +73,7 @@ Below, see how to index and retrieve data using the `embeddings` object we initi
 
 ```typescript
 // Create a vector store with a sample text
-import { MemoryVectorStore } from "langchain/vectorstores/memory";
+import { MemoryVectorStore } from "@langchain/classic/vectorstores/memory";
 
 const text = "LangChain is the framework for building context-aware reasoning applications";
 
@@ -216,6 +219,8 @@ const embeddingsWithCustomClient = new BedrockEmbeddings({
   client,
 });
 ```
+
+---
 
 ## API reference
 

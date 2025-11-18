@@ -37,7 +37,7 @@ if not os.getenv("OPENAI_API_KEY"):
 The LangChain ChatAbso integration lives in the `langchain-abso` package:
 
 ```python
-%pip install -qU langchain-abso
+pip install -qU langchain-abso
 ```
 
 ## Instantiation
@@ -68,32 +68,7 @@ ai_msg
 print(ai_msg.content)
 ```
 
-## Chaining
-
-We can [chain](/oss/how-to/sequence/) our model with a prompt template like so:
-
-```python
-from langchain_core.prompts import ChatPromptTemplate
-
-prompt = ChatPromptTemplate(
-    [
-        (
-            "system",
-            "You are a helpful assistant that translates {input_language} to {output_language}.",
-        ),
-        ("human", "{input}"),
-    ]
-)
-
-chain = prompt | llm
-chain.invoke(
-    {
-        "input_language": "English",
-        "output_language": "German",
-        "input": "I love programming.",
-    }
-)
-```
+---
 
 ## API reference
 

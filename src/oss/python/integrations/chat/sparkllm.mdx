@@ -9,7 +9,7 @@ SparkLLM chat models API by iFlyTek. For more information, see [iFlyTek Open Pla
 ```python
 """For basic init and call"""
 from langchain_community.chat_models import ChatSparkLLM
-from langchain_core.messages import HumanMessage
+from langchain.messages import HumanMessage
 
 chat = ChatSparkLLM(
     spark_app_id="<app_id>", spark_api_key="<api_key>", spark_api_secret="<api_secret>"
@@ -46,7 +46,7 @@ Hello! How can I help you today?
 ```python
 """For basic init and call"""
 from langchain_community.chat_models import ChatSparkLLM
-from langchain_core.messages import HumanMessage
+from langchain.messages import HumanMessage
 
 chat = ChatSparkLLM(
     spark_app_id="<app_id>",

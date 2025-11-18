@@ -14,7 +14,7 @@ First, Yuan2.0 provided an OpenAI compatible API, and we integrate ChatYuan2 int
 Therefore, ensure the openai package is installed in your Python environment. Run the following command:
 
 ```python
-%pip install -qU openai
+pip install -qU openai
 ```
 
 ### Importing the Required Modules
@@ -23,7 +23,7 @@ After installation, import the necessary modules to your Python script:
 
 ```python
 from langchain_community.chat_models import ChatYuan2
-from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
+from langchain.messages import AIMessage, HumanMessage, SystemMessage
 ```
 
 ### Setting Up Your API server

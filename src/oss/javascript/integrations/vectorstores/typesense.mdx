@@ -6,9 +6,9 @@ Vector store that utilizes the Typesense search engine.
 
 ### Basic Usage
 
-import IntegrationInstallTooltip from '/snippets/javascript-integrations/integration-install-tooltip.mdx';
-
-<IntegrationInstallTooltip/>
+<Tip>
+See [this section for general instructions on installing LangChain packages](/oss/langchain/install).
+</Tip>
 
 ```bash npm
 npm install @langchain/openai @langchain/community @langchain/core
@@ -121,7 +121,7 @@ vectorStore.deleteDocuments(["document_id_1", "document_id_2"]);
 Before starting, create a schema in Typesense with an id, a field for the vector and a field for the text. Add as many other fields as needed for the metadata.
 
 - `constructor(embeddings: Embeddings, config: TypesenseConfig)`: Constructs a new instance of the `Typesense` class.
-  - `embeddings`: An instance of the `Embeddings` class used for embedding documents.
+  - `embeddings`: An instance of the @[`Embeddings`] class used for embedding documents.
   - `config`: Configuration object for the Typesense vector store.
     - `typesenseClient`: Typesense client instance.
     - `schemaName`: Name of the Typesense schema in which documents will be stored and searched.
@@ -142,5 +142,5 @@ Before starting, create a schema in Typesense with an id, a field for the vector
 
 ## Related
 
-- Vector store [conceptual guide](/oss/concepts/#vectorstores)
-- Vector store [how-to guides](/oss/how-to/#vectorstores)
+- Vector store [conceptual guide](/oss/integrations/vectorstores)
+- Vector store [how-to guides](/oss/integrations/vectorstores)

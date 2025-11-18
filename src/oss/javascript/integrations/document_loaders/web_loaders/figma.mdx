@@ -5,9 +5,18 @@ title: Figma
 This example goes over how to load data from a Figma file.
 You will need a Figma access token in order to get started.
 
-import Figma from "/snippets/javascript-integrations/examples/document_loaders/figma.mdx";
+```typescript
+import { FigmaFileLoader } from "@langchain/community/document_loaders/web/figma";
 
-<Figma />
+const loader = new FigmaFileLoader({
+  accessToken: "FIGMA_ACCESS_TOKEN", // or load it from process.env.FIGMA_ACCESS_TOKEN
+  nodeIds: ["id1", "id2", "id3"],
+  fileKey: "key",
+});
+const docs = await loader.load();
+
+console.log({ docs });
+```
 
 You can find your Figma file's key and node ids by opening the file in your browser and extracting them from the URL:
 

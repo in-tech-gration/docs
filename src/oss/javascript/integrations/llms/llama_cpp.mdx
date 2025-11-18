@@ -17,9 +17,9 @@ You'll need to install major version `3` of the [node-llama-cpp](https://github.
 ```bash npm
 npm install -S node-llama-cpp@3
 ```
-import IntegrationInstallTooltip from '/snippets/javascript-integrations/integration-install-tooltip.mdx';
-
-<IntegrationInstallTooltip/>
+<Tip>
+See [this section for general instructions on installing LangChain packages](/oss/langchain/install).
+</Tip>
 
 ```bash npm
 npm install @langchain/community @langchain/core
@@ -93,17 +93,58 @@ Running this command fires up the model for a chat session. BTW if you are runni
 
 ## Usage
 
-import LlamaCpp from "/snippets/javascript-integrations/examples/models/llm/llama_cpp.mdx";
+```typescript
+import { LlamaCpp } from "@langchain/community/llms/llama_cpp";
 
-<LlamaCpp />
+const llamaPath = "/Replace/with/path/to/your/model/gguf-llama3-Q4_0.bin";
+const question = "Where do Llamas come from?";
+
+const model = await LlamaCpp.initialize({ modelPath: llamaPath });
+
+console.log(`You: ${question}`);
+const response = await model.invoke(question);
+console.log(`AI : ${response}`);
+```
 
 ## Streaming
 
-import LlamaCppStream from "/snippets/javascript-integrations/examples/models/llm/llama_cpp_stream.mdx";
+```typescript
+import { LlamaCpp } from "@langchain/community/llms/llama_cpp";
 
-<LlamaCppStream />;
+const llamaPath = "/Replace/with/path/to/your/model/gguf-llama3-Q4_0.bin";
+
+const model = await LlamaCpp.initialize({
+  modelPath: llamaPath,
+  temperature: 0.7,
+});
+
+const prompt = "Tell me a short story about a happy Llama.";
+
+const stream = await model.stream(prompt);
+
+for await (const chunk of stream) {
+  console.log(chunk);
+}
+
+/*
+
+
+ Once
+  upon
+  a
+  time
+ ,
+  in
+  the
+  rolling
+  hills
+  of
+  Peru
+ ...
+ */
+```;
 
 ## Related
 
-- LLM [conceptual guide](/oss/concepts/text_llms)
-- LLM [how-to guides](/oss/how-to/#llms)
+
+- [Models guide](/oss/langchain/models)

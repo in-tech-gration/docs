@@ -4,7 +4,7 @@ title: Chroma
 
 [Chroma](https://docs.trychroma.com/getting-started) is a AI-native open-source vector database focused on developer productivity and happiness. Chroma is licensed under Apache 2.0.
 
-This guide provides a quick overview for getting started with Chroma [`vector stores`](/oss/concepts/#vectorstores). For detailed documentation of all `Chroma` features and configurations head to the [API reference](https://api.js.langchain.com/classes/langchain_community_vectorstores_chroma.Chroma.html).
+This guide provides a quick overview for getting started with Chroma [`vector stores`](/oss/integrations/vectorstores). For detailed documentation of all `Chroma` features and configurations head to the [API reference](https://api.js.langchain.com/classes/langchain_community_vectorstores_chroma.Chroma.html).
 
 <Info>
 **Chroma Cloud**
@@ -29,14 +29,17 @@ To use Chroma vector stores, you'll need to install the `@langchain/community` i
 
 This guide will also use [OpenAI embeddings](/oss/integrations/text_embedding/openai), which require you to install the `@langchain/openai` integration package. You can also use [other supported embeddings models](/oss/integrations/text_embedding) if you wish.
 
-```{=mdx}
-import IntegrationInstallTooltip from "@mdx_components/integration_install_tooltip.mdx";
-<IntegrationInstallTooltip></IntegrationInstallTooltip>
-
-<Npm2Yarn>
-  @langchain/community @langchain/openai @langchain/core chromadb
-</Npm2Yarn>
+<CodeGroup>
+```bash npm
+npm install @langchain/community @langchain/openai @langchain/core chromadb
 ```
+```bash yarn
+yarn add @langchain/community @langchain/openai @langchain/core chromadb
+```
+```bash pnpm
+pnpm add @langchain/community @langchain/openai @langchain/core chromadb
+```
+</CodeGroup>
 
 If you want to run Chroma locally, you can [run a local Chroma server](https://docs.trychroma.com/docs/cli/run) using the Chroma CLI, which ships with the `chromadb` package:
 
@@ -123,9 +126,14 @@ import { Chroma } from "@langchain/community/vectorstores/chroma";
 
 const vectorStore = new Chroma(embeddings, {
   collectionName: "a-test-collection",
-  tenant: process.env.CHROMA_TENANT,
-  database: process.env.CHROMA_DATABASE,
-  chromaCloudAPIKey: process.env.CHROMA_API_KEY
+  chromaCloudAPIKey: process.env.CHROMA_API_KEY,
+  clientParams: {
+    host: "api.trychroma.com",
+    port: 8000,
+    ssl: true,
+    tenant: process.env.CHROMA_TENANT,
+    database: process.env.CHROMA_DATABASE,
+  },
 });
 ```
 
@@ -219,6 +227,8 @@ For guides on how to use this vector store for retrieval-augmented generation (R
 - [Build a RAG app with LangChain](/oss/langchain/rag).
 - [Agentic RAG](/oss/langgraph/agentic-rag)
 - [Retrieval docs](/oss/langchain/retrieval)
+
+---
 
 ## API reference
 

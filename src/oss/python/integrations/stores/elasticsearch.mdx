@@ -2,7 +2,7 @@
 title: ElasticsearchEmbeddingsCache
 ---
 
-This will help you get started with Elasticsearch [key-value stores](/oss/concepts/key_value_stores). For detailed documentation of all `ElasticsearchEmbeddingsCache` features and configurations head to the [API reference](https://python.langchain.com/api_reference/elasticsearch/cache/langchain_elasticsearch.cache.ElasticsearchEmbeddingsCache.html).
+This will help you get started with Elasticsearch [key-value stores](/oss/integrations/stores). For detailed documentation of all `ElasticsearchEmbeddingsCache` features and configurations head to the [API reference](https://python.langchain.com/api_reference/elasticsearch/cache/langchain_elasticsearch.cache.ElasticsearchEmbeddingsCache.html).
 
 ## Overview
 
@@ -23,7 +23,7 @@ To create a `ElasticsearchEmbeddingsCache` byte store, you'll need an Elasticsea
 The LangChain `ElasticsearchEmbeddingsCache` integration lives in the `langchain-elasticsearch` package:
 
 ```python
-%pip install -qU langchain-elasticsearch
+pip install -qU langchain-elasticsearch
 ```
 
 ## Instantiation
@@ -95,7 +95,7 @@ kv_store.mget(
 
 ## Use as an embeddings cache
 
-Like other `ByteStores`, you can use an `ElasticsearchEmbeddingsCache` instance for [persistent caching in document ingestion](/oss/how-to/caching_embeddings/) for RAG.
+Like other `ByteStores`, you can use an `ElasticsearchEmbeddingsCache` instance for [persistent caching in document ingestion](/oss/integrations/text_embedding#caching) for RAG.
 
 However, cached vectors won't be searchable by default. The developer can customize the building of the Elasticsearch document in order to add indexed vector field.
 
@@ -124,6 +124,8 @@ class SearchableElasticsearchStore(ElasticsearchEmbeddingsCache):
 ```
 
 When overriding the mapping and the document building, please only make additive modifications, keeping the base mapping intact.
+
+---
 
 ## API reference
 

@@ -18,7 +18,7 @@ This will help you getting started with Cohere [chat models](/oss/langchain/mode
 
 See the links in the table headers below for guides on how to use specific features.
 
-| [Tool calling](/oss/langchain/tools) | [Structured output](/oss/langchain/structured-output) | JSON mode | [Image input](/oss/how-to/multimodal_inputs/) | Audio input | Video input | [Token-level streaming](/oss/langchain/streaming/) | [Token usage](/oss/how-to/chat_token_usage_tracking/) | [Logprobs](/oss/how-to/logprobs/) |
+| [Tool calling](/oss/langchain/tools) | [Structured output](/oss/langchain/structured-output) | JSON mode | [Image input](/oss/langchain/messages#multimodal) | Audio input | Video input | [Token-level streaming](/oss/langchain/streaming/) | [Token usage](/oss/langchain/models#token-usage) | [Logprobs](/oss/langchain/models#log-probabilities) |
 | :---: | :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: |
 | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ |
 
@@ -48,16 +48,17 @@ If you want to get automated tracing of your model calls you can also set your [
 
 The LangChain ChatCohere integration lives in the `@langchain/cohere` package:
 
-```{=mdx}
-
-import IntegrationInstallTooltip from "@mdx_components/integration_install_tooltip.mdx";
-<IntegrationInstallTooltip></IntegrationInstallTooltip>
-
-<Npm2Yarn>
-  @langchain/cohere @langchain/core
-</Npm2Yarn>
-
+<CodeGroup>
+```bash npm
+npm install @langchain/cohere @langchain/core
 ```
+```bash yarn
+yarn add @langchain/cohere @langchain/core
+```
+```bash pnpm
+pnpm add @langchain/cohere @langchain/core
+```
+</CodeGroup>
 
 ## Instantiation
 
@@ -197,115 +198,6 @@ console.log(aiMsg.content)
 
 ```output
 J'adore programmer.
-```
-
-## Chaining
-
-We can [chain](/oss/how-to/sequence/) our model with a prompt template like so:
-
-```typescript
-import { ChatPromptTemplate } from "@langchain/core/prompts"
-
-const prompt = ChatPromptTemplate.fromMessages(
-    [
-        [
-            "system",
-            "You are a helpful assistant that translates {input_language} to {output_language}.",
-        ],
-        ["human", "{input}"],
-    ]
-)
-
-const chain = prompt.pipe(llm);
-await chain.invoke(
-    {
-        input_language: "English",
-        output_language: "German",
-        input: "I love programming.",
-    }
-)
-```
-
-```output
-AIMessage {
-  "content": "Ich liebe Programmieren.",
-  "additional_kwargs": {
-    "response_id": "271e1439-7220-40fa-953d-c9f2947e451a",
-    "generationId": "f99970a4-7b1c-4d76-a73a-4467a1db759c",
-    "chatHistory": [
-      {
-        "role": "SYSTEM",
-        "message": "You are a helpful assistant that translates English to German."
-      },
-      {
-        "role": "USER",
-        "message": "I love programming."
-      },
-      {
-        "role": "CHATBOT",
-        "message": "Ich liebe Programmieren."
-      }
-    ],
-    "finishReason": "COMPLETE",
-    "meta": {
-      "apiVersion": {
-        "version": "1"
-      },
-      "billedUnits": {
-        "inputTokens": 15,
-        "outputTokens": 6
-      },
-      "tokens": {
-        "inputTokens": 84,
-        "outputTokens": 6
-      }
-    }
-  },
-  "response_metadata": {
-    "estimatedTokenUsage": {
-      "completionTokens": 6,
-      "promptTokens": 84,
-      "totalTokens": 90
-    },
-    "response_id": "271e1439-7220-40fa-953d-c9f2947e451a",
-    "generationId": "f99970a4-7b1c-4d76-a73a-4467a1db759c",
-    "chatHistory": [
-      {
-        "role": "SYSTEM",
-        "message": "You are a helpful assistant that translates English to German."
-      },
-      {
-        "role": "USER",
-        "message": "I love programming."
-      },
-      {
-        "role": "CHATBOT",
-        "message": "Ich liebe Programmieren."
-      }
-    ],
-    "finishReason": "COMPLETE",
-    "meta": {
-      "apiVersion": {
-        "version": "1"
-      },
-      "billedUnits": {
-        "inputTokens": 15,
-        "outputTokens": 6
-      },
-      "tokens": {
-        "inputTokens": 84,
-        "outputTokens": 6
-      }
-    }
-  },
-  "tool_calls": [],
-  "invalid_tool_calls": [],
-  "usage_metadata": {
-    "input_tokens": 84,
-    "output_tokens": 6,
-    "total_tokens": 90
-  }
-}
 ```
 
 ## RAG
@@ -1507,6 +1399,8 @@ We can see in the `additional_kwargs` object that the API request did a few thin
 - Generated three documents from the search query.
 - Generated a list of citations
 - Generated a final response based on the above actions & content.
+
+---
 
 ## API reference
 

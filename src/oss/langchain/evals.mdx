@@ -2,9 +2,7 @@
 title: Evaluate agent performance
 ---
 
-import AlphaCallout from '/snippets/alpha-lc-callout.mdx';
 
-<AlphaCallout />
 
 To evaluate your agent's performance you can use `LangSmith` [evaluations](https://docs.smith.langchain.com/evaluation). You would need to first define an evaluator function to judge the results from an agent, such as final outputs or trajectory. Depending on your evaluation technique, this may or may not involve a reference output:
 
@@ -61,9 +59,9 @@ npm install agentevals
 A common way to evaluate agent performance is by comparing its trajectory (the order in which it calls its tools) against a reference trajectory:
 
 :::python
-```python {highlight={2,39}}
+```python
 import json
-from agentevals.trajectory.match import create_trajectory_match_evaluator
+from agentevals.trajectory.match import create_trajectory_match_evaluator  # [!code highlight]
 
 outputs = [
     {
@@ -100,7 +98,7 @@ reference_outputs = [
 
 # Create the evaluator
 evaluator = create_trajectory_match_evaluator(
-    trajectory_match_mode="superset",  # (1)!
+    trajectory_match_mode="superset",    # [!code highlight]
 )
 
 # Run the evaluator
@@ -151,7 +149,7 @@ const referenceOutputs = [
 // Create the evaluator
 const evaluator = createTrajectoryMatchEvaluator({
   // Specify how the trajectories will be compared. `superset` will accept output trajectory as valid if it's a superset of the reference one. Other options include: strict, unordered and subset
-  trajectoryMatchMode: "superset", // (1)!
+  trajectoryMatchMode: "superset", // [!code highlight]
 });
 
 // Run the evaluator
@@ -171,10 +169,10 @@ As a next step, learn more about how to [customize trajectory match evaluator](h
 You can use LLM-as-a-judge evaluator that uses an LLM to compare the trajectory against the reference outputs and output a score:
 
 :::python
-```python {highlight={3}}
+```python
 import json
 from agentevals.trajectory.llm import (
-    create_trajectory_llm_as_judge,
+    create_trajectory_llm_as_judge,  # [!code highlight]
     TRAJECTORY_ACCURACY_PROMPT_WITH_REFERENCE
 )
 
@@ -211,6 +209,7 @@ To run an evaluator, you will first need to create a [LangSmith dataset](https:/
 from langsmith import Client
 from langchain.agents import create_agent
 from agentevals.trajectory.match import create_trajectory_match_evaluator
+
 
 client = Client()
 agent = create_agent(...)

@@ -28,7 +28,7 @@ title: Llama.cpp
 
 ### Model features
 
-| [Tool calling](/oss/langchain/tools) | [Structured output](/oss/langchain/structured-output) | JSON mode | Image input | Audio input | Video input | [Token-level streaming](/oss/langchain/streaming/) | Native async | [Token usage](/oss/how-to/chat_token_usage_tracking/) | [Logprobs](/oss/how-to/logprobs/) |
+| [Tool calling](/oss/langchain/tools) | [Structured output](/oss/langchain/structured-output) | JSON mode | Image input | Audio input | Video input | [Token-level streaming](/oss/langchain/streaming/) | Native async | [Token usage](/oss/langchain/models#token-usage) | [Logprobs](/oss/langchain/models#log-probabilities) |
 | :---: | :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: | :---: |
 | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ✅ |
 
@@ -51,7 +51,7 @@ See our guides on local models to go deeper:
 The LangChain LlamaCpp integration lives in the `langchain-community` and `llama-cpp-python` packages:
 
 ```python
-%pip install -qU langchain-community llama-cpp-python
+pip install -qU langchain-community llama-cpp-python
 ```
 
 ## Instantiation
@@ -110,33 +110,6 @@ Je suis amoureux de la programmation informatique.
 (You might also say simply 'programmation', which would be understood as both meanings - depending on context).
 ```
 
-## Chaining
-
-We can [chain](/oss/how-to/sequence/) our model with a prompt template like so:
-
-```python
-from langchain_core.prompts import ChatPromptTemplate
-
-prompt = ChatPromptTemplate.from_messages(
-    [
-        (
-            "system",
-            "You are a helpful assistant that translates {input_language} to {output_language}.",
-        ),
-        ("human", "{input}"),
-    ]
-)
-
-chain = prompt | llm
-chain.invoke(
-    {
-        "input_language": "English",
-        "output_language": "German",
-        "input": "I love programming.",
-    }
-)
-```
-
 ## Tool calling
 
 Firstly, it works mostly the same as OpenAI Function Calling
@@ -160,7 +133,7 @@ However, it cannot automatically trigger a function/tool, we need to force it by
 `{"type": "function", "function": {"name": <<tool_name>>}}.`
 
 ```python
-from langchain_core.tools import tool
+from langchain.tools import tool
 from pydantic import BaseModel, Field
 
 
@@ -265,6 +238,8 @@ result
 for chunk in llm.stream("what is 25x5"):
         print(chunk.content, end="\n", flush=True)
 ```
+
+---
 
 ## API reference
 

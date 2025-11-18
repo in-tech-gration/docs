@@ -3,7 +3,7 @@ title: Cohere
 ---
 
 <Warning>
-**You are currently on a page documenting the use of Cohere models as [text completion models](/oss/concepts/text_llms). Many popular Cohere models are [chat completion models](/oss/langchain/models).**
+**You are currently on a page documenting the use of Cohere models as text completion models. Many popular Cohere models are [chat completion models](/oss/langchain/models).**
 
 You may be looking for [this page instead](/oss/integrations/chat/cohere/).
 </Warning>
@@ -45,17 +45,17 @@ pip install -U langchain-community langchain-cohere
 It's also helpful (but not needed) to set up [LangSmith](https://smith.langchain.com/) for best-in-class observability
 
 ```python
-# os.environ["LANGSMITH_TRACING"] = "true"
+os.environ["LANGSMITH_TRACING"] = "true"
 # os.environ["LANGSMITH_API_KEY"] = getpass.getpass()
 ```
 
 ## Invocation
 
-Cohere supports all [LLM](/docs/how_to#llms) functionality:
+Cohere supports all [LLM](/oss/langchain/models) functionality:
 
 ```python
 from langchain_cohere import Cohere
-from langchain_core.messages import HumanMessage
+from langchain.messages import HumanMessage
 ```
 
 ```python
@@ -96,24 +96,7 @@ model.batch([message])
 [" Who's there?"]
 ```
 
-## Chaining
-
-You can also easily combine with a prompt template for easy structuring of user input. We can do this using [LCEL](/oss/concepts/lcel)
-
-```python
-from langchain_core.prompts import PromptTemplate
-
-prompt = PromptTemplate.from_template("Tell me a joke about {topic}")
-chain = prompt | model
-```
-
-```python
-chain.invoke({"topic": "bears"})
-```
-
-```output
-' Why did the teddy bear cross the road?\nBecause he had bear crossings.\n\nWould you like to hear another joke? '
-```
+---
 
 ## API reference
 

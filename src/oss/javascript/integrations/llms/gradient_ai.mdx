@@ -27,21 +27,31 @@ const model = new GradientLLM({
 ```
 ## Usage
 
-import IntegrationInstallTooltip from '/snippets/javascript-integrations/integration-install-tooltip.mdx';
-
-<IntegrationInstallTooltip/>
+<Tip>
+See [this section for general instructions on installing LangChain packages](/oss/langchain/install).
+</Tip>
 
 ```bash npm
 npm install @langchain/community @langchain/core
 ```
 
-import GradientAiBase from "/snippets/javascript-integrations/examples/llms/gradient_ai-base.mdx";
+```typescript
+import { GradientLLM } from "@langchain/community/llms/gradient_ai";
 
-import GradientAiAdapter from "/snippets/javascript-integrations/examples/llms/gradient_ai-adapter.mdx";
+// Note that inferenceParameters are optional
+const model = new GradientLLM({
+  modelSlug: "llama2-7b-chat",
+  inferenceParameters: {
+    maxGeneratedTokenCount: 20,
+    temperature: 0,
+  },
+});
+const res = await model.invoke(
+  "What would be a good company name for a company that makes colorful socks?"
+);
 
-### Using Gradient's Base Models
-
-<GradientAiBase />
+console.log({ res });
+```
 
 ### Using your own fine-tuned Adapters
 
@@ -51,5 +61,5 @@ The use your own custom adapter simply set `adapterId` during setup.
 
 ## Related
 
-- LLM [conceptual guide](/oss/concepts/text_llms)
-- LLM [how-to guides](/oss/how-to/#llms)
+
+- [Models guide](/oss/langchain/models)

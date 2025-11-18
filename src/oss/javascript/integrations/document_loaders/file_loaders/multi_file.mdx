@@ -19,13 +19,13 @@ src/document_loaders/example_data/example2/
 Example code:
 
 ```typescript
-import { MultiFileLoader } from "langchain/document_loaders/fs/multi_file";
+import { MultiFileLoader } from "@langchain/classic/document_loaders/fs/multi_file";
 import {
   JSONLoader,
   JSONLinesLoader,
-} from "langchain/document_loaders/fs/json";
-import { TextLoader } from "langchain/document_loaders/fs/text";
-import { CSVLoader } from "langchain/document_loaders/fs/csv";
+} from "@langchain/classic/document_loaders/fs/json";
+import { TextLoader } from "@langchain/classic/document_loaders/fs/text";
+import { CSVLoader } from "@langchain/classic/document_loaders/fs/csv";
 
 const loader = new MultiFileLoader(
   [

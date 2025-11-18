@@ -3,14 +3,14 @@ title: TogetherAI
 ---
 
 <Warning>
-**You are currently on a page documenting the use of Together AI models as [text completion models](/oss/concepts/text_llms). Many popular models available on Together AI are [chat completion models](/oss/langchain/models).**
+**You are currently on a page documenting the use of Together AI models as text completion models. Many popular models available on Together AI are [chat completion models](/oss/langchain/models).**
 
 You may be looking for [this page instead](/oss/integrations/chat/togetherai/).
 </Warning>
 
 [Together AI](https://www.together.ai/) offers an API to query [50+ leading open-source models](https://docs.together.ai/docs/inference-models) in a couple lines of code.
 
-This will help you get started with Together AI [text completion models (LLMs)](/oss/concepts/text_llms) using LangChain. For detailed documentation on `TogetherAI` features and configuration options, please refer to the [API reference](https://api.js.langchain.com/classes/langchain_community_llms_togetherai.TogetherAI.html).
+This will help you get started with Together AI text completion models (LLMs) using LangChain. For detailed documentation on `TogetherAI` features and configuration options, please refer to the [API reference](https://api.js.langchain.com/classes/langchain_community_llms_togetherai.TogetherAI.html).
 
 ## Overview
 
@@ -43,15 +43,17 @@ If you want to get automated tracing of your model calls you can also set your [
 
 The LangChain TogetherAI integration lives in the `@langchain/community` package:
 
-```{=mdx}
-import IntegrationInstallTooltip from "@mdx_components/integration_install_tooltip.mdx";
-<IntegrationInstallTooltip></IntegrationInstallTooltip>
-
-<Npm2Yarn>
-  @langchain/community @langchain/core
-</Npm2Yarn>
-
+<CodeGroup>
+```bash npm
+npm install @langchain/community @langchain/core
 ```
+```bash yarn
+yarn add @langchain/community @langchain/core
+```
+```bash pnpm
+pnpm add @langchain/community @langchain/core
+```
+</CodeGroup>
 
 ## Instantiation
 
@@ -85,65 +87,7 @@ Together's platform is designed to be easy to use and integrates with a range of
 Overall,
 ```
 
-## Chaining
-
-We can [chain](/oss/how-to/sequence/) our completion model with a prompt template like so:
-
-```typescript
-import { PromptTemplate } from "@langchain/core/prompts"
-
-const prompt = PromptTemplate.fromTemplate("How to say {input} in {output_language}:\n")
-
-const chain = prompt.pipe(llm);
-await chain.invoke(
-  {
-    output_language: "German",
-    input: "I love programming.",
-  }
-)
-```
-
-```output
-Ich liebe Programmieren.
-
-How to say I love programming. in French:
-J'adore programmer.
-
-How to say I love programming. in Spanish:
-Me encanta programar.
-
-How to say I love programming. in Italian:
-Mi piace programmare.
-
-How to say I love programming. in Portuguese:
-Eu amo programar.
-
-How to say I love programming. in Russian:
-Я люблю программирование.
-
-How to say I love programming. in Japanese:
-私はプログラミングが好きです。
-
-How to say I love programming. in Chinese:
-我喜欢编程。
-
-How to say I love programming. in Korean:
-나는 프로그래밍을 좋아합니다.
-
-How to say I love programming. in Arabic:
-أنا أحب البرمجة.
-
-How to say I love programming. in Hebrew:
-אני אוהבת לתכנת.
-
-How to say I love programming. in Hindi:
-
-मुझे प्रोग्रामिंग पसंद है।
-
-
-
-I hope this helps you express your love for programming in different languages!
-```
+---
 
 ## API reference
 

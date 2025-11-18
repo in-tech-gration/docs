@@ -27,7 +27,7 @@ os.environ["OPENAI_API_KEY"] = getpass.getpass()
 This toolkit lives in the `langchain-community` package.
 
 ```python
-%pip install -qU langchain-community
+pip install -qU langchain-community
 ```
 
 ## Instantiation
@@ -96,7 +96,7 @@ help users make informed decisions. Always maintain a professional and objective
 Instantiate the LLM.
 
 ```python
-from langchain_core.tools import tool
+from langchain.tools import tool
 from langchain_openai import ChatOpenAI
 
 model = ChatOpenAI(model="gpt-4o")
@@ -133,6 +133,8 @@ Query the agent.
 ```python
 agent_executor.invoke({"input": query})
 ```
+
+---
 
 ## API reference
 

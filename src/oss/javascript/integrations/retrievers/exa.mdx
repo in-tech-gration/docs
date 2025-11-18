@@ -35,14 +35,17 @@ If you want to get automated tracing from individual queries, you can also set y
 
 This retriever lives in the `@langchain/exa` package:
 
-```{=mdx}
-import IntegrationInstallTooltip from "@mdx_components/integration_install_tooltip.mdx";
-<IntegrationInstallTooltip></IntegrationInstallTooltip>
-
-<Npm2Yarn>
-  @langchain/exa @langchain/core
-</Npm2Yarn>
+<CodeGroup>
+```bash npm
+npm install @langchain/exa @langchain/core
 ```
+```bash yarn
+yarn add @langchain/exa @langchain/core
+```
+```bash pnpm
+pnpm add @langchain/exa @langchain/core
+```
+</CodeGroup>
 
 ## Instantiation
 
@@ -182,64 +185,7 @@ await retriever.invoke(query);
 ]
 ```
 
-## Use within a chain
-
-Like other retrievers, ExaRetriever can be incorporated into LLM applications via [chains](/oss/how-to/sequence/).
-
-We will need a LLM or chat model:
-
-```{=mdx}
-<ChatModelTabs customVarName="llm" />
-```
-
-```typescript
-// @lc-docs-hide-cell
-
-import { ChatOpenAI } from "@langchain/openai";
-
-const llm = new ChatOpenAI({
-  model: "gpt-4o-mini",
-  temperature: 0,
-});
-```
-
-```typescript
-import { ChatPromptTemplate } from "@langchain/core/prompts";
-import { RunnablePassthrough, RunnableSequence } from "@langchain/core/runnables";
-import { StringOutputParser } from "@langchain/core/output_parsers";
-
-import type { Document } from "@langchain/core/documents";
-
-const prompt = ChatPromptTemplate.fromTemplate(`
-Answer the question based only on the context provided.
-
-Context: {context}
-
-Question: {question}`);
-
-const formatDocs = (docs: Document[]) => {
-  return docs.map((doc) => doc.pageContent).join("\n\n");
-}
-
-// See https://js.langchain.com/docs/tutorials/rag
-const ragChain = RunnableSequence.from([
-  {
-    context: retriever.pipe(formatDocs),
-    question: new RunnablePassthrough(),
-  },
-  prompt,
-  llm,
-  new StringOutputParser(),
-]);
-```
-
-```typescript
-await ragChain.invoke("What did the speaker say about Justice Breyer in the 2022 State of the Union?");
-```
-
-```output
-In the 2022 State of the Union Address, the speaker, President Biden, honored Justice Breyer, describing him as someone who has dedicated his life to serve the country. He acknowledged Justice Breyer as an Army veteran and a constitutional scholar, and he expressed gratitude for his service. President Biden also mentioned that one of the most serious constitutional responsibilities of a President is nominating someone to serve on the United States Supreme Court, and he highlighted his nomination of Ketanji Brown Jackson to succeed Justice Breyer.
-```
+---
 
 ## API reference
 

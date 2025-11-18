@@ -31,18 +31,18 @@ Application Keys section of the project.
 
 ## Index docs
 
-import IntegrationInstallTooltip from '/snippets/javascript-integrations/integration-install-tooltip.mdx';
-
-<IntegrationInstallTooltip/>
+<Tip>
+See [this section for general instructions on installing LangChain packages](/oss/langchain/install).
+</Tip>
 
 ```bash npm
 npm install -S @langchain/openai
 ```
 ```typescript
 import { VectorDocumentStore } from "@tigrisdata/vector";
-import { Document } from "langchain/document";
+import { Document } from "@langchain/classic/document";
 import { OpenAIEmbeddings } from "@langchain/openai";
-import { TigrisVectorStore } from "langchain/vectorstores/tigris";
+import { TigrisVectorStore } from "@langchain/classic/vectorstores/tigris";
 
 const index = new VectorDocumentStore({
   connection: {
@@ -82,7 +82,7 @@ await TigrisVectorStore.fromDocuments(docs, new OpenAIEmbeddings(), { index });
 ```typescript
 import { VectorDocumentStore } from "@tigrisdata/vector";
 import { OpenAIEmbeddings } from "@langchain/openai";
-import { TigrisVectorStore } from "langchain/vectorstores/tigris";
+import { TigrisVectorStore } from "@langchain/classic/vectorstores/tigris";
 
 const index = new VectorDocumentStore({
   connection: {
@@ -117,5 +117,5 @@ console.log(JSON.stringify(results, null, 2));
 
 ## Related
 
-- Vector store [conceptual guide](/oss/concepts/#vectorstores)
-- Vector store [how-to guides](/oss/how-to/#vectorstores)
+- Vector store [conceptual guide](/oss/integrations/vectorstores)
+- Vector store [how-to guides](/oss/integrations/vectorstores)
