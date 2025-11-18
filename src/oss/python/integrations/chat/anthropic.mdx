@@ -576,6 +576,36 @@ Your name is Bob. You introduced yourself at the beginning of our conversation.
 
 In the [LangSmith trace](https://smith.langchain.com/public/4d0584d8-5f9e-4b91-8704-93ba2ccf416a/r), toggling "raw output" will show exactly what messages are sent to the chat model, including `cache_control` keys.
 
+## Strict tool use
+
+<Info>
+Strict tool use requires:
+- Claude Sonnet 4.5 or Opus 4.1.
+- `langchain-anthropic>=1.1.0`
+</Info>
+
+Anthropic supports opt-in [strict schema adherence to tool calls](https://docs.claude.com/en/docs/build-with-claude/structured-outputs). This guarantees that tool names and arguments are validated and correctly typed.
+
+To enable strict tool use:
+1. Specify the `structured-outputs-2025-11-13` beta header
+2. Specify `strict=True` when calling [bind_tools](/oss/langchain/models#tool-calling).
+
+```python
+from langchain_anthropic import ChatAnthropic
+
+model = ChatAnthropic(
+    model="claude-sonnet-4-5",
+    betas=["structured-outputs-2025-11-13"],  # [!code highlight]
+)
+
+def get_weather(location: str) -> str:
+    """Get the weather at a location."""
+    return "It's sunny."
+
+model_with_tools = model.bind_tools([get_weather], strict=True)  # [!code highlight]
+```
+
+
 ## Token-efficient tool use
 
 Anthropic supports a [token-efficient tool use](https://docs.claude.com/en/docs/agents-and-tools/tool-use/token-efficient-tool-use) feature. It is supported by default on all Claude 4 models.
