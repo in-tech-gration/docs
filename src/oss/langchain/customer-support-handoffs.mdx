@@ -419,7 +419,93 @@ Next turn, middleware applies:
 
 The key insight: **Tools drive the workflow** by updating `current_stage`, and **middleware responds** by applying the appropriate configuration.
 
-## 8. Add flexibility: Go back
+## 8. Manage message history
+
+A critical aspect of production handoffs is managing what each agent sees in the conversation history. Without proper management, message history grows unbounded and agents can get confused by conversations from other stages.
+
+After a few agent transitions, the full message history includes conversations from all previous agents. The key is to **separate message history from cross-agent memory**:
+
+- **Message history**: Agent-scoped, bounded, ephemeral (what the agent sees)
+- **State dict**: Cross-agent, persistent, structured data (what the agent knows)
+- **System messages**: Bridge between state and context (injected summaries)
+
+Use `@before_model` middleware to trim messages before each agent sees them:
+
+```python
+from langchain.agents.middleware import before_model
+from langchain.messages import RemoveMessage
+from langgraph.graph.message import REMOVE_ALL_MESSAGES
+
+@before_model
+def scope_messages_to_agent(state: SupportState, runtime: Runtime) -> dict | None:
+    """Keep only recent messages for the current agent."""
+    messages = state["messages"]
+
+    # Keep only last 4-5 messages (2-3 conversation turns)
+    if len(messages) <= 5:
+        return None
+
+    # Keep first message and recent messages
+    first_msg = messages[0]
+    recent_messages = messages[-4:]
+    new_messages = [first_msg] + recent_messages
+
+    return {
+        "messages": [
+            RemoveMessage(id=REMOVE_ALL_MESSAGES),
+            *new_messages
+        ]
+    }
+
+# Add to agent middleware
+agent = create_agent(
+    model,
+    tools=all_tools,
+    state_schema=SupportState,
+    middleware=[apply_stage_config, scope_messages_to_agent],  # Add scoping
+    checkpointer=InMemorySaver(),
+)
+```
+
+Since agents only see recent messages, inject context about what previous agents learned via the system prompt:
+
+```python
+@wrap_model_call
+async def apply_stage_config(
+    request: ModelRequest,
+    handler: Callable[[ModelRequest], ModelResponse],
+) -> ModelResponse:
+    """Configure agent behavior based on the current stage."""
+    current_stage = request.state.get("current_stage", "warranty_collector")
+    stage_config = STAGE_CONFIG[current_stage]
+
+    # Validate required state exists
+    for key in stage_config["requires"]:
+        if request.state.get(key) is None:
+            raise ValueError(f"{key} must be set before reaching {current_stage}")
+
+    # Build context summary from state
+    context_summary = ""
+    if request.state.get("warranty_status"):
+        context_summary += f"\nPrevious agents collected: Warranty status is {request.state['warranty_status']}"
+    if request.state.get("issue_type"):
+        context_summary += f", issue type is {request.state['issue_type']}"
+
+    # Format prompt with state values and add context summary
+    system_prompt = stage_config["prompt"].format(**request.state)
+    if context_summary:
+        system_prompt += context_summary
+
+    # Inject system prompt and stage-specific tools
+    request = request.override(
+        system_prompt=system_prompt,
+        tools=stage_config["tools"],
+    )
+
+    return await handler(request)
+```
+
+## 9. Add flexibility: Go back
 
 A key UX requirement is allowing users to correct mistakes. Add "go back" tools:
 
@@ -488,6 +574,8 @@ creating a state machine for sequential information collection.
 """
 
 from langgraph.checkpoint.memory import InMemorySaver
+from langgraph.graph.message import REMOVE_ALL_MESSAGES
+from langgraph.runtime import Runtime
 from langgraph.types import Command
 from typing import Callable
 from typing import Literal
@@ -495,9 +583,9 @@ from typing_extensions import NotRequired
 
 from langchain.agents import AgentState
 from langchain.agents import create_agent
-from langchain.agents.middleware import wrap_model_call, ModelRequest, ModelResponse
+from langchain.agents.middleware import before_model, wrap_model_call, ModelRequest, ModelResponse
 from langchain.chat_models import init_chat_model
-from langchain.messages import HumanMessage
+from langchain.messages import HumanMessage, RemoveMessage
 from langchain.tools import tool, ToolRuntime
 from langchain_core.messages import ToolMessage
 
@@ -627,6 +715,28 @@ STAGE_CONFIG = {
 }
 
 
+@before_model
+def scope_messages_to_agent(state: SupportState, runtime: Runtime) -> dict | None:
+    """Keep only recent messages for the current agent."""
+    messages = state["messages"]
+
+    # Keep only last 4-5 messages (2-3 conversation turns)
+    if len(messages) <= 5:
+        return None
+
+    # Keep first message and recent messages
+    first_msg = messages[0]
+    recent_messages = messages[-4:]
+    new_messages = [first_msg] + recent_messages
+
+    return {
+        "messages": [
+            RemoveMessage(id=REMOVE_ALL_MESSAGES),
+            *new_messages
+        ]
+    }
+
+
 @wrap_model_call
 async def apply_stage_config(
     request: ModelRequest,
@@ -644,8 +754,17 @@ async def apply_stage_config(
         if request.state.get(key) is None:
             raise ValueError(f"{key} must be set before reaching {current_stage}")
 
-    # Format prompt with state values (supports {warranty_status}, {issue_type}, etc.)
+    # Build context summary from state
+    context_summary = ""
+    if request.state.get("warranty_status"):
+        context_summary += f"\nPrevious agents collected: Warranty status is {request.state['warranty_status']}"
+    if request.state.get("issue_type"):
+        context_summary += f", issue type is {request.state['issue_type']}"
+
+    # Format prompt with state values and add context summary
     system_prompt = stage_config["prompt"].format(**request.state)
+    if context_summary:
+        system_prompt += context_summary
 
     # Inject system prompt and stage-specific tools
     request = request.override(
@@ -669,7 +788,7 @@ agent = create_agent(
     model,
     tools=all_tools,
     state_schema=SupportState,
-    middleware=[apply_stage_config],  # Single middleware handles all stages
+    middleware=[apply_stage_config, scope_messages_to_agent],  # Middleware for configuration and message scoping
     checkpointer=InMemorySaver(),  # Required for state persistence across turns
 )
 

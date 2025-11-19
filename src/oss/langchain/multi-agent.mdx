@@ -12,12 +12,18 @@ Multi-agent systems are useful when:
 
 ## Multi-agent patterns
 
+Multi-agent systems enable you to build sophisticated applications by combining specialized agents. There are two main patterns:
+
 | Pattern                           | How it works                                                                                                                                                     | Control flow                                               | Example use case                                 |
 |-----------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------|--------------------------------------------------|
 | [**Tool calling**](#tool-calling) | A **supervisor** agent calls other agents as *tools*. The “tool” agents don’t talk to the user directly — they just run their task and return results.                  | **Centralized**: all routing passes through the calling agent. | Task orchestration, structured workflows        |
 | [**Handoffs**](#handoffs)         | The current agent decides to **transfer control** to another agent. The active agent changes, and the user may continue interacting directly with the new agent. | **Decentralized**: agents can change who is active.            | Multi-domain conversations, specialist takeover |
 
-### Choose a pattern
+<Tip>
+    You can mix both patterns! Use **handoffs** for agent switching and have each agent **call sub-agents as tools** for specialized tasks.
+</Tip>
+
+### Tool calling
 
 **Use tool calling (supervisor pattern)** when:
 
@@ -28,17 +34,23 @@ Multi-agent systems are useful when:
 
 For simpler cases with just a few tools, use a single agent.
 
-**Use handoffs** when:
+Below are some examples of how you can build multi-agent systems using tool calling:
 
-* Agents need to have direct conversations with users.
-* The workflow requires state transitions between specialists.
-* You need dynamic control flow that changes based on user interactions.
+- **Personal assistant**: A main agent coordinates calendar, email, and task management sub-agents
+    - Calendar sub-agent handles scheduling and availability checks
+    - Email sub-agent drafts, sends, and searches messages
+    - Task sub-agent manages to-do lists and reminders
 
-<Tip>
-    You can mix both patterns! Use **handoffs** for agent switching and have each agent **call sub-agents as tools** for specialized tasks.
-</Tip>
+- **Research assistant**: A supervisor orchestrates research across multiple domains
+    - Web search sub-agent finds relevant sources
+    - Document analysis sub-agent extracts key information
+    - Synthesis sub-agent combines findings into coherent reports
 
-<CardGroup cols={2}>
+- **Data analysis platform**: One agent routes queries to specialized analyzers
+    - SQL sub-agent queries databases
+    - Python sub-agent runs statistical analysis
+    - Visualization sub-agent creates charts and graphs
+
 <Card
     title="Tutorial: Build a supervisor agent"
     icon="sitemap"
@@ -48,6 +60,31 @@ For simpler cases with just a few tools, use a single agent.
     Learn how to build a personal assistant using the supervisor pattern, where a central supervisor agent coordinates specialized worker agents.
 </Card>
 
+### Handoffs
+
+**Use handoffs** when:
+
+* Agents need to have direct conversations with users.
+* The workflow requires state transitions between specialists.
+* You need dynamic control flow that changes based on user interactions.
+
+Below are some examples of how you can build multi-agent systems using handoffs:
+
+- **Customer support chatbot**: Agents pass control based on conversation stage
+    - Triage agent collects initial information (warranty status, product details)
+    - Classification agent identifies issue type (billing, technical, returns)
+    - Resolution agent provides solutions or escalates to human support
+
+- **Multi-domain conversational AI**: Agents hand off when topic changes
+    - General conversation agent handles small talk
+    - Technical support agent answers product questions
+    - Sales agent discusses pricing and purchases
+
+- **Onboarding assistant**: Sequential information collection with branching paths
+    - Account setup agent creates credentials
+    - Preference collection agent gathers user preferences
+    - Tour agent walks through features based on user role
+
 <Card
     title="Tutorial: Build a customer support agent with handoffs"
     icon="people-arrows"
@@ -56,8 +93,6 @@ For simpler cases with just a few tools, use a single agent.
 >
     Learn how to build a customer support workflow using the handoffs pattern, where agents pass control through state transitions.
 </Card>
-
-</CardGroup>
 
 ## Customize agent context
 
@@ -353,610 +388,66 @@ At the core, handoffs rely on [persistent state](/oss/langchain/short-term-memor
 
 This pattern creates a state machine where each agent represents a distinct state with its own behavior and capabilities. The state persists between user messages, allowing the conversation to resume with the correct agent configuration.
 
-### Implement handoffs
+### Example
 
-The example below shows a complete example of a customer support workflow with handoffs between different stages using @[`create_agent`], @[`@wrap_model_call`] middleware, and @[`@tool`] decorators:
+Here's a minimal example showing how agents hand off control:
 
 :::python
 ```python
-from collections.abc import Callable
-from typing import Literal, NotRequired
-
 from langchain.agents import AgentState, create_agent
-from langchain.agents.middleware import ModelRequest, ModelResponse, wrap_model_call
-from langchain.chat_models import init_chat_model
-from langchain.tools import ToolRuntime, tool
-from langchain_core.messages import ToolMessage
-from langgraph.checkpoint.memory import InMemorySaver
+from langchain.tools import tool, ToolRuntime
 from langgraph.types import Command
 
-model = init_chat_model("anthropic:claude-3-5-sonnet-latest")
-
-# Define the possible workflow stages
-SupportStage = Literal[
-    "warranty_collector", "issue_classifier", "resolution_specialist"
-]
-
-# Define custom state schema with current_stage field
 class SupportState(AgentState):
-    """State for customer support workflow with handoffs."""
-    current_stage: NotRequired[SupportStage]
-    warranty_status: NotRequired[Literal["in_warranty", "out_of_warranty"]]
-    issue_type: NotRequired[Literal["hardware", "software"]]
+    """Track which agent is currently active."""
+    current_agent: str = "triage"
 
-# Define tools that transition between stages
 @tool
-def record_warranty_status(
-    status: Literal["in_warranty", "out_of_warranty"],
-    runtime: ToolRuntime[None, SupportState],
+def transfer_to_specialist(
+    runtime: ToolRuntime[None, SupportState]
 ) -> Command:
-    """Record the customer's warranty status and transition to issue classification."""
-    return Command(
-        update={
-            "messages": [
-                ToolMessage(
-                    content=f"Warranty status recorded as: {status}",
-                    tool_call_id=runtime.tool_call_id,
-                )
-            ],
-            "warranty_status": status,
-            "current_stage": "issue_classifier",  # State transition
-        }
-    )
+    """Transfer conversation to a specialist agent."""
+    return Command(update={"current_agent": "specialist"})
 
-@tool
-def record_issue_type(
-    issue_type: Literal["hardware", "software"],
-    runtime: ToolRuntime[None, SupportState],
-) -> Command:
-    """Record the type of issue and transition to resolution specialist."""
-    return Command(
-        update={
-            "messages": [
-                ToolMessage(
-                    content=f"Issue type recorded as: {issue_type}",
-                    tool_call_id=runtime.tool_call_id,
-                )
-            ],
-            "issue_type": issue_type,
-            "current_stage": "resolution_specialist",  # State transition
-        }
-    )
-
-@tool
-def provide_solution(solution: str, _runtime: ToolRuntime[None, SupportState]) -> str:
-    """Provide a solution to the customer's issue."""
-    return f"Solution provided: {solution}"
-
-@tool
-def escalate_to_human(reason: str, _runtime: ToolRuntime[None, SupportState]) -> str:
-    """Escalate the case to a human support specialist."""
-    return f"Escalating to human support. Reason: {reason}"
-
-# Define stage configurations (prompts and tools for each stage)
-STAGE_CONFIG = {
-    "warranty_collector": {
-        "prompt": """You are a customer support agent helping with device issues.
-
-CURRENT STAGE: Warranty verification
-
-At this stage, you need to:
-1. Greet the customer warmly
-2. Ask if their device is under warranty
-3. Use record_warranty_status to record their response and move to the next stage
-
-Be conversational and friendly.""",
-        "tools": [record_warranty_status],
-    },
-    "issue_classifier": {
-        "prompt": """You are a customer support agent helping with device issues.
-
-CURRENT STAGE: Issue classification
-CUSTOMER INFO: Warranty status is {warranty_status}
-
-At this stage, you need to:
-1. Ask the customer to describe their issue
-2. Determine if it's a hardware or software issue
-3. Use record_issue_type to record the classification
-
-If unclear, ask clarifying questions before classifying.""",
-        "tools": [record_issue_type],
-    },
-    "resolution_specialist": {
-        "prompt": """You are a customer support agent helping with device issues.
-
-CURRENT STAGE: Resolution
-CUSTOMER INFO: Warranty status is {warranty_status}, issue type is {issue_type}
-
-At this stage, you need to:
-1. For SOFTWARE issues: provide troubleshooting steps using provide_solution
-2. For HARDWARE issues:
-   - If IN WARRANTY: explain warranty repair process using provide_solution
-   - If OUT OF WARRANTY: escalate_to_human for paid repair options
-
-Be specific and helpful in your solutions.""",
-        "tools": [provide_solution, escalate_to_human],
-    },
-}
-
-# Middleware that dynamically configures agent based on current_stage
-@wrap_model_call
-async def apply_stage_config(
-    request: ModelRequest,
-    handler: Callable[[ModelRequest], ModelResponse],
-) -> ModelResponse:
-    """Configure agent behavior based on the current stage."""
-    # Get current stage (defaults to warranty_collector for first interaction)
-    current_stage = request.state.get("current_stage", "warranty_collector")
-
-    # Look up stage configuration
-    stage_config = STAGE_CONFIG[current_stage]
-
-    # Format prompt with state values
-    system_prompt = stage_config["prompt"].format(**request.state)
-
-    # Inject system prompt and stage-specific tools
-    request = request.override(
-        system_prompt=system_prompt,
-        tools=stage_config["tools"],
-    )
-
-    return await handler(request)
-
-# Create agent with all tools and stage-switching middleware
-all_tools = [
-    record_warranty_status,
-    record_issue_type,
-    provide_solution,
-    escalate_to_human,
-]
-
+# Each agent configuration has different prompts/tools
 agent = create_agent(
     model,
-    tools=all_tools,
-    state_schema=SupportState,
-    middleware=[apply_stage_config],  # Dynamic configuration
-    checkpointer=InMemorySaver(),  # Required for state persistence
-)
-
-# Use the agent
-config = {"configurable": {"thread_id": "support-001"}}
-
-# Turn 1: Warranty collection
-agent.invoke(
-    {"messages": [{"role": "user", "content": "Hi, my phone screen is cracked"}]},
-    config
-)
-
-# Turn 2: User responds about warranty
-agent.invoke(
-    {"messages": [{"role": "user", "content": "Yes, it's under warranty"}]},
-    config
-)
-
-# Turn 3: Issue classification
-agent.invoke(
-    {"messages": [{"role": "user", "content": "The screen is physically cracked"}]},
-    config
-)
-
-# Turn 4: Resolution
-result = agent.invoke(
-    {"messages": [{"role": "user", "content": "What should I do?"}]},
-    config
+    tools=[transfer_to_specialist, ...],
+    state_schema=SupportState
 )
 ```
 :::
 :::js
 ```typescript
-import { createAgent, createMiddleware, tool } from "langchain";
-import { Command, MemorySaver } from "@langchain/langgraph";
-import { ToolMessage } from "@langchain/core/messages";
-import * as z from "zod";
+import { tool, createAgent, AgentState } from "langchain";
+import { Command } from "@langchain/langgraph";
 
-// Define the possible workflow stages
-const SupportStage = z.enum([
-  "warranty_collector",
-  "issue_classifier",
-  "resolution_specialist"
-]);
-
-// Define custom state schema
 const SupportState = z.object({
-  currentStage: SupportStage.optional(),
-  warrantyStatus: z.enum(["in_warranty", "out_of_warranty"]).optional(),
-  issueType: z.enum(["hardware", "software"]).optional(),
+  currentAgent: z.string().default("triage")
 });
 
-// Define tools that transition between stages
-const recordWarrantyStatus = tool(
-  async ({ status }, config) => {
+const transferToSpecialist = tool(
+  async (_, config) => {
     return new Command({
-      update: {
-        messages: [
-          new ToolMessage({
-            content: `Warranty status recorded as: ${status}`,
-            tool_call_id: config.toolCall?.id!,
-          }),
-        ],
-        warrantyStatus: status,
-        currentStage: "issue_classifier", // State transition
-      },
+      update: { currentAgent: "specialist" }
     });
   },
   {
-    name: "record_warranty_status",
-    description: "Record the customer's warranty status and transition to issue classification",
-    schema: z.object({
-      status: z.enum(["in_warranty", "out_of_warranty"]),
-    }),
+    name: "transfer_to_specialist",
+    description: "Transfer conversation to a specialist",
+    schema: z.object({})
   }
 );
-
-const recordIssueType = tool(
-  async ({ issueType }, config) => {
-    return new Command({
-      update: {
-        messages: [
-          new ToolMessage({
-            content: `Issue type recorded as: ${issueType}`,
-            tool_call_id: config.toolCall?.id!,
-          }),
-        ],
-        issueType,
-        currentStage: "resolution_specialist", // State transition
-      },
-    });
-  },
-  {
-    name: "record_issue_type",
-    description: "Record the type of issue and transition to resolution specialist",
-    schema: z.object({
-      issueType: z.enum(["hardware", "software"]),
-    }),
-  }
-);
-
-const provideSolution = tool(
-  async ({ solution }) => `Solution provided: ${solution}`,
-  {
-    name: "provide_solution",
-    description: "Provide a solution to the customer's issue",
-    schema: z.object({ solution: z.string() }),
-  }
-);
-
-const escalateToHuman = tool(
-  async ({ reason }) => `Escalating to human support. Reason: ${reason}`,
-  {
-    name: "escalate_to_human",
-    description: "Escalate the case to a human support specialist",
-    schema: z.object({ reason: z.string() }),
-  }
-);
-
-// Define stage configurations
-const STAGE_CONFIG = {
-  warranty_collector: {
-    prompt: `You are a customer support agent helping with device issues.
-
-CURRENT STAGE: Warranty verification
-
-At this stage, you need to:
-1. Greet the customer warmly
-2. Ask if their device is under warranty
-3. Use record_warranty_status to record their response
-
-Be conversational and friendly.`,
-    tools: [recordWarrantyStatus],
-  },
-  issue_classifier: {
-    prompt: `You are a customer support agent helping with device issues.
-
-CURRENT STAGE: Issue classification
-CUSTOMER INFO: Warranty status is {warrantyStatus}
-
-At this stage, you need to:
-1. Ask the customer to describe their issue
-2. Determine if it's a hardware or software issue
-3. Use record_issue_type to record the classification`,
-    tools: [recordIssueType],
-  },
-  resolution_specialist: {
-    prompt: `You are a customer support agent helping with device issues.
-
-CURRENT STAGE: Resolution
-CUSTOMER INFO: Warranty status is {warrantyStatus}, issue type is {issueType}
-
-At this stage, you need to:
-1. For SOFTWARE issues: provide troubleshooting steps
-2. For HARDWARE issues:
-   - If IN WARRANTY: explain warranty repair process
-   - If OUT OF WARRANTY: escalate to human support`,
-    tools: [provideSolution, escalateToHuman],
-  },
-};
-
-// Middleware that dynamically configures agent
-const stageMiddleware = createMiddleware({
-  name: "StageConfig",
-  stateSchema: SupportState,
-  beforeModel: async (state, config) => {
-    const currentStage = state.currentStage || "warranty_collector";
-    const stageConfig = STAGE_CONFIG[currentStage];
-
-    // Format prompt with state values
-    const formattedPrompt = stageConfig.prompt
-      .replace("{warrantyStatus}", state.warrantyStatus || "unknown")
-      .replace("{issueType}", state.issueType || "unknown");
-
-    return {
-      systemPrompt: formattedPrompt,
-      tools: stageConfig.tools,
-    };
-  },
-});
-
-// Create agent
-const agent = createAgent({
-  model: "anthropic:claude-3-5-sonnet-latest",
-  tools: [recordWarrantyStatus, recordIssueType, provideSolution, escalateToHuman],
-  middleware: [stageMiddleware],
-  checkpointer: new MemorySaver(),
-});
-
-// Use the agent
-const config = { configurable: { thread_id: "support-001" } };
-
-await agent.invoke(
-  { messages: [{ role: "user", content: "Hi, my phone screen is cracked" }] },
-  config
-);
-```
-:::
-
-**Key implementation details:**
-
-1. **[Custom state schema](/oss/langchain/short-term-memory#customizing-agent-memory)** (@[`AgentState`]) with `current_stage` field tracks which agent is active
-2. **[Tools return `Command` objects](/oss/langchain/short-term-memory#write-short-term-memory-from-tools)** (@[`Command`]) to update both state and messages
-3. **@[`@wrap_model_call`] [middleware](/reference/python/docs/langchain/middleware#decorators)** (@[`ModelRequest`], @[`ModelResponse`]) reads state and dynamically configures prompts and tools
-4. **[Checkpointer](/oss/langchain/short-term-memory#usage)** (@[`InMemorySaver`]) persists state across conversation turns
-
-## Manage message history
-
-A critical aspect of handoffs is managing what each agent sees in the conversation history. Without proper management, message history grows unbounded and agents can get confused by other agents' conversations.
-
-For example, in a multi-stage handoff workflow, the full message history includes conversations from all previous agents:
-
-```python
-# After 3 agent transitions, full history contains:
-[
-    HumanMessage("Hi, my phone screen is cracked"),
-    AIMessage("Is your device under warranty?"),  # warranty_collector
-    HumanMessage("Yes, it's under warranty"),
-    AIMessage("Tool: record_warranty_status"),     # warranty_collector
-    ToolMessage("Recorded warranty status"),
-    AIMessage("Can you describe the issue?"),      # issue_classifier
-    HumanMessage("The screen is physically cracked"),
-    AIMessage("Tool: record_issue_type"),          # issue_classifier
-    ToolMessage("Recorded issue type"),
-    AIMessage("I can help with warranty repair"),  # resolution_specialist
-]
-```
-
-This creates the following problems:
-
-- Message history grows unbounded as the workflow progresses
-- Each agent sees conversations from previous agents
-- Agents can get confused by other agents' messages
-- Context windows fill up with irrelevant information
-
-To solve these problems, you can implement [agent-scoped message histories](#agent-scoped-message-histories).
-
-### Agent-scoped message histories
-
-Message history should be separated from cross-agent memory:
-
-* **Message history**: Agent-scoped, bounded, and ephemeral (what the agent sees)
-* **State dict**: Cross-agent, persistent, structured data (what the agent knows)
-* **System messages**: Bridge between state and context (injected summaries)
-
-You can implement message scoping using @[`@before_model`] [middleware that trims messages](/oss/langchain/short-term-memory#trim-messages) before each agent sees them. The example below shows how to implement message scoping using @[`@before_model`] middleware:
-
-:::python
-```python
-from langchain.agents.middleware import before_model
-from langchain.messages import RemoveMessage
-from langgraph.graph.message import REMOVE_ALL_MESSAGES
-
-@before_model
-def scope_messages_to_agent(state: SupportState, runtime: Runtime) -> dict | None:
-    """Keep only recent messages for the current agent."""
-    messages = state["messages"]
-
-    # Keep only last 2-3 conversation turns
-    if len(messages) <= 4:
-        return None
-
-    # Always keep the first message, trim the middle
-    first_msg = messages[0]
-    recent_messages = messages[-4:]
-    new_messages = [first_msg] + recent_messages
-
-    return {
-        "messages": [
-            RemoveMessage(id=REMOVE_ALL_MESSAGES),
-            *new_messages
-        ]
-    }
-
-agent = create_agent(
-    model,
-    tools=all_tools,
-    state_schema=SupportState,
-    middleware=[apply_stage_config, scope_messages_to_agent],
-    checkpointer=InMemorySaver(),
-)
-```
-:::
-:::js
-```typescript
-import { createMiddleware, trimMessages } from "langchain";
-
-const scopeMessagesToAgent = createMiddleware({
-  name: "ScopeMessages",
-  beforeModel: async (state) => {
-    // Keep only last 4 messages
-    const trimmed = await trimMessages(state.messages, {
-      strategy: "last",
-      maxTokens: 2000,
-      tokenCounter: (msgs) => msgs.length,
-    });
-    return { messages: trimmed };
-  },
-});
 
 const agent = createAgent({
   model,
-  tools: allTools,
-  middleware: [stageMiddleware, scopeMessagesToAgent],
-  checkpointer: new MemorySaver(),
+  tools: [transferToSpecialist, ...],
+  stateSchema: SupportState
 });
 ```
 :::
 
-### Inject context from state
-
-Since agents only see recent messages, use @[`@wrap_model_call`] middleware to inject context about what previous agents learned into the system prompt:
-
-```python
-@wrap_model_call
-async def apply_stage_config(
-    request: ModelRequest,
-    handler: Callable[[ModelRequest], ModelResponse],
-) -> ModelResponse:
-    current_stage = request.state.get("current_stage", "warranty_collector")
-    stage_config = STAGE_CONFIG[current_stage]
-
-    # Build context summary from state
-    context = []
-    if request.state.get("warranty_status"):
-        context.append(f"Warranty status: {request.state['warranty_status']}")
-    if request.state.get("issue_type"):
-        context.append(f"Issue type: {request.state['issue_type']}")
-
-    # Inject context into system prompt
-    system_prompt = stage_config["prompt"]
-    if context:
-        system_prompt += f"\n\nContext from previous agents:\n" + "\n".join(context)
-
-    request = request.override(
-        system_prompt=system_prompt,
-        tools=stage_config["tools"],
-    )
-
-    return await handler(request)
-```
-
-This approach ensures:
-- ✅ Bounded message history (only recent turns)
-- ✅ Each agent sees only its own conversation
-- ✅ Context from previous agents available via system prompt
-- ✅ State provides structured cross-agent memory
-
-See [message trimming strategies](/oss/langchain/short-term-memory#common-patterns) for more techniques.
-
-## Allowing users to navigate back
-
-A key UX requirement is allowing users to correct mistakes in handoff workflows. Add @[`@tool`]s that return @[`Command`] objects to let agents navigate backward:
-
-:::python
-```python
-@tool
-def go_back_to_warranty(
-    runtime: ToolRuntime[None, SupportState]
-) -> Command:
-    """Go back to warranty verification step."""
-    return Command(update={
-        "current_stage": "warranty_collector",
-        "warranty_status": None,  # Reset warranty status
-        "messages": [
-            ToolMessage(
-                content="Returning to warranty verification",
-                tool_call_id=runtime.tool_call_id,
-            )
-        ]
-    })
-
-@tool
-def go_back_to_classification(
-    runtime: ToolRuntime[None, SupportState]
-) -> Command:
-    """Go back to issue classification step."""
-    return Command(update={
-        "current_stage": "issue_classifier",
-        "issue_type": None,  # Reset issue type
-        "messages": [
-            ToolMessage(
-                content="Returning to issue classification",
-                tool_call_id=runtime.tool_call_id,
-            )
-        ]
-    })
-
-# Add navigation tools to resolution specialist
-STAGE_CONFIG["resolution_specialist"]["tools"].extend([
-    go_back_to_warranty,
-    go_back_to_classification,
-])
-
-# Update prompt to mention navigation
-STAGE_CONFIG["resolution_specialist"]["prompt"] += """
-
-If the customer indicates any information was wrong:
-- Use go_back_to_warranty to correct warranty status
-- Use go_back_to_classification to correct issue type"""
-```
-:::
-:::js
-```typescript
-const goBackToWarranty = tool(
-  async (_, config) => {
-    return new Command({
-      update: {
-        currentStage: "warranty_collector",
-        warrantyStatus: undefined,
-        messages: [
-          new ToolMessage({
-            content: "Returning to warranty verification",
-            tool_call_id: config.toolCall?.id!,
-          }),
-        ],
-      },
-    });
-  },
-  {
-    name: "go_back_to_warranty",
-    description: "Go back to warranty verification step",
-    schema: z.object({}),
-  }
-);
-
-// Add to resolution specialist tools
-STAGE_CONFIG.resolution_specialist.tools.push(goBackToWarranty);
-```
-:::
-
-Now users can correct mistakes:
-
-```python
-# User realizes they made a mistake
-agent.invoke(
-    {"messages": [{"role": "user", "content": "Actually, my device is out of warranty"}]},
-    config
-)
-# Agent uses go_back_to_warranty tool, returns to warranty_collector stage
-```
+The key mechanism is using @[`Command`] to update state fields that control which agent is active. Middleware can then read this state and dynamically configure the agent's behavior.
 
 ## Best practices
 
