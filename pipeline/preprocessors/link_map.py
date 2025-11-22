@@ -398,9 +398,9 @@ LINK_MAPS: list[LinkMap] = [
             "BinaryOperatorAggregate": "classes/_langchain_langgraph.index.BinaryOperatorAggregate.html",
             "Command": "classes/_langchain_langgraph.index.Command.html",
             "CompiledStateGraph": "classes/_langchain_langgraph.index.CompiledStateGraph.html",
-            "create_agent": "functions/langchain.index.createAgent.html",
-            "create_react_agent": "functions/_langchain_langgraph.prebuilt.createReactAgent.html",
-            "create_supervisor": "functions/_langchain_langgraph-supervisor.createSupervisor.html",
+            "createAgent": "functions/langchain.index.createAgent.html",
+            "createReactAgent": "functions/_langchain_langgraph.prebuilt.createReactAgent.html",
+            "createSupervisor": "functions/_langchain_langgraph-supervisor.createSupervisor.html",
             "entrypoint": "functions/_langchain_langgraph.index.entrypoint.html",
             "entrypoint.final": "functions/_langchain_langgraph.index.entrypoint.html#final",
             "get_state_history": "classes/_langchain_langgraph.pregel.Pregel.html#getStateHistory",
@@ -436,6 +436,7 @@ LINK_MAPS: list[LinkMap] = [
             "ContextEdit": "interfaces/langchain.index.ContextEdit.html",
             "toolRetryMiddleware": "functions/langchain.index.toolRetryMiddleware.html",
             "modelRetryMiddleware": "functions/langchain.index.modelRetryMiddleware.html",
+            "systemPrompt": "types/langchain.index.CreateAgentParams.html#systemprompt"
         },
     },
 ]
