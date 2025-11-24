@@ -1262,8 +1262,7 @@
                             "langsmith/background-run",
                             "langsmith/same-thread",
                             "langsmith/cron-jobs",
-                            "langsmith/stateless-runs",
-                            "langsmith/configurable-headers"
+                            "langsmith/stateless-runs"
                           ]
                         }
                       ]
@@ -1326,7 +1325,9 @@
                   "pages": [
                       "langsmith/custom-lifespan",
                       "langsmith/custom-middleware",
-                      "langsmith/custom-routes"
+                      "langsmith/custom-routes",
+                      "langsmith/configurable-headers",
+                      "langsmith/configurable-logs"
                   ]
                 },
                 {
