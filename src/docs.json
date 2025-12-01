@@ -1318,7 +1318,13 @@
                   "group": "Reference",
                   "pages": [
                     "langsmith/cli",
-                    "langsmith/agent-server-api-ref",
+                    {
+                    "group": "Agent Server API",
+                    "openapi": {
+                      "source": "langsmith/agent-server-openapi.json",
+                      "directory": "langsmith/agent-server-api"
+                    }
+                  },
                     "langsmith/langgraph-python-sdk",
                     "langsmith/langgraph-js-ts-sdk",
                     "langsmith/remote-graph",
@@ -1474,7 +1480,13 @@
                 {
                   "group": "LangSmith Deployment",
                   "pages": [
-                    "langsmith/server-api-ref",
+                    {
+                    "group": "Agent Server API",
+                    "openapi": {
+                      "source": "langsmith/agent-server-openapi.json",
+                      "directory": "langsmith/agent-server-api"
+                    }
+                  },
                     "langsmith/api-ref-control-plane",
                     "langsmith/cli",
                     "langsmith/remote-graph",
