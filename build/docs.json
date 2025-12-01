@@ -868,23 +868,6 @@
                   ]
                 },
                 {
-                  "group": "Reference",
-                  "pages": [
-                    "langsmith/smith-python-sdk",
-                    "langsmith/smith-js-ts-sdk",
-                    "langsmith/langgraph-python-sdk",
-                    "langsmith/langgraph-js-ts-sdk",
-                    "langsmith/smith-api-ref",
-                    {
-                      "group": "API reference for LangSmith Deployment",
-                      "pages": [
-                        "langsmith/server-api-ref",
-                        "langsmith/api-ref-control-plane"
-                      ]
-                    }
-                  ]
-                },
-                {
                   "group": "Additional resources",
                   "pages": [
                     {
@@ -1459,13 +1442,34 @@
                         "langsmith/script-running-ch-support-queries"
                       ]
                     }
-                    ]
-                  }
-                ]
-              }
-            ]
-          }
-        ]
+                  ]
+                }
+              ]
+            },
+            {
+              "tab": "Reference",
+              "pages": [
+                "langsmith/reference",
+                "langsmith/smith-python-sdk",
+                "langsmith/smith-js-ts-sdk",
+                "langsmith/langgraph-python-sdk",
+                "langsmith/langgraph-js-ts-sdk",
+                "langsmith/smith-api-ref",
+                {
+                  "group": "LangSmith Deployment",
+                  "pages": [
+                    "langsmith/server-api-ref",
+                    "langsmith/api-ref-control-plane",
+                    "langsmith/cli",
+                    "langsmith/remote-graph",
+                    "langsmith/env-var"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
   },
   "interaction": {
     "drilldown": true
