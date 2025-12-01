@@ -943,7 +943,8 @@
                         "langsmith/annotate-code",
                         "langsmith/trace-with-api",
                         "langsmith/log-llm-trace",
-                        "langsmith/log-retriever-trace"
+                        "langsmith/log-retriever-trace",
+                        "langsmith/ls-metadata-parameters"
                       ]
                     },
                     "langsmith/threads"
