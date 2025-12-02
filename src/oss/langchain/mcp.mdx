@@ -141,7 +141,7 @@ const weatherResponse = await agent.invoke({
 
 :::python
 
-To create a custom MCP serverm you can use the [FastMCP](https://gofastmcp.com/getting-started/welcome) library.
+To create a custom MCP server, you can use the [FastMCP](https://gofastmcp.com/getting-started/welcome) library.
 
 
 <CodeGroup>
@@ -394,27 +394,314 @@ app.listen(PORT, () => {
 ```
 :::
 
-## Advanced
-
-### Modify tool request at run time
-
-If you need to change any part of the tool request at runtime (e.g., modify headers):
-
-* Example of how to change headers (e.g., to provide some metadata based on `config`)
-
-### Access MCP logs
-
-The MCP protocol [allows servers to send log messages to client](https://modelcontextprotocol.io/specification/2025-03-26/server/utilities/logging#log-levels ).
-
-### Progress notification
-
-Server side tools can send progress updates to clients using the MCP [progress utility](https://modelcontextprotocol.io/specification/2025-03-26/basic/utilities/progress).
+## Passing headers
 
 :::python
-To subscribe to progress updates, use the `on_progress` callback:
+When connecting to MCP servers over HTTP, you can include custom headers (e.g., for authentication or tracing) using the `headers` field in the connection configuration. This is supported for `sse` and `streamable_http` transports.
+
+```python Passing headers with MultiServerMCPClient
+from langchain_mcp_adapters.client import MultiServerMCPClient
+from langchain.agents import create_agent
+
+client = MultiServerMCPClient(
+    {
+        "weather": {
+            "transport": "streamable_http",
+            "url": "http://localhost:8000/mcp",
+            "headers": {  # [!code highlight]
+                "Authorization": "Bearer YOUR_TOKEN",  # [!code highlight]
+                "X-Custom-Header": "custom-value"  # [!code highlight]
+            },  # [!code highlight]
+        }
+    }
+)
+tools = await client.get_tools()
+agent = create_agent("openai:gpt-4.1", tools)
+response = await agent.ainvoke({"messages": "what is the weather in nyc?"})
+```
 :::
 
-### Implementing auth
+## Interceptors
+
+:::python
+Interceptors wrap tool execution to enable request/response modification, retry logic, caching, rate limiting, and other cross-cutting concerns. They follow an "onion" pattern where the first interceptor in the list is the outermost layer.
+
+### Basic interceptor
+
+An interceptor is an async function that receives a request and a handler. You can modify the request before calling the handler, modify the response after, or skip the handler entirely.
+
+```python Basic interceptor pattern
+from langchain_mcp_adapters.client import MultiServerMCPClient
+from langchain_mcp_adapters.interceptors import MCPToolCallRequest
+
+async def logging_interceptor(
+    request: MCPToolCallRequest,
+    handler,
+):
+    """Log tool calls before and after execution."""
+    print(f"Calling tool: {request.name} with args: {request.args}")
+    result = await handler(request)
+    print(f"Tool {request.name} returned: {result}")
+    return result
+
+client = MultiServerMCPClient(
+    {"math": {"transport": "stdio", "command": "python", "args": ["/path/to/server.py"]}},
+    tool_interceptors=[logging_interceptor],  # [!code highlight]
+)
+```
+
+### Modifying requests
+
+Use `request.override()` to create a modified request. This follows an immutable pattern, leaving the original request unchanged.
+
+```python Modifying tool arguments
+async def double_args_interceptor(
+    request: MCPToolCallRequest,
+    handler,
+):
+    """Double all numeric arguments before execution."""
+    modified_args = {k: v * 2 for k, v in request.args.items()}
+    modified_request = request.override(args=modified_args)  # [!code highlight]
+    return await handler(modified_request)
+
+# Original call: add(a=2, b=3) becomes add(a=4, b=6)
+```
+
+### Modifying headers at runtime
+
+Interceptors can modify HTTP headers dynamically based on the request context:
+
+```python Dynamic header modification
+async def auth_header_interceptor(
+    request: MCPToolCallRequest,
+    handler,
+):
+    """Add authentication headers based on the tool being called."""
+    token = get_token_for_tool(request.name)
+    modified_request = request.override(
+        headers={"Authorization": f"Bearer {token}"}  # [!code highlight]
+    )
+    return await handler(modified_request)
+```
+
+### Caching
+
+```python Caching interceptor
+cache = {}
+
+async def caching_interceptor(
+    request: MCPToolCallRequest,
+    handler,
+):
+    """Cache tool results to avoid repeated calls."""
+    cache_key = f"{request.name}:{request.args}"
+
+    if cache_key in cache:
+        return cache[cache_key]  # Return cached result
+
+    result = await handler(request)
+    cache[cache_key] = result
+    return result
+```
+
+### Short-circuiting execution
+
+Interceptors can skip the handler entirely and return a custom result:
+
+```python Short-circuit interceptor
+from mcp.types import CallToolResult, TextContent
+
+async def mock_interceptor(
+    request: MCPToolCallRequest,
+    handler,
+):
+    """Return mock data for testing."""
+    if request.name == "get_weather":
+        return CallToolResult(  # [!code highlight]
+            content=[TextContent(type="text", text="Mocked: Sunny, 72°F")],  # [!code highlight]
+            isError=False,  # [!code highlight]
+        )  # [!code highlight]
+    return await handler(request)
+```
+
+### Composing interceptors
+
+Multiple interceptors compose in "onion" order — the first interceptor in the list is the outermost layer:
+
+```python Composing multiple interceptors
+async def outer_interceptor(request, handler):
+    print("outer: before")
+    result = await handler(request)
+    print("outer: after")
+    return result
+
+async def inner_interceptor(request, handler):
+    print("inner: before")
+    result = await handler(request)
+    print("inner: after")
+    return result
+
+client = MultiServerMCPClient(
+    {...},
+    tool_interceptors=[outer_interceptor, inner_interceptor],  # [!code highlight]
+)
+
+# Execution order:
+# outer: before -> inner: before -> tool execution -> inner: after -> outer: after
+```
+
+### Accessing LangGraph runtime
+
+When MCP tools are used within a LangGraph agent (via `create_agent`), the interceptor receives access to the `ToolRuntime` context. This provides access to the tool call ID, state, config, and store.
+
+```python Accessing ToolRuntime in interceptors
+from langchain.tools import ToolRuntime
+from langchain_core.messages import ToolMessage
+from langgraph.types import Command
+
+async def runtime_interceptor(
+    request: MCPToolCallRequest,
+    handler,
+):
+    """Access LangGraph runtime context."""
+    runtime: ToolRuntime = request.runtime  # [!code highlight]
+
+    # Access the tool call ID
+    tool_call_id = runtime.tool_call_id  # [!code highlight]
+
+    # Access agent state (if using InjectedState)
+    # state = runtime.state
+
+    # Access config (if using InjectedConfig)
+    # config = runtime.config
+
+    # Access store (if using InjectedStore)
+    # store = runtime.store
+
+    return await handler(request)
+```
+
+### Returning LangGraph Commands
+
+Interceptors can return `Command` objects to update agent state or control graph execution:
+
+```python Returning Command from interceptor
+from langchain.agents import AgentState, create_agent
+from langchain.tools import ToolRuntime
+from langchain_core.messages import ToolMessage
+from langgraph.types import Command
+
+async def command_interceptor(
+    request: MCPToolCallRequest,
+    handler,
+):
+    """Return a Command to update agent state."""
+    runtime: ToolRuntime = request.runtime
+
+    # Instead of calling the tool, return a Command that updates state
+    return Command(  # [!code highlight]
+        update={  # [!code highlight]
+            "counter": 42,  # [!code highlight]
+            "messages": [  # [!code highlight]
+                ToolMessage(  # [!code highlight]
+                    content="Counter updated!",  # [!code highlight]
+                    tool_call_id=runtime.tool_call_id,  # [!code highlight]
+                ),  # [!code highlight]
+            ],  # [!code highlight]
+        },  # [!code highlight]
+        goto="__end__",  # Optional: control graph flow  # [!code highlight]
+    )  # [!code highlight]
+
+# Use with custom agent state
+class CustomAgentState(AgentState):
+    counter: int = 0
+
+agent = create_agent(
+    model,
+    tools,
+    state_schema=CustomAgentState,
+)
+```
+:::
+
+## Callbacks
+
+:::python
+The MCP protocol supports [logging](https://modelcontextprotocol.io/specification/2025-03-26/server/utilities/logging#log-levels) and [progress notifications](https://modelcontextprotocol.io/specification/2025-03-26/basic/utilities/progress) from servers. Use the `Callbacks` class to subscribe to these events.
+
+### Logging messages
+
+Subscribe to log messages sent by MCP servers:
+
+```python Logging callback
+from langchain_mcp_adapters.client import MultiServerMCPClient
+from langchain_mcp_adapters.callbacks import Callbacks, CallbackContext
+from mcp.types import LoggingMessageNotificationParams
+
+async def on_logging_message(
+    params: LoggingMessageNotificationParams,
+    context: CallbackContext,
+):
+    """Handle log messages from MCP servers."""
+    print(f"[{context.server_name}] {params.level}: {params.data}")
+
+client = MultiServerMCPClient(
+    {...},
+    callbacks=Callbacks(on_logging_message=on_logging_message),  # [!code highlight]
+)
+```
+
+### Progress notifications
+
+Subscribe to progress updates for long-running tool executions:
+
+```python Progress callback
+from langchain_mcp_adapters.callbacks import Callbacks, CallbackContext
+
+async def on_progress(
+    progress: float,
+    total: float | None,
+    message: str | None,
+    context: CallbackContext,
+):
+    """Handle progress updates from MCP servers."""
+    percent = (progress / total * 100) if total else progress
+    tool_info = f" ({context.tool_name})" if context.tool_name else ""
+    print(f"[{context.server_name}{tool_info}] Progress: {percent:.1f}% - {message}")
+
+client = MultiServerMCPClient(
+    {...},
+    callbacks=Callbacks(on_progress=on_progress),  # [!code highlight]
+)
+```
+
+### Combined callbacks
+
+```python Using both callbacks
+from langchain_mcp_adapters.callbacks import Callbacks
+
+callbacks = Callbacks(
+    on_logging_message=on_logging_message,
+    on_progress=on_progress,
+)
+
+client = MultiServerMCPClient(
+    {
+        "task_server": {
+            "url": "http://localhost:8000/mcp",
+            "transport": "streamable_http",
+        }
+    },
+    callbacks=callbacks,
+)
+```
+
+The `CallbackContext` provides:
+- `server_name`: Name of the MCP server
+- `tool_name`: Name of the tool being executed (available during tool calls)
+:::
+
+## Authentication
 
 :::python
 The `langchain-mcp-adapters` library uses the official [MCP SDK](https://github.com/modelcontextprotocol/python-sdk) under the hood, which allows you to provide a custom authentication mechanism by implementing the `httpx.Auth` interface.
@@ -438,7 +725,7 @@ client = MultiServerMCPClient(
 * [Built-in OAuth flow](https://github.com/modelcontextprotocol/python-sdk/blob/main/src/mcp/client/auth.py#L179)
 :::
 
-### Interacting with stateful servers
+## Stateful servers
 
 If you need to control the lifecycle of an MCP session (for example, when working with a stateful server that maintains context across tool calls), you can create a persistent `ClientSession` using `client.session()`.
 
@@ -446,13 +733,14 @@ This gives you explicit control over the [session lifecycle](https://modelcontex
 
 :::python
 ```python Using MCP ClientSession for stateful tool usage
+from langchain_mcp_adapters.client import MultiServerMCPClient
 from langchain_mcp_adapters.tools import load_mcp_tools
 from langchain.agents import create_agent
 
 client = MultiServerMCPClient({...})
 
 # Create a session explicitly
-async with client.session() as session: # [!code highlight]
+async with client.session("server_name") as session: # [!code highlight]
     # Pass the session to load tools
     tools = await load_mcp_tools(session) # [!code highlight]
     agent = create_agent(
@@ -477,7 +765,7 @@ const agent = createAgent({
 ```
 :::
 
-<Important> 
+<Important>
     If you are serving your agent through a web server and intend to use it a conversational setting, be careful with how you manage sessions. A naive setup will create a **new session for each request**, which prevents state from being preserved across turns.
 </Important>
 
