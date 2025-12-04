@@ -651,9 +651,22 @@ This allows you to handle multimodal tool responses in a provider-agnostic way, 
 
 <Info>Coming soon</Info>
 
-#### Tool runtime and context
+#### Tool context
 
 :::python
+MCP servers run as separate processes—they can't access LangGraph runtime information like the [store](/oss/langgraph/persistence#memory-store), [context](/oss/langchain/context-engineering), or agent state. **Interceptors bridge this gap** by giving you access to this runtime context during MCP tool execution.
+
+Interceptors also provide middleware-like control over tool calls: you can modify requests, implement retries, add headers dynamically, or short-circuit execution entirely.
+
+##### Why use interceptors?
+
+- **Access LangGraph context**: Read user IDs, API keys, or other runtime values from `context`
+- **Use the store**: Look up user preferences or persist data across conversations
+- **Check agent state**: Make decisions based on the current conversation state
+- **Control execution**: Implement retries, rate limiting, caching, or request patching
+
+##### Accessing runtime context
+
 When MCP tools are used within a LangGraph agent (via `create_agent`), interceptors receive access to the `ToolRuntime` context. This provides access to the tool call ID, state, config, and store—enabling powerful patterns for accessing user data, persisting information, and controlling agent behavior.
 
 <Tabs>
