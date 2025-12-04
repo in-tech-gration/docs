@@ -19,6 +19,7 @@ Reference documentation for the [`langchain-mcp-adapters`](https://pypi.org/proj
     options:
       members:
         - load_mcp_tools
+        - MCPToolArtifact
 
 ::: langchain_mcp_adapters.prompts
     options:

@@ -9,10 +9,10 @@ title: Model Context Protocol (MCP)
 [Model Context Protocol (MCP)](https://modelcontextprotocol.io/introduction) is an open protocol that standardizes how applications provide tools and context to LLMs. LangChain agents can use tools defined on MCP servers using the [`@langchain/mcp-adapters`](https://github.com/langchain-ai/langchainjs/tree/main/libs/langchain-mcp-adapters) library.
 :::
 
-## Install
+## Quickstart
 
 :::python
-Install the `langchain-mcp-adapters` library to use MCP tools in LangGraph:
+Install the `langchain-mcp-adapters` library:
 
 <CodeGroup>
 ```bash pip
@@ -23,34 +23,8 @@ pip install langchain-mcp-adapters
 uv add langchain-mcp-adapters
 ```
 </CodeGroup>
-:::
 
-:::js
-Install the `@langchain/mcp-adapters` library to use MCP tools in LangGraph:
-
-<CodeGroup>
-```bash npm
-npm install @langchain/mcp-adapters
-```
-
-```bash pnpm
-pnpm add @langchain/mcp-adapters
-```
-
-```bash yarn
-yarn add @langchain/mcp-adapters
-```
-
-```bash bun
-bun add @langchain/mcp-adapters
-```
-</CodeGroup>
-:::
-
-## Quickstart
-
-:::python
-`langchain-mcp-adapters` enables agents to use tools defined across one or more MCP server.
+`langchain-mcp-adapters` enables agents to use tools defined across one or more MCP servers.
 
 ```python Accessing multiple MCP servers icon="server"
 from langchain_mcp_adapters.client import MultiServerMCPClient  # [!code highlight]
@@ -88,6 +62,26 @@ weather_response = await agent.ainvoke(
 :::
 
 :::js
+Install the `@langchain/mcp-adapters` library:
+
+<CodeGroup>
+```bash npm
+npm install @langchain/mcp-adapters
+```
+
+```bash pnpm
+pnpm add @langchain/mcp-adapters
+```
+
+```bash yarn
+yarn add @langchain/mcp-adapters
+```
+
+```bash bun
+bun add @langchain/mcp-adapters
+```
+</CodeGroup>
+
 `@langchain/mcp-adapters` enables agents to use tools defined across one or more MCP server.
 
 ```ts Accessing multiple MCP servers icon="server"
@@ -127,6 +121,8 @@ const weatherResponse = await agent.invoke({
 
 <Note>
     `MultiServerMCPClient` is **stateless by default**. Each tool invocation creates a fresh MCP `ClientSession`, executes the tool, and then cleans up.
+
+    To enable session support, see the [stateful sessions](#stateful-sessions) section.
 </Note>
 
 ## Custom servers
@@ -503,11 +499,57 @@ const client = new MultiServerMCPClient({
 
 <Info>Coming soon</Info>
 
+## Stateful sessions
+
+By default, `MultiServerMCPClient` is **stateless**—each tool invocation creates a fresh MCP session, executes the tool, and then cleans up. If you need to control the lifecycle of an MCP session (for example, when working with a stateful server that maintains context across tool calls), you can create a persistent `ClientSession` using `client.session()`.
+
+This gives you explicit control over the [session lifecycle](https://modelcontextprotocol.io/specification/2025-03-26/basic/lifecycle)—initializing, using, and then closing the session.
+
+:::python
+```python Using MCP ClientSession for stateful tool usage
+from langchain_mcp_adapters.client import MultiServerMCPClient
+from langchain_mcp_adapters.tools import load_mcp_tools
+from langchain.agents import create_agent
+
+client = MultiServerMCPClient({...})
+
+# Create a session explicitly
+async with client.session("server_name") as session:  # [!code highlight]
+    # Pass the session to load tools, resources, or prompts
+    tools = await load_mcp_tools(session)  # [!code highlight]
+    agent = create_agent(
+        "anthropic:claude-3-7-sonnet-latest",
+        tools
+    )
+```
+:::
+
+:::js
+```typescript Using MCP ClientSession for stateful tool usage
+import { loadMCPTools } from "@langchain/mcp-adapters/tools.js";
+import { createAgent } from "langchain";
+
+const client = new MultiServerMCPClient({...});
+const session = await client.session("some_server");
+const tools = await loadMCPTools(session);
+const agent = createAgent({
+    model: new ChatAnthropic({ model: "claude-3-7-sonnet-latest" }),
+    tools,
+});
+```
+:::
+
+<Important>
+    If you are serving your agent through a web server and intend to use it in a conversational setting, be careful with how you manage sessions. A naive setup will create a **new session for each request**, which prevents state from being preserved across turns.
+</Important>
+
 ## Core features
 
 ### Tools
 
-#### Call tools
+[Tools](https://modelcontextprotocol.io/docs/concepts/tools) allow MCP servers to expose executable functions that LLMs can invoke to perform actions—such as querying databases, calling APIs, or interacting with external systems. LangChain converts MCP tools into LangChain [tools](/docs/concepts/tools), making them directly usable in any LangChain agent or workflow.
+
+#### Loading tools
 
 Use `client.get_tools()` to retrieve tools from MCP servers and pass them to your agent:
 
@@ -538,50 +580,71 @@ const agent = createAgent({ model: "claude-sonnet-4-5-20250929", tools });
 :::python
 MCP tools can return [structured content](https://modelcontextprotocol.io/specification/2025-03-26/server/tools#structured-content) alongside the human-readable text response. This is useful when a tool needs to return machine-parseable data (like JSON) in addition to text that gets shown to the model.
 
-When an MCP tool returns `structuredContent`, the adapter wraps it in an `MCPToolArtifact` and returns it as the tool's artifact. You can access this using the `artifact` field on the `ToolMessage`:
+When an MCP tool returns `structuredContent`, the adapter wraps it in an [`MCPToolArtifact`](/docs/reference/langchain-mcp-adapters#MCPToolArtifact) and returns it as the tool's artifact. You can access this using the `artifact` field on the `ToolMessage`.
 
-```python Accessing structured content from tool results
+##### Extracting structured content from artifact
+
+After invoking your agent, you can access the structured content from tool messages in the response:
+
+```python
 from langchain_mcp_adapters.client import MultiServerMCPClient
 from langchain.agents import create_agent
 
-client = MultiServerMCPClient(
-    {
-        "data_server": {
-            "transport": "streamable_http",
-            "url": "http://localhost:8000/mcp",
-        }
-    }
-)
-
+client = MultiServerMCPClient({...})
 tools = await client.get_tools()
-agent = create_agent("anthropic:claude-sonnet-4-20250514", tools)
+agent = create_agent("claude-sonnet-4-5-20250929", tools)
 
-response = await agent.ainvoke(
-    {"messages": [{"role": "user", "content": "Analyze this data"}]}
+result = await agent.ainvoke(
+    {"messages": [{"role": "user", "content": "Get data from the server"}]}
 )
 
-# Access tool messages from the response
-for message in response["messages"]:
-    if hasattr(message, "artifact") and message.artifact is not None:
-        # The artifact contains the structured content from the MCP tool
-        structured_data = message.artifact["structured_content"]  # [!code highlight]
+# Extract structured content from tool messages
+for message in result["messages"]:
+    if message.type == "tool" and message.artifact:  # [!code highlight]
+        # Access the MCPToolArtifact
+        mcp_artifact = message.artifact  # [!code highlight]
+        # Get the structured content
+        structured_data = mcp_artifact.structured_content  # [!code highlight]
+        print(f"Tool: {message.name}")
         print(f"Structured content: {structured_data}")
 ```
 
-##### Artifact structure
+The `MCPToolArtifact` contains:
+- `structured_content`: The parsed structured data returned by the MCP tool
+- `is_error`: Whether the tool call resulted in an error
 
-The artifact returned by MCP tools has the following structure:
+##### Multimodal tool content
+
+MCP tools can return multimodal content (images, text, etc.) in their responses. When an MCP server returns content with multiple parts (e.g., text and images), the adapter converts them to LangChain's [standard content blocks](/oss/langchain/messages#standard-content-blocks). You can access the standardized representation via the `content_blocks` property on the `ToolMessage`:
 
 ```python
-from langchain_mcp_adapters.tools import MCPToolArtifact
+from langchain_mcp_adapters.client import MultiServerMCPClient
+from langchain.agents import create_agent
 
-# MCPToolArtifact is a TypedDict with:
-# {
-#     "structured_content": dict[str, Any]  # The structuredContent from the MCP tool
-# }
+client = MultiServerMCPClient({...})
+tools = await client.get_tools()
+agent = create_agent("claude-sonnet-4-5-20250929", tools)
+
+result = await agent.ainvoke(
+    {"messages": [{"role": "user", "content": "Take a screenshot of the current page"}]}
+)
+
+# Access multimodal content from tool messages
+for message in result["messages"]:
+    if message.type == "tool":
+        # Raw content in provider-native format
+        print(f"Raw content: {message.content}")
+
+        # Standardized content blocks  # [!code highlight]
+        for block in message.content_blocks:  # [!code highlight]
+            if block["type"] == "text":  # [!code highlight]
+                print(f"Text: {block['text']}")  # [!code highlight]
+            elif block["type"] == "image":  # [!code highlight]
+                print(f"Image URL: {block.get('url')}")  # [!code highlight]
+                print(f"Image base64: {block.get('base64', '')[:50]}...")  # [!code highlight]
 ```
 
-This allows you to access rich, typed data from MCP tools while the model sees only the human-readable text content.
+This allows you to handle multimodal tool responses in a provider-agnostic way, regardless of how the underlying MCP server formats its content.
 :::
 
 #### Error handling
@@ -591,77 +654,237 @@ This allows you to access rich, typed data from MCP tools while the model sees o
 #### Tool runtime and context
 
 :::python
-When MCP tools are used within a LangGraph agent (via `create_agent`), interceptors receive access to the `ToolRuntime` context. This provides access to the tool call ID, state, config, and store.
+When MCP tools are used within a LangGraph agent (via `create_agent`), interceptors receive access to the `ToolRuntime` context. This provides access to the tool call ID, state, config, and store—enabling powerful patterns for accessing user data, persisting information, and controlling agent behavior.
 
-```python Accessing ToolRuntime in interceptors
-from langchain.tools import ToolRuntime
-from langchain_core.messages import ToolMessage
-from langgraph.types import Command
+<Tabs>
+  <Tab title="Runtime context">
+    Access user-specific configuration like user IDs, API keys, or permissions that are passed at invocation time:
 
-async def runtime_interceptor(
-    request: MCPToolCallRequest,
-    handler,
-):
-    """Access LangGraph runtime context."""
-    runtime: ToolRuntime = request.runtime  # [!code highlight]
+    ```python Inject user context into MCP tool calls
+    from dataclasses import dataclass
+    from langchain_mcp_adapters.client import MultiServerMCPClient
+    from langchain_mcp_adapters.interceptors import MCPToolCallRequest
+    from langchain.agents import create_agent
 
-    # Access the tool call ID
-    tool_call_id = runtime.tool_call_id  # [!code highlight]
+    @dataclass
+    class Context:
+        user_id: str
+        api_key: str
 
-    # Access agent state (if using InjectedState)
-    # state = runtime.state
+    async def inject_user_context(
+        request: MCPToolCallRequest,
+        handler,
+    ):
+        """Inject user credentials into MCP tool calls."""
+        runtime = request.runtime
+        user_id = runtime.context.user_id  # [!code highlight]
+        api_key = runtime.context.api_key  # [!code highlight]
 
-    # Access config (if using InjectedConfig)
-    # config = runtime.config
+        # Add user context to tool arguments
+        modified_request = request.override(
+            args={**request.args, "user_id": user_id}
+        )
+        return await handler(modified_request)
 
-    # Access store (if using InjectedStore)
-    # store = runtime.store
+    client = MultiServerMCPClient(
+        {...},
+        tool_interceptors=[inject_user_context],
+    )
+    tools = await client.get_tools()
+    agent = create_agent("gpt-4o", tools, context_schema=Context)
 
-    return await handler(request)
-```
+    # Invoke with user context
+    result = await agent.ainvoke(
+        {"messages": [{"role": "user", "content": "Search my orders"}]},
+        context={"user_id": "user_123", "api_key": "sk-..."}
+    )
+    ```
+  </Tab>
+
+  <Tab title="Store">
+    Access long-term memory to retrieve user preferences or persist data across conversations:
+
+    ```python Access user preferences from store
+    from dataclasses import dataclass
+    from langchain_mcp_adapters.client import MultiServerMCPClient
+    from langchain_mcp_adapters.interceptors import MCPToolCallRequest
+    from langchain.agents import create_agent
+    from langgraph.store.memory import InMemoryStore
+
+    @dataclass
+    class Context:
+        user_id: str
+
+    async def personalize_search(
+        request: MCPToolCallRequest,
+        handler,
+    ):
+        """Personalize MCP tool calls using stored preferences."""
+        runtime = request.runtime
+        user_id = runtime.context.user_id
+        store = runtime.store  # [!code highlight]
+
+        # Read user preferences from store
+        prefs = store.get(("preferences",), user_id)  # [!code highlight]
+
+        if prefs and request.name == "search":
+            # Apply user's preferred language and result limit
+            modified_args = {
+                **request.args,
+                "language": prefs.value.get("language", "en"),
+                "limit": prefs.value.get("result_limit", 10),
+            }
+            request = request.override(args=modified_args)
+
+        return await handler(request)
+
+    client = MultiServerMCPClient(
+        {...},
+        tool_interceptors=[personalize_search],
+    )
+    tools = await client.get_tools()
+    agent = create_agent(
+        "gpt-4o",
+        tools,
+        context_schema=Context,
+        store=InMemoryStore()
+    )
+    ```
+  </Tab>
+
+  <Tab title="State">
+    Access conversation state to make decisions based on the current session:
+
+    ```python Filter tools based on authentication state
+    from langchain_mcp_adapters.client import MultiServerMCPClient
+    from langchain_mcp_adapters.interceptors import MCPToolCallRequest
+    from langchain_core.messages import ToolMessage
+
+    async def require_authentication(
+        request: MCPToolCallRequest,
+        handler,
+    ):
+        """Block sensitive MCP tools if user is not authenticated."""
+        runtime = request.runtime
+        state = runtime.state  # [!code highlight]
+        is_authenticated = state.get("authenticated", False)  # [!code highlight]
+
+        sensitive_tools = ["delete_file", "update_settings", "export_data"]
+
+        if request.name in sensitive_tools and not is_authenticated:
+            # Return error instead of calling tool
+            return ToolMessage(
+                content="Authentication required. Please log in first.",
+                tool_call_id=runtime.tool_call_id,
+            )
+
+        return await handler(request)
+
+    client = MultiServerMCPClient(
+        {...},
+        tool_interceptors=[require_authentication],
+    )
+    ```
+  </Tab>
+
+  <Tab title="Tool call ID">
+    Access the tool call ID to return properly formatted responses or track tool executions:
+
+    ```python Return custom responses with tool call ID
+    from langchain_mcp_adapters.client import MultiServerMCPClient
+    from langchain_mcp_adapters.interceptors import MCPToolCallRequest
+    from langchain_core.messages import ToolMessage
+
+    async def rate_limit_interceptor(
+        request: MCPToolCallRequest,
+        handler,
+    ):
+        """Rate limit expensive MCP tool calls."""
+        runtime = request.runtime
+        tool_call_id = runtime.tool_call_id  # [!code highlight]
+
+        # Check rate limit (simplified example)
+        if is_rate_limited(request.name):
+            return ToolMessage(
+                content="Rate limit exceeded. Please try again later.",
+                tool_call_id=tool_call_id,  # [!code highlight]
+            )
+
+        result = await handler(request)
+
+        # Log successful tool call
+        log_tool_execution(tool_call_id, request.name, success=True)
+
+        return result
+
+    client = MultiServerMCPClient(
+        {...},
+        tool_interceptors=[rate_limit_interceptor],
+    )
+    ```
+  </Tab>
+</Tabs>
+
+For more context engineering patterns, see [Context engineering](/oss/langchain/context-engineering) and [Tools](/oss/langchain/tools).
 :::
 
 #### State updates and LangGraph commands
 
 :::python
-Interceptors can return `Command` objects to update agent state or control graph execution:
+Interceptors can return `Command` objects to update agent state or control graph execution flow:
 
 ```python Returning Command from interceptor
 from langchain.agents import AgentState, create_agent
-from langchain.tools import ToolRuntime
+from langchain_mcp_adapters.interceptors import MCPToolCallRequest
 from langchain_core.messages import ToolMessage
 from langgraph.types import Command
 
-async def command_interceptor(
+async def track_tool_usage(
     request: MCPToolCallRequest,
     handler,
 ):
-    """Return a Command to update agent state."""
-    runtime: ToolRuntime = request.runtime
+    """Track tool usage in agent state."""
+    result = await handler(request)
 
-    # Instead of calling the tool, return a Command that updates state
+    # Update state with tool usage counter
     return Command(  # [!code highlight]
-        update={  # [!code highlight]
-            "counter": 42,  # [!code highlight]
-            "messages": [  # [!code highlight]
-                ToolMessage(  # [!code highlight]
-                    content="Counter updated!",  # [!code highlight]
-                    tool_call_id=runtime.tool_call_id,  # [!code highlight]
-                ),  # [!code highlight]
-            ],  # [!code highlight]
-        },  # [!code highlight]
-        goto="__end__",  # Optional: control graph flow  # [!code highlight]
-    )  # [!code highlight]
+        update={
+            "tool_call_count": request.runtime.state.get("tool_call_count", 0) + 1,  # [!code highlight]
+            "messages": [result] if isinstance(result, ToolMessage) else [],
+        }
+    )
 
 # Use with custom agent state
 class CustomAgentState(AgentState):
-    counter: int = 0
+    tool_call_count: int = 0
 
 agent = create_agent(
     model,
     tools,
     state_schema=CustomAgentState,
 )
+```
+
+Use `Command` with `goto` to control graph flow—for example, to end the agent run early:
+
+```python End agent run based on tool result
+async def end_on_success(
+    request: MCPToolCallRequest,
+    handler,
+):
+    """End agent run if tool indicates task is complete."""
+    result = await handler(request)
+
+    if request.name == "submit_order" and "success" in str(result):
+        return Command(
+            update={
+                "messages": [result],
+                "order_submitted": True,
+            },
+            goto="__end__",  # [!code highlight]
+        )
+
+    return result
 ```
 :::
 
@@ -753,59 +976,147 @@ client = MultiServerMCPClient(
 # Execution order:
 # outer: before -> inner: before -> tool execution -> inner: after -> outer: after
 ```
-:::
 
-#### Stateful sessions
+##### Error handling
 
-If you need to control the lifecycle of an MCP session (for example, when working with a stateful server that maintains context across tool calls), you can create a persistent `ClientSession` using `client.session()`.
+Use interceptors to catch tool execution errors and implement retry logic:
 
-This gives you explicit control over the [session lifecycle](https://modelcontextprotocol.io/specification/2025-03-26/basic/lifecycle) — initializing, using, and then closing the session.
+```python Retry on error
+import asyncio
 
-:::python
-```python Using MCP ClientSession for stateful tool usage
-from langchain_mcp_adapters.client import MultiServerMCPClient
-from langchain_mcp_adapters.tools import load_mcp_tools
-from langchain.agents import create_agent
+async def retry_interceptor(
+    request: MCPToolCallRequest,
+    handler,
+    max_retries: int = 3,
+    delay: float = 1.0,
+):
+    """Retry failed tool calls with exponential backoff."""
+    last_error = None
+    for attempt in range(max_retries):
+        try:
+            return await handler(request)
+        except Exception as e:
+            last_error = e
+            if attempt < max_retries - 1:
+                wait_time = delay * (2 ** attempt)  # Exponential backoff
+                print(f"Tool {request.name} failed (attempt {attempt + 1}), retrying in {wait_time}s...")
+                await asyncio.sleep(wait_time)
+    raise last_error
 
-client = MultiServerMCPClient({...})
+client = MultiServerMCPClient(
+    {...},
+    tool_interceptors=[retry_interceptor],  # [!code highlight]
+)
+```
 
-# Create a session explicitly
-async with client.session("server_name") as session: # [!code highlight]
-    # Pass the session to load tools
-    tools = await load_mcp_tools(session) # [!code highlight]
-    agent = create_agent(
-        "anthropic:claude-3-7-sonnet-latest",
-        tools
-    )
+You can also catch specific error types and return fallback values:
+
+```python Error handling with fallback
+async def fallback_interceptor(
+    request: MCPToolCallRequest,
+    handler,
+):
+    """Return a fallback value if tool execution fails."""
+    try:
+        return await handler(request)
+    except TimeoutError:
+        return f"Tool {request.name} timed out. Please try again later."
+    except ConnectionError:
+        return f"Could not connect to {request.name} service. Using cached data."
 ```
 :::
-
-:::js
-```typescript Using MCP ClientSession for stateful tool usage
-import { loadMCPTools } from "@langchain/mcp-adapters/tools.js";
-import { createAgent } from "langchain";
-
-const client = new MultiServerMCPClient({...});
-const session = await client.session("some_server");
-const tools = await loadMCPTools(session);
-const agent = createAgent({
-    model: new ChatAnthropic({ model: "claude-3-7-sonnet-latest" }),
-    tools,
-});
-```
-:::
-
-<Important>
-    If you are serving your agent through a web server and intend to use it a conversational setting, be careful with how you manage sessions. A naive setup will create a **new session for each request**, which prevents state from being preserved across turns.
-</Important>
 
 ### Resources
 
-<Info>Coming soon</Info>
+[Resources](https://modelcontextprotocol.io/docs/concepts/resources) allow MCP servers to expose data—such as files, database records, or API responses—that can be read by clients. LangChain converts MCP resources into [Blob](/docs/reference/langchain-core/documents#Blob) objects, which provide a unified interface for handling both text and binary content.
+
+#### Loading resources
+
+:::python
+Use `client.get_resources()` to load resources from an MCP server:
+
+```python
+from langchain_mcp_adapters.client import MultiServerMCPClient
+
+client = MultiServerMCPClient({...})
+
+# Load all resources from a server
+blobs = await client.get_resources("server_name")  # [!code highlight]
+
+# Or load specific resources by URI
+blobs = await client.get_resources("server_name", uris=["file:///path/to/file.txt"])  # [!code highlight]
+
+for blob in blobs:
+    print(f"URI: {blob.metadata['uri']}, MIME type: {blob.mimetype}")
+    print(blob.as_string())  # For text content
+```
+
+You can also use [`load_mcp_resources`](/docs/reference/langchain-mcp-adapters#load_mcp_resources) directly with a session for more control:
+
+```python
+from langchain_mcp_adapters.client import MultiServerMCPClient
+from langchain_mcp_adapters.resources import load_mcp_resources
+
+client = MultiServerMCPClient({...})
+
+async with client.session("server_name") as session:
+    # Load all resources
+    blobs = await load_mcp_resources(session)
+
+    # Or load specific resources by URI
+    blobs = await load_mcp_resources(session, uris=["file:///path/to/file.txt"])
+```
+:::
 
 ### Prompts
 
-<Info>Coming soon</Info>
+[Prompts](https://modelcontextprotocol.io/docs/concepts/prompts) allow MCP servers to expose reusable prompt templates that can be retrieved and used by clients. LangChain converts MCP prompts into [messages](/docs/concepts/messages), making them easy to integrate into chat-based workflows.
+
+#### Loading prompts
+
+:::python
+Use `client.get_prompt()` to load a prompt from an MCP server:
+
+```python
+from langchain_mcp_adapters.client import MultiServerMCPClient
+
+client = MultiServerMCPClient({...})
+
+# Load a prompt by name
+messages = await client.get_prompt("server_name", "summarize")  # [!code highlight]
+
+# Load a prompt with arguments
+messages = await client.get_prompt(  # [!code highlight]
+    "server_name",  # [!code highlight]
+    "code_review",  # [!code highlight]
+    arguments={"language": "python", "focus": "security"}  # [!code highlight]
+)  # [!code highlight]
+
+# Use the messages in your workflow
+for message in messages:
+    print(f"{message.type}: {message.content}")
+```
+
+You can also use [`load_mcp_prompt`](/docs/reference/langchain-mcp-adapters#load_mcp_prompt) directly with a session for more control:
+
+```python
+from langchain_mcp_adapters.client import MultiServerMCPClient
+from langchain_mcp_adapters.prompts import load_mcp_prompt
+
+client = MultiServerMCPClient({...})
+
+async with client.session("server_name") as session:
+    # Load a prompt by name
+    messages = await load_mcp_prompt(session, "summarize")
+
+    # Load a prompt with arguments
+    messages = await load_mcp_prompt(
+        session,
+        "code_review",
+        arguments={"language": "python", "focus": "security"}
+    )
+```
+:::
 
 ## Advanced features
 
