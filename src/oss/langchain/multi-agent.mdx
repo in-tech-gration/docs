@@ -28,6 +28,40 @@ There are four main architectures for building multi-agent systems, each suited 
     You can mix architectures! For example, a **supervisor** can manage **workflow** sub-graphs, or a **dynamic agent** can invoke **skills** at certain stages.
 </Tip>
 
+### Choosing an architecture
+
+The right architecture depends on how your agents need to interact with users and each other. Start with these questions to narrow down your choice:
+
+<AccordionGroup>
+  <Accordion title="Do sub-agents need to converse directly with users?">
+    Use **Dynamic agent** if you need to enforce sequential constraints (e.g., collect a warranty ID before processing a refund).
+
+    Use **Skills** if sub-agents can be invoked freely without strict ordering.
+  </Accordion>
+
+  <Accordion title="Do you need deterministic, predictable flow between agents?">
+    Use **Workflow**. This gives you explicit control over transitions and makes execution easy to debug.
+  </Accordion>
+
+  <Accordion title="Do sub-agents need to run in parallel?">
+    Use **Supervisor**. The supervisor can invoke multiple sub-agents simultaneously and coordinate their results.
+  </Accordion>
+
+  <Accordion title="Do you need to persist state across sub-agent interactions?">
+    Use **Dynamic agent**. State survives across conversation turns, enabling multi-step flows.
+
+    Alternatively, use **Supervisor** with stateful tools if you need centralized orchestration.
+  </Accordion>
+
+  <Accordion title="Will different teams develop and maintain agents independently?">
+    Use **Skills**. Each skill can be developed, tested, and deployed separately.
+  </Accordion>
+
+  <Accordion title="Do you need centralized orchestration without direct user interaction?">
+    Use **Supervisor**. Sub-agents return results to the supervisor, which handles all user communication.
+  </Accordion>
+</AccordionGroup>
+
 ### Supervisor
 
 In the **supervisor** architecture, a central supervisor agent coordinates sub-agents by calling them as tools. The supervisor decides which sub-agent to invoke, what input to provide, and how to combine results.
@@ -51,20 +85,7 @@ graph LR
 * **No direct user interaction**: Sub-agents return results to the supervisor, not the user
 * **Parallel execution**: The supervisor can invoke multiple sub-agents in a single turn
 
-#### When to use
-
-Use the supervisor pattern when:
-
-* You have **multiple distinct domains** (e.g., calendar, email, CRM, database)
-* Sub-agents **don't need to converse directly** with users
-* You need to **coordinate multiple sub-agents** in a single pass
-* You want **centralized workflow control**
-
-For simpler cases with just a few tools, use a single agent. Below are some examples:
-
-- **Personal assistant**: Supervisor coordinates calendar, email, and task management sub-agents
-- **Research assistant**: Supervisor orchestrates web search, document analysis, and synthesis sub-agents
-- **Data analysis platform**: Supervisor routes queries to SQL, Python, and visualization sub-agents
+Use the supervisor pattern when you have **multiple distinct domains** (e.g., calendar, email, CRM, database), sub-agents **don't need to converse directly** with users, or you want **centralized workflow control**. For simpler cases with just a few tools, use a single agent.
 
 <Card
     title="Tutorial: Build a supervisor agent"
@@ -74,7 +95,6 @@ For simpler cases with just a few tools, use a single agent. Below are some exam
 >
     Learn how to build a personal assistant using the supervisor pattern, where a central supervisor agent coordinates specialized worker agents.
 </Card>
-
 
 #### Example
 
@@ -292,7 +312,7 @@ const callSubagent1 = tool(
 
 ### Dynamic agent
 
-In the **dynamic agent** architecture, you have a single agent whose behavior (prompt, tools, and capabilities) changes dynamically based on state. This creates a state machine where each "stage" represents a different agent configuration.
+In the **dynamic agent** architecture, you have a single agent whose behavior (prompt, tools, and capabilities) changes dynamically based on state. Under the hood, this is a state machine implemented via [middleware](/oss/langchain/middleware/overview) that performs handoffs through tool calls.
 
 ```mermaid
 graph LR
@@ -311,26 +331,7 @@ graph LR
 * **Direct user interaction**: The active agent configuration handles user messages directly
 * **Persistent state**: State survives across conversation turns
 
-#### When to use
-
-Use the dynamic agent pattern when:
-
-* You need to **enforce sequential constraints** — unlock capabilities only after preconditions are met
-* Sub-agents need to **converse directly with the user**
-* You want to **update prompts and tools** based on conversation progress
-* You're building **multi-stage conversational flows**
-
-This pattern is particularly valuable for **"online"** customer support scenarios where you need to collect information in a specific sequence:
-
-* Collecting a warranty ID before processing a refund
-* Gathering account details before escalating to a specialist
-* Verifying identity before accessing sensitive information
-
-Below are some examples:
-
-- **Customer support chatbot**: Triage agent collects information, then hands off to specialist
-- **Onboarding flows**: Account setup → preference collection → feature tour
-- **Multi-domain chat**: General conversation → technical support → sales
+Use the dynamic agent pattern when you need to **enforce sequential constraints** (unlock capabilities only after preconditions are met), sub-agents need to **converse directly with the user**, or you're building **multi-stage conversational flows**. This pattern is particularly valuable for customer support scenarios where you need to collect information in a specific sequence — for example, collecting a warranty ID before processing a refund.
 
 <Card
     title="Tutorial: Build a customer support agent with handoffs"
@@ -341,17 +342,9 @@ Below are some examples:
     Learn how to build a customer support workflow using the dynamic agent pattern, where agents pass control through state transitions.
 </Card>
 
-
 <Tip>
-    Design dynamic agent flows carefully to avoid creating rigid, frustrating experiences. Users should be able to:
-    * Correct typos or mistakes in previously provided information.
-    * Change the conversation flow when appropriate.
-    * Navigate back to previous steps if needed.
-
-    Overly restrictive flows can feel like poorly designed phone trees.
+    Design dynamic agent flows carefully to avoid creating rigid, frustrating experiences. Users should be able to correct mistakes, change the conversation flow, and navigate back to previous steps. Overly restrictive flows can feel like poorly designed phone trees.
 </Tip>
-
-#### How it works
 
 At the core, the dynamic agent pattern relies on [persistent state](/oss/langchain/short-term-memory) that survives across conversation turns:
 
@@ -422,18 +415,6 @@ const agent = createAgent({
 
 The key mechanism is using @[`Command`] to update state fields that control which agent configuration is active. Middleware can then read this state and dynamically configure the agent's behavior.
 
-#### Best practices
-
-When implementing dynamic agents:
-
-1. **Bound message histories**: Use @[`trim_messages`] or @[`@before_model`] [middleware](/oss/langchain/short-term-memory#trim-messages) to prevent unbounded growth.
-2. **State for cross-agent memory**: Store structured data (warranty status, issue type) in @[`AgentState`] [custom state](/oss/langchain/short-term-memory#customizing-agent-memory), not message history.
-3. **Inject context summaries**: Add state information to system prompts so each configuration knows what previous stages learned.
-4. **Validate state transitions**: Check required state exists before allowing transitions to later stages.
-5. **Allow backward navigation**: Provide @[`@tool`]s that return @[`Command`] objects for users to correct mistakes and return to previous stages.
-6. **Ensure valid message sequences**: Make sure message histories follow provider requirements (user → AI → tool alternation).
-7. **Use checkpointers**: Always include a @[`InMemorySaver`] [checkpointer](/oss/langchain/short-term-memory#usage) to persist state across turns.
-
 
 ### Workflow
 
@@ -454,20 +435,7 @@ graph LR
 * **No LLM routing decisions**: The graph structure controls flow, not LLM calls
 * **Pipeline-style processing**: Each agent processes and passes to the next
 
-#### When to use
-
-Use the workflow pattern when:
-
-* You have a **fixed sequence** of processing steps
-* Agents are **independent** and don't need to be aware of each other
-* You want **predictable, debuggable** execution
-* You're building **processing pipelines** (e.g., extract → transform → load)
-
-Below are some examples:
-
-- **Content pipeline**: Research → draft → edit → publish
-- **Data processing**: Extract → validate → transform → load
-- **Document processing**: Parse → classify → extract entities → summarize
+Use the workflow pattern when you have a **fixed sequence** of processing steps, agents are **independent** and don't need to be aware of each other, or you want **predictable, debuggable** execution. Common examples include content pipelines (research → draft → edit → publish) and data processing (extract → validate → transform → load).
 
 #### Example
 
@@ -584,87 +552,11 @@ graph LR
 * **Team distribution**: Different teams can develop and maintain skills independently
 * **Lightweight composition**: Skills are simpler than full sub-agents
 
-#### When to use
-
-Use the skills pattern when:
-
-* You want a **single agent with many possible specializations**
-* You **don't need to enforce specific constraints** between skills
-* Different **teams need to develop capabilities independently**
-* You want **progressive disclosure** — reveal capabilities as needed
-
-Below are some examples:
-
-- **Coding assistant**: Skills for different languages, frameworks, or tasks (debugging, refactoring, testing)
-- **Knowledge base**: Skills for different domains (legal, medical, technical)
-- **Creative assistant**: Skills for different formats (email, report, presentation)
+Use the skills pattern when you want a **single agent with many possible specializations**, you **don't need to enforce specific constraints** between skills, or different **teams need to develop capabilities independently**. Common examples include coding assistants (skills for different languages or tasks), knowledge bases (skills for different domains), and creative assistants (skills for different formats).
 
 <Note>
 Skills documentation is coming soon. This pattern is being developed as part of the [deep-agents](https://github.com/langchain-ai/deep-agents) project.
 </Note>
-
-
-## Choosing an architecture
-
-Use this guide to select the right architecture:
-
-```
-Do sub-agents need to converse directly with users?
-├── Yes → Do you need to enforce sequential constraints?
-│         ├── Yes → Dynamic agent
-│         └── No → Skills
-└── No → Do you need deterministic flow between agents?
-         ├── Yes → Workflow
-         └── No → Supervisor
-```
-
-**Additional considerations:**
-
-| Question | If yes, consider... |
-|----------|---------------------|
-| Do sub-agents need to be invoked in parallel? | Supervisor |
-| Do you need to persist state for sub-agents? | Dynamic agent (or stateful tools in Supervisor) |
-| Do you want agents developed independently by different teams? | Skills |
-| Do you need predictable, debuggable execution? | Workflow |
-| Do you want to coordinate multiple sub-agents in one pass? | Supervisor (or Skills if no constraints) |
-
-<Note>
-**Non-blocking sub-agent execution**
-
-Currently, LangGraph doesn't have built-in support for non-blocking sub-agent execution. If you have a use case that requires this (e.g., kicking off a long-running sub-agent and continuing with other work), please [file an issue](https://github.com/langchain-ai/langgraph/issues) describing your use case.
-
-One possible approach is using the LangGraph API server with loopback calls — exposing tools that allow an agent to start a run and check on its status asynchronously.
-</Note>
-
-
-## Communication between agents
-
-Regardless of architecture, you need to decide how agents communicate. The key questions are:
-
-### What information is passed between agents?
-
-* **Full message history**: Agents share their complete thought process (scratchpad)
-    * **Pro**: Better reasoning, more context for decisions
-    * **Con**: Context can grow quickly, may need memory management
-
-* **Final results only**: Agents share only their conclusions
-    * **Pro**: Cleaner context, better scaling
-    * **Con**: Loss of intermediate reasoning
-
-### How is state managed?
-
-* **Shared state**: All agents read/write to the same state object
-    * Best for: Tightly coupled agents that need to coordinate
-
-* **Isolated state**: Each agent has its own state, explicitly passed between agents
-    * Best for: Independent agents, cleaner boundaries
-
-### How are transitions represented?
-
-When using tool-based transitions (e.g., handoff tools in dynamic agents), you need to handle the LLM's tool call message. Most providers require tool calls to have corresponding tool result messages. Options:
-
-1. **Add a tool message**: "Successfully transferred to Agent X" (most common)
-2. **Remove the tool call message**: Filter it from history before the next agent sees it
 
 
 ## Customize agent context
