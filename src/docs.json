@@ -354,6 +354,7 @@
                             "oss/python/langchain/sql-agent",
                             "oss/python/langchain/supervisor",
                             "oss/python/langchain/customer-support-handoffs",
+                            "oss/python/langchain/progressive-disclosure-skills",
                             "oss/python/langchain/voice-agent"
                           ]
                         },

@@ -9,9 +9,11 @@ This tutorial demonstrates how to build an agent that uses **skills** - modular,
 
 ## What are skills and progressive disclosure?
 
-Skills are self-contained units of functionality (prompts, tools, and logic) that handle specific business tasks. Progressive disclosure with skills provides **context efficiency** by loading skill details only when needed rather than upfront. This approach enables **team autonomy**, allowing different teams to build specialized skills independently without coordinating changes to the core agent. It maintains **single-agent simplicity** - instead of managing multiple sub-agents, one agent dynamically discovers which skills it needs. This architecture naturally **scales** as you add new skills without modifying the core agent logic.
+Skills, as popularized by Claude Code, are primarily **prompt-based**: self-contained units of specialized instructions that handle specific business tasks. A skill can help with tool invocation by providing information about how to use a specific tool for a given use case, or by including sample code that a coding agent can execute. However, skills typically do not **enforce** rigid constraints like making new tools available - they guide behavior through prompts rather than code. (Note: It is possible to achieve tool enforcement with custom middleware, which we'll cover later in this tutorial.)
 
-In this tutorial, you'll build an agent that discovers available skills through lightweight descriptions in the system prompt, then loads full skill content on-demand using tool calls. The agent applies the appropriate skill context only when needed and maintains clean context by loading skills progressively rather than all at once.
+Progressive disclosure with skills provides **context efficiency** by loading skill details only when needed rather than upfront. This approach enables **team autonomy**, allowing different teams to build specialized skills independently without coordinating changes to the core agent. It maintains **single-agent simplicity** - instead of managing multiple sub-agents, one agent dynamically discovers which skills it needs. This architecture naturally **scales** as you add new skills without modifying the core agent logic.
+
+In this tutorial, you'll build an agent that discovers available skills through lightweight descriptions in the system prompt, then loads full skill content on-demand using tool calls. The agent applies the appropriate skill context only when needed and keeps context size minimal by loading skills progressively rather than all at once.
 
 ## How progressive disclosure works
 
@@ -23,25 +25,36 @@ Progressive disclosure is commonly implemented using tool calls. For example, Cl
 
 **Single-agent simplicity**: Using a single agent with progressive disclosure keeps all conversation history in a single thread - you don't need to determine how to pass context between agents or which agent owns which parts of the conversation. You also eliminate the need to manage transitions between different agents. However, this approach has limitations around **workflow constraints**. With basic skill implementations, you cannot enforce that one skill must be used only after another has been tried - you rely on prompting alone. If you implement skills with LangChain middleware, you can add such constraints by conditionally preventing certain tool calls based on information stored in agent memory via LangGraph's durable execution (e.g., blocking skill B discovery until skill A has been loaded and used).
 
-## Progressive disclosure vs. other patterns
-
-Unlike the [supervisor pattern](/oss/langchain/supervisor) where a supervisor routes to specialized sub-agents, or the [handoffs pattern](/oss/langchain/customer-support-handoffs) where agents pass control sequentially, progressive disclosure uses a **single agent** that dynamically loads specialized knowledge on demand.
-
-| Pattern                    | When to use                                                                                  | Context approach                                 |
-|----------------------------|----------------------------------------------------------------------------------------------|--------------------------------------------------|
-| **Progressive disclosure** | Large number of specialized tasks, context efficiency critical, team-based skill development | Single agent, loads skills on-demand             |
-| **Supervisor**             | Clear task routing, sub-agents need independence, parallel execution                         | Multiple agents, supervisor routes tasks         |
-| **Handoffs**               | Sequential workflow stages, state machine logic                                              | Single agent, different configurations per stage |
-
 ## Architecture overview
 
-[PLACEHOLDER: Mermaid diagram showing:
-1. User query comes in
-2. Agent sees lightweight skill descriptions in system prompt
-3. Agent decides which skill(s) might be relevant
-4. Agent calls discover_skill tool to load full skill content
-5. Agent applies skill context to solve the task
-6. Optional: cleanup/summarization if context grows]
+Here's how progressive disclosure with skills works:
+
+```mermaid
+%%{init: {'theme':'base', 'themeVariables': { 'primaryColor':'#4CAF50','primaryTextColor':'#fff','primaryBorderColor':'#2E7D32','lineColor':'#666','secondaryColor':'#FF9800','tertiaryColor':'#2196F3','tertiaryBorderColor':'#1565C0','tertiaryTextColor':'#fff'}}}%%
+flowchart TD
+    Start([💬 User Query]) --> SystemPrompt[📋 Skill descriptions<br/>in system prompt]
+
+    SystemPrompt --> Decide{🤔 Which skill<br/>is relevant?}
+
+    Decide --> LoadSkill[🔧 Call load_skill<br/>tool]
+
+    LoadSkill --> Enriched[✨ Full skill content<br/>added to context]
+
+    Enriched --> Solve[💡 Apply skill<br/>to answer]
+
+    Solve --> Response([✅ Response])
+
+    %% Styling for light and dark modes
+    classDef startEnd fill:#4CAF50,stroke:#2E7D32,stroke-width:2px,color:#fff
+    classDef process fill:#FF9800,stroke:#E65100,stroke-width:2px,color:#fff
+    classDef decision fill:#2196F3,stroke:#1565C0,stroke-width:2px,color:#fff
+    classDef enrichment fill:#9C27B0,stroke:#6A1B9A,stroke-width:2px,color:#fff
+
+    class Start,Response startEnd
+    class SystemPrompt,LoadSkill,Solve process
+    class Decide decision
+    class Enriched enrichment
+```
 
 ## Setup
 
@@ -86,9 +99,86 @@ Unlike the [supervisor pattern](/oss/langchain/supervisor) where a supervisor ro
 
 ## 1. Define skills
 
-[PLACEHOLDER: Show how to define skills as structured data. Each skill should have an id/name, a brief_description (what goes in system prompt), full_content (detailed instructions loaded on-demand), and optionally skill-specific tools.
+First, define the structure for skills. Each skill has a name, a brief description (shown in the system prompt), and full content (loaded on-demand):
 
-Example structure for 3 skills: expense_reporting (handles expense report submission and approval), travel_booking (books flights and hotels), and payroll_inquiry (answers payroll and benefits questions).]
+```python
+from typing import TypedDict
+
+class Skill(TypedDict):
+    """A skill that can be progressively disclosed to the agent."""
+    name: str  # Unique identifier for the skill
+    description: str  # Brief description shown in system prompt (1-2 sentences)
+    content: str  # Full skill content with detailed instructions
+```
+
+Now define example skills for an employee support agent:
+
+```python
+SKILLS: list[Skill] = [
+    {
+        "name": "expense_reporting",
+        "description": "Handles expense report submission, approval workflows, and reimbursement status inquiries.",
+        "content": """...""",  # Full content below
+    },
+    {
+        "name": "travel_booking",
+        "description": "Handles flight and hotel bookings, travel policy questions, and itinerary management.",
+        "content": """...""",  # Full content below
+    },
+]
+```
+
+The skills are designed to be **lightweight in description** (shown to the agent upfront) but **detailed in content** (loaded only when needed). Here's the full content for each skill:
+
+<Accordion title="Expense Reporting Skill Content">
+
+```python
+"""# Expense Reporting Skill
+
+You help employees with expense reports. You can:
+
+1. **Submit expense reports**: Guide employees through submitting new expense reports
+   - Required fields: date, amount, category, description, receipt
+   - Categories: travel, meals, supplies, software, other
+   - Receipts must be attached for expenses over $25
+
+2. **Check status**: Look up the status of submitted expense reports
+   - Pending: awaiting manager approval
+   - Approved: approved and queued for payment
+   - Paid: reimbursement processed
+   - Rejected: needs revision (check rejection reason)
+
+3. **Approval workflows**: Expenses under $100 auto-approve, over $100 need manager approval
+
+Always be specific about next steps and timelines (payments process weekly on Fridays)."""
+```
+
+</Accordion>
+
+<Accordion title="Travel Booking Skill Content">
+
+```python
+"""# Travel Booking Skill
+
+You help employees book business travel. You can:
+
+1. **Book flights**: Help find and book flights within travel policy
+   - Must use preferred airlines: United, Delta, American
+   - Economy class for flights under 5 hours
+   - Business class allowed for international flights over 5 hours
+   - Book at least 14 days in advance when possible
+
+2. **Book hotels**: Help find and book hotels within travel policy
+   - Per night limit: $200 in most cities, $300 in high-cost cities (NYC, SF, LA, DC)
+   - Must use corporate booking portal for best rates
+   - Preferred hotel chains: Marriott, Hilton, Hyatt
+
+3. **Travel policy**: Answer questions about travel policy, expense limits, and approval requirements
+
+Always verify trip dates, destination, and get manager approval before booking."""
+```
+
+</Accordion>
 
 ## 2. Create skill discovery tools
 
@@ -114,7 +204,11 @@ Example structure for 3 skills: expense_reporting (handles expense report submis
 
 [PLACEHOLDER: Optional section demonstrating context management techniques. Show how to track context size, determine when to trigger summarization, unload skills that are no longer needed, and use middleware to automatically manage context as conversations grow longer.]
 
-## 8. Team-based skill development
+## 8. Advanced: Enforce tools per skill with middleware
+
+[PLACEHOLDER: Show how to use custom middleware to enforce that certain tools are only available when specific skills are loaded. This goes beyond the basic prompt-based approach and adds rigid constraints. Example: when the expense_reporting skill is loaded, register expense-specific tools like submit_expense_report or check_expense_status. The middleware can track loaded_skills in state and conditionally register tools based on which skills are active.]
+
+## 9. Team-based skill development
 
 [PLACEHOLDER: Best practices section covering how to structure skill definitions to enable team autonomy, establish skill interface conventions, test individual skills in isolation, version and update skills without breaking existing agents, and organize skills in a centralized library or registry that multiple teams can contribute to.]
 
