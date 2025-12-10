@@ -612,7 +612,7 @@ def detector(content: str) -> list[dict[str, str | int]]:
     How to handle detected PII. Options:
 
     - `'block'` - Raise exception when detected
-    - `'redact'` - Replace with `[REDACTED_TYPE]`
+    - `'redact'` - Replace with `[REDACTED_{PII_TYPE}]`
     - `'mask'` - Partially mask (e.g., `****-****-****-1234`)
     - `'hash'` - Replace with deterministic hash
 </ParamField>
@@ -1359,7 +1359,7 @@ agent_redacted = create_agent(
 
 ### File search
 
-Provide Glob and Grep search tools over filesystem files. File search middleware is useful for the following:
+Provide Glob and Grep search tools over a filesystem. File search middleware is useful for the following:
 
 - Code exploration and analysis
 - Finding files by name patterns
