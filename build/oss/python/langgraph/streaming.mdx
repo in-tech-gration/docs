@@ -738,7 +738,7 @@ for chunk in graph.stream(
 If your application mixes models that support streaming with those that do not, you may need to explicitly disable streaming for
 models that do not support it.
 
-Set `disable_streaming=True` when initializing the model.
+Set `streaming=False` when initializing the model.
 
 <Tabs>
     <Tab title="init_chat_model">
@@ -747,9 +747,8 @@ Set `disable_streaming=True` when initializing the model.
 
     model = init_chat_model(
         "claude-sonnet-4-5-20250929",
-        # Set disable_streaming=True to disable streaming for the chat model
-        disable_streaming=True  # [!code highlight]
-
+        # Set streaming=False to disable streaming for the chat model
+        streaming=False  # [!code highlight]
     )
     ```
     </Tab>
@@ -757,11 +756,18 @@ Set `disable_streaming=True` when initializing the model.
     ```python
     from langchain_openai import ChatOpenAI
 
-    # Set disable_streaming=True to disable streaming for the chat model
-    model = ChatOpenAI(model="o1-preview", disable_streaming=True)
+    # Set streaming=False to disable streaming for the chat model
+    model = ChatOpenAI(model="o1-preview", streaming=False)
     ```
     </Tab>
 </Tabs>
+
+
+
+
+<Note>
+Not all chat model integrations support the `streaming` parameter. If your model doesn't support it, use `disable_streaming=True` instead. This parameter is available on all chat models via the base class.
+</Note>
 
 
 
