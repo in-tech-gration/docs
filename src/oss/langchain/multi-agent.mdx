@@ -15,11 +15,11 @@ Multi-agent systems are useful when:
 
 Multi-agent systems enable you to build sophisticated applications by combining specialized agents. There are three main patterns:
 
-| Pattern                           | How it works                                                                                                                                                     | Control flow                                               | Example use case                                 |
-|-----------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------|--------------------------------------------------|
-| [**Tool calling**](#tool-calling) | A **supervisor** agent calls other agents as *tools*. The "tool" agents don't talk to the user directly — they just run their task and return results.                  | **Centralized**: all routing passes through the calling agent. | Task orchestration, structured workflows        |
-| [**Handoffs**](#handoffs)         | The current agent decides to **transfer control** to another agent. The active agent changes, and the user may continue interacting directly with the new agent. | **Decentralized**: agents can change who is active.            | Multi-domain conversations, specialist takeover |
-| [**Skills**](#skills)             | Specialized prompts are invoked on-demand. The agent loads information progressively rather than upfront.                                                       | **On-demand**: skills are loaded as needed.                    | Progressive disclosure, team distribution       |
+| Pattern | How it works | Example use case |
+|---------|--------------|------------------|
+| [**Tool calling**](#tool-calling) | A supervisor agent calls other agents as tools. **Centralized** control — all routing passes through the supervisor. | Task orchestration, parallel execution |
+| [**Handoffs**](#handoffs) | Agents transfer control to each other via state transitions or graph edges. **Decentralized** — the active agent changes dynamically. | Customer support, multi-domain conversations |
+| [**Skills**](#skills) | Specialized prompts loaded **on-demand**. The main agent stays in control and gains additional context as needed. | Progressive disclosure, large knowledge bases |
 
 <Tip>
     You can mix patterns! For example, use **handoffs** for agent switching and have each agent **call sub-agents as tools** for specialized tasks, or have a supervisor invoke **skills** at certain stages.
@@ -27,7 +27,7 @@ Multi-agent systems enable you to build sophisticated applications by combining 
 
 ## Multi-agent context engineering
 
-At the center of multi-agent design is **[context engineering](/oss/langchain/context-engineering)** - deciding what information each agent sees. LangGraph gives you fine-grained control over:
+At the center of multi-agent design is **[context engineering](/oss/langchain/context-engineering)** - deciding what information each agent sees. LangChain gives you fine-grained control over:
 
 * Which parts of the conversation or state are passed to each agent.
 * Specialized prompts tailored to sub-agents.
@@ -60,31 +60,7 @@ graph LR
     Agents used as tools are generally **not expected** to continue the conversation with the user. Their role is to perform a task and return results to the controller agent. If you need sub-agents to be able to converse with the user, use [handoffs](#handoffs) instead.
 </Tip>
 
-#### When to use tool calling
-
-**Use tool calling (supervisor pattern)** when:
-
-* You have multiple distinct domains (e.g., calendar, email, CRM, database).
-* Each domain has multiple tools or complex logic.
-* You want centralized workflow control.
-* Sub-agents don't need to converse directly with users.
-
-For simpler cases with just a few tools, use a single agent. Below are some examples of how you can build multi-agent systems using tool calling:
-
-- **Personal assistant**: A main agent coordinates calendar, email, and task management sub-agents
-    - Calendar sub-agent handles scheduling and availability checks
-    - Email sub-agent drafts, sends, and searches messages
-    - Task sub-agent manages to-do lists and reminders
-
-- **Research assistant**: A supervisor orchestrates research across multiple domains
-    - Web search sub-agent finds relevant sources
-    - Document analysis sub-agent extracts key information
-    - Synthesis sub-agent combines findings into coherent reports
-
-- **Data analysis platform**: One agent routes queries to specialized analyzers
-    - SQL sub-agent queries databases
-    - Python sub-agent runs statistical analysis
-    - Visualization sub-agent creates charts and graphs
+Use tool calling when you have multiple distinct domains (e.g., calendar, email, CRM), each with its own tools or complex logic, and you want centralized workflow control. For simpler cases with just a few tools, use a single agent.
 
 <Card
     title="Tutorial: Build a supervisor agent"
@@ -94,7 +70,6 @@ For simpler cases with just a few tools, use a single agent. Below are some exam
 >
     Learn how to build a personal assistant using the supervisor pattern, where a central supervisor agent coordinates specialized worker agents.
 </Card>
-
 
 #### Example
 
@@ -312,10 +287,19 @@ const callSubagent1 = tool(
 
 ### Handoffs
 
-In **handoffs**, agents pass control to each other through **state transitions**. Think of it as a state machine where the system tracks which agent is currently active, and that agent's configuration (system prompt, tools, etc.) determines the behavior. For example:
+In **handoffs**, agents pass control to each other. There are two main approaches:
+
+| Approach | How it works | Best for |
+|----------|--------------|----------|
+| [**Tool handoffs**](#tool-handoffs) | Agent calls a tool that updates state to transfer control | Dynamic routing, user-driven flows |
+| [**Graph handoffs**](#graph-handoffs) | Graph edges define transitions between agents | Fixed pipelines, deterministic routing |
+
+#### Tool handoffs
+
+In **tool handoffs**, agents pass control through **state transitions**. Think of it as a state machine where the system tracks which agent is currently active, and that agent's configuration (system prompt, tools, etc.) determines the behavior. For example:
 
 1. The **current agent** decides it needs to transfer control to another agent.
-2. It updates a state variable (e.g., `active_agent`) using a tool that modifies the graph state.
+2. It calls a tool that updates a state variable (e.g., `active_agent`).
 3. On the next conversational turn, the graph reads this state and configures itself with the **new agent's** system prompt, tools, and behavior.
 4. The **new agent** interacts directly with the user until it decides to hand off again or finish.
 
@@ -326,30 +310,7 @@ graph LR
     C --> A
 ```
 
-#### When to use handoffs
-
-Handoffs are particularly valuable for **"online"** customer support scenarios where you need to collect information from users in a specific sequence. For example:
-
-* Collecting a warranty ID before processing a refund.
-* Gathering account details before escalating to a specialist.
-* Verifying identity before accessing sensitive information.
-
-The key advantage is **sequential unlocking** - you can design workflows where additional options or agents become available only after required information has been collected. Below are some examples of how you can build multi-agent systems using handoffs:
-
-- **Customer support chatbot**: Agents pass control based on conversation stage
-    - Triage agent collects initial information (warranty status, product details)
-    - Classification agent identifies issue type (billing, technical, returns)
-    - Resolution agent provides solutions or escalates to human support
-
-- **Multi-domain conversational AI**: Agents hand off when topic changes
-    - General conversation agent handles small talk
-    - Technical support agent answers product questions
-    - Sales agent discusses pricing and purchases
-
-- **Onboarding assistant**: Sequential information collection with branching paths
-    - Account setup agent creates credentials
-    - Preference collection agent gathers user preferences
-    - Tour agent walks through features based on user role
+Tool handoffs are particularly valuable for **"online"** customer support scenarios where you need to collect information in a specific sequence (e.g., collecting a warranty ID before processing a refund). The key advantage is **sequential unlocking** — capabilities become available only after required information has been collected.
 
 <Card
     title="Tutorial: Build a customer support agent with handoffs"
@@ -357,20 +318,14 @@ The key advantage is **sequential unlocking** - you can design workflows where a
     href="/oss/langchain/customer-support-handoffs"
     arrow cta="Learn more"
 >
-    Learn how to build a customer support workflow using the handoffs pattern, where agents pass control through state transitions.
+    Learn how to build a customer support workflow using tool handoffs, where agents pass control through state transitions.
 </Card>
 
-
 <Tip>
-    Design handoff flows carefully to avoid creating rigid, frustrating experiences. Users should be able to:
-    * Correct typos or mistakes in previously provided information.
-    * Change the conversation flow when appropriate.
-    * Navigate back to previous steps if needed.
-
-    Overly restrictive handoff patterns can feel like poorly designed phone trees.
+    Design handoff flows carefully to avoid creating rigid, frustrating experiences. Users should be able to correct mistakes, change the conversation flow, and navigate back to previous steps. Overly restrictive handoff patterns can feel like poorly designed phone trees.
 </Tip>
 
-#### How handoffs work
+##### How tool handoffs work
 
 At the core, handoffs rely on [persistent state](/oss/langchain/short-term-memory) that survives across conversation turns:
 
@@ -380,9 +335,9 @@ At the core, handoffs rely on [persistent state](/oss/langchain/short-term-memor
 
 This pattern creates a state machine where each agent represents a distinct state with its own behavior and capabilities. The state persists between user messages, allowing the conversation to resume with the correct agent configuration.
 
-#### Example
+##### Example
 
-Here's an example showing how agents hand off control:
+Here's an example showing how agents hand off control via tools:
 
 :::python
 ```python
@@ -441,17 +396,219 @@ const agent = createAgent({
 
 The key mechanism is using @[`Command`] to update state fields that control which agent is active. Middleware can then read this state and dynamically configure the agent's behavior.
 
-#### Best practices
+#### Graph handoffs
 
-When implementing handoffs:
+In **graph handoffs**, transitions between agents are defined by graph edges rather than tool calls. The flow is deterministic and defined at graph construction time.
 
-1. **Bound message histories**: Use @[`trim_messages`] or @[`@before_model`] [middleware](/oss/langchain/short-term-memory#trim-messages) to prevent unbounded growth.
-2. **State for cross-agent memory**: Store structured data (warranty status, issue type) in @[`AgentState`] [custom state](/oss/langchain/short-term-memory#customizing-agent-memory), not message history.
-3. **Inject context summaries**: Add state information to system prompts so agents know what previous agents learned.
-4. **Validate state transitions**: Check required state exists before allowing transitions to later stages.
-5. **Allow backward navigation**: Provide @[`@tool`]s that return @[`Command`] objects for users to correct mistakes and return to previous stages.
-6. **Ensure valid message sequences**: Make sure message histories follow provider requirements (user → AI → tool alternation).
-7. **Use checkpointers**: Always include a @[`InMemorySaver`] [checkpointer](/oss/langchain/short-term-memory#usage) to persist state across turns.
+<Tabs>
+  <Tab title="Sequential">
+    ```mermaid
+    graph LR
+        A[User] --> B[Agent A]
+        B --> C[Agent B]
+        C --> D[Agent C]
+        D --> E[Result]
+    ```
+  </Tab>
+  <Tab title="Router">
+    ```mermaid
+    graph LR
+        A[User] --> R[Router]
+        R -->|condition A| B[Agent A]
+        R -->|condition B| C[Agent B]
+        R -->|condition C| D[Agent C]
+        B --> E[Result]
+        C --> E
+        D --> E
+    ```
+  </Tab>
+</Tabs>
+
+Use graph handoffs when you have a **fixed sequence** of processing steps or **routing based on state**. The graph structure explicitly defines which agents can run and in what order, making execution predictable and easy to debug. Routing can be deterministic (based on state values) or use an LLM classifier.
+
+Common examples:
+- **Content pipelines**: research → draft → edit → publish
+- **Data processing**: extract → validate → transform → load
+- **Intent-based routing**: classify user intent and route to the appropriate specialist
+
+##### Example
+
+<Tabs>
+  <Tab title="Sequential">
+    A content pipeline where each agent processes and passes to the next:
+
+    :::python
+    ```python
+    from langgraph.graph import StateGraph, MessagesState, START
+    from langchain.agents import create_agent
+
+    # Create specialized agents for each stage
+    research_agent = create_agent(
+        model="openai:gpt-4o",
+        tools=[web_search, fetch_url],
+        prompt="You are a research assistant. Gather information on the topic.",
+        name="researcher"
+    )
+
+    writing_agent = create_agent(
+        model="openai:gpt-4o",
+        tools=[create_outline, write_section],
+        prompt="You are a writer. Create content based on the research provided.",
+        name="writer"
+    )
+
+    editing_agent = create_agent(
+        model="openai:gpt-4o",
+        tools=[check_grammar, check_style],
+        prompt="You are an editor. Refine the content for clarity and correctness.",
+        name="editor"
+    )
+
+    # Define sequential workflow
+    workflow = (
+        StateGraph(MessagesState)
+        .add_node("research", research_agent)
+        .add_node("write", writing_agent)
+        .add_node("edit", editing_agent)
+        .add_edge(START, "research")
+        .add_edge("research", "write")
+        .add_edge("write", "edit")
+        .compile()
+    )
+    ```
+    :::
+    :::js
+    ```typescript
+    import { StateGraph, MessagesAnnotation, START } from "@langchain/langgraph";
+    import { createAgent } from "langchain";
+
+    // Create specialized agents for each stage
+    const researchAgent = createAgent({
+      model: "openai:gpt-4o",
+      tools: [webSearch, fetchUrl],
+      prompt: "You are a research assistant. Gather information on the topic.",
+      name: "researcher"
+    });
+
+    const writingAgent = createAgent({
+      model: "openai:gpt-4o",
+      tools: [createOutline, writeSection],
+      prompt: "You are a writer. Create content based on the research provided.",
+      name: "writer"
+    });
+
+    const editingAgent = createAgent({
+      model: "openai:gpt-4o",
+      tools: [checkGrammar, checkStyle],
+      prompt: "You are an editor. Refine the content for clarity and correctness.",
+      name: "editor"
+    });
+
+    // Define sequential workflow
+    const workflow = new StateGraph(MessagesAnnotation)
+      .addNode("research", researchAgent)
+      .addNode("write", writingAgent)
+      .addNode("edit", editingAgent)
+      .addEdge(START, "research")
+      .addEdge("research", "write")
+      .addEdge("write", "edit")
+      .compile();
+    ```
+    :::
+  </Tab>
+  <Tab title="Router">
+    A router that classifies intent and routes to the appropriate specialist agent:
+
+    :::python
+    ```python
+    from langgraph.graph import StateGraph, MessagesState, START
+    from langchain.agents import create_agent
+
+    # Create specialist agents
+    billing_agent = create_agent(
+        model="openai:gpt-4o",
+        tools=[lookup_invoice, process_refund],
+        prompt="You are a billing specialist. Help with invoices and refunds.",
+        name="billing"
+    )
+
+    technical_agent = create_agent(
+        model="openai:gpt-4o",
+        tools=[search_docs, run_diagnostic],
+        prompt="You are a technical support specialist. Help with product issues.",
+        name="technical"
+    )
+
+    sales_agent = create_agent(
+        model="openai:gpt-4o",
+        tools=[lookup_pricing, create_quote],
+        prompt="You are a sales specialist. Help with pricing and purchases.",
+        name="sales"
+    )
+
+    # Router function that classifies intent
+    def route_by_intent(state: MessagesState) -> str:
+        """Classify the user's intent and route to the appropriate agent."""
+        # Use an LLM or classifier to determine intent
+        intent = classify_intent(state["messages"][-1].content)
+        return intent  # Returns "billing", "technical", or "sales"
+
+    # Define router workflow
+    workflow = (
+        StateGraph(MessagesState)
+        .add_node("billing", billing_agent)
+        .add_node("technical", technical_agent)
+        .add_node("sales", sales_agent)
+        .add_conditional_edges(START, route_by_intent)
+        .compile()
+    )
+    ```
+    :::
+    :::js
+    ```typescript
+    import { StateGraph, MessagesAnnotation, START } from "@langchain/langgraph";
+    import { createAgent } from "langchain";
+
+    // Create specialist agents
+    const billingAgent = createAgent({
+      model: "openai:gpt-4o",
+      tools: [lookupInvoice, processRefund],
+      prompt: "You are a billing specialist. Help with invoices and refunds.",
+      name: "billing"
+    });
+
+    const technicalAgent = createAgent({
+      model: "openai:gpt-4o",
+      tools: [searchDocs, runDiagnostic],
+      prompt: "You are a technical support specialist. Help with product issues.",
+      name: "technical"
+    });
+
+    const salesAgent = createAgent({
+      model: "openai:gpt-4o",
+      tools: [lookupPricing, createQuote],
+      prompt: "You are a sales specialist. Help with pricing and purchases.",
+      name: "sales"
+    });
+
+    // Router function that classifies intent
+    function routeByIntent(state: typeof MessagesAnnotation.State): string {
+      // Use an LLM or classifier to determine intent
+      const intent = classifyIntent(state.messages.at(-1)?.content);
+      return intent; // Returns "billing", "technical", or "sales"
+    }
+
+    // Define router workflow
+    const workflow = new StateGraph(MessagesAnnotation)
+      .addNode("billing", billingAgent)
+      .addNode("technical", technicalAgent)
+      .addNode("sales", salesAgent)
+      .addConditionalEdges(START, routeByIntent)
+      .compile();
+    ```
+    :::
+  </Tab>
+</Tabs>
 
 
 ### Skills
@@ -470,27 +627,7 @@ graph LR
     B --> A
 ```
 
-**Key characteristics:**
-
-* **Prompt-driven specialization**: Skills are primarily defined by specialized prompts and instructions
-* **Progressive disclosure**: Skills are loaded only when needed, reducing context usage
-* **Team distribution**: Different teams can develop and maintain skills independently
-* **Lightweight composition**: Skills are simpler than full sub-agents
-
-#### When to use
-
-Use the skills pattern when:
-
-* You want a **single agent with many possible specializations**
-* You need to **manage large amounts of domain knowledge** (e.g., database schemas, API docs)
-* Different **teams need to develop capabilities independently**
-* You want **progressive disclosure** — reveal capabilities as context demands
-
-Below are some examples:
-
-- **SQL assistant**: Skills for different business verticals (sales analytics, inventory management) with domain-specific schemas
-- **Coding assistant**: Skills for different languages, frameworks, or tasks (debugging, refactoring, testing)
-- **Knowledge base**: Skills for different domains (legal, medical, technical)
+Use skills when you have a **single agent with many possible specializations** and need to manage large amounts of domain knowledge (e.g., database schemas, API docs) without overwhelming context. Skills are lighter than full sub-agents and can be developed independently by different teams.
 
 <Card
     title="Tutorial: Build an agent with on-demand skill loading"
@@ -501,24 +638,12 @@ Below are some examples:
     Learn how to implement skills with progressive disclosure, where the agent loads specialized prompts and schemas on-demand rather than upfront.
 </Card>
 
-#### How it works
-
-Skills work through **progressive disclosure**:
-
-1. **Lightweight descriptions**: The agent's system prompt contains brief descriptions of available skills
-2. **On-demand loading**: When the agent identifies a relevant skill, it calls a tool to load the full skill content
-3. **Context injection**: The skill's detailed prompts, schemas, or instructions are injected into the conversation
-4. **Task execution**: The agent uses the loaded skill to complete the task
-
-This approach differs from supervisors (where sub-agents run independently) and handoffs (where control transfers). With skills, the main agent stays in control and simply gains additional context.
-
 #### Trade-offs
 
 **Benefits:**
 - **Reduces context usage**: Load only the 2-3 skills needed for a task, not all available skills
 - **Enables team autonomy**: Different teams can develop specialized skills independently
 - **Scales efficiently**: Add dozens or hundreds of skills without overwhelming context
-- **Simplifies conversation history**: Single agent with one conversation thread
 
 **Limitations:**
 - **Latency**: Loading skills on-demand requires additional tool calls
