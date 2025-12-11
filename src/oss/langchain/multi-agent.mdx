@@ -4,6 +4,8 @@ title: Multi-agent
 
 Multi-agent systems break complex applications into coordinated components. **Importantly, "multi-agent" doesn't necessarily mean multiple distinct agents** — a single agent with dynamic behavior can achieve similar capabilities.
 
+## Why multi-agent?
+
 When developers say they need "multi-agent," they're usually looking for one or more of these capabilities:
 
 * **Context management**: Provide specialized knowledge without overwhelming the model's context window. If context were infinite and latency zero, you could dump all knowledge into a single prompt — but since it's not, you need patterns to selectively surface relevant information.
@@ -12,15 +14,17 @@ When developers say they need "multi-agent," they're usually looking for one or 
 
 ## When to use
 
+Consider multi-agent patterns when:
+
 * A single agent has too many [tools](/oss/langchain/tools) and makes poor decisions about which to use.
 * [Context](/oss/concepts/context) or [memory](/oss/langchain/short-term-memory) grows too large for one agent to track effectively.
 * Tasks require **specialization** (e.g., a planner, researcher, math expert).
 * You need to **enforce sequential constraints** — unlocking capabilities only after certain conditions are met.
 * Different teams need to **develop and maintain capabilities independently**.
 
-### Multi-agent context engineering
+## Context engineering
 
-At the center of multi-agent design is **[context engineering](/oss/langchain/context-engineering)** - deciding what information each agent sees. LangChain gives you fine-grained control over:
+At the center of multi-agent design is **[context engineering](/oss/langchain/context-engineering)** — deciding what information each agent sees. LangChain gives you fine-grained control over:
 
 * Which parts of the conversation or state are passed to each agent.
 * Specialized prompts tailored to sub-agents.
