@@ -118,8 +118,16 @@ JSON handlers encrypt structured data like thread metadata, assistant context, a
 **Encrypted fields cannot be searched or filtered.** Design your metadata schema so that fields you need to query remain unencrypted.
 </Warning>
 
+<Warning>
+**JSON encryptors must preserve key structure.** SQL JSONB merge operations work at the key level. Encryptors that change keys—whether by consolidating fields (e.g., moving sensitive data into `__encrypted__`) or by encrypting key names themselves—cause data loss during merges. Use per-key encryption: transform values in-place while preserving keys.
+</Warning>
+
 <Note>
-**Migration consideration:** Unlike blob encryption, JSON handlers have no built-in way to detect whether a field value is already encrypted. We recommend storing all encrypted values under a single key (e.g., `__encrypted__`)—if the key exists, decrypt it; if not, data is unencrypted and passes through unchanged. The examples below use this pattern.
+**Migration consideration:** Use a recognizable prefix or format in encrypted values so your decryptor can detect and skip unencrypted data. This allows you to encrypt additional fields in the future without re-encrypting existing records. The examples below use this pattern.
+</Note>
+
+<Note>
+**Performance consideration:** Per-key encryption means one encryption call per field. If your encryption involves round-trips to an external service (e.g., KMS), this can significantly impact latency. Consider caching data keys locally or using envelope encryption where you encrypt a local data key with KMS and use it for multiple fields.
 </Note>
 
 Common fields to leave **unencrypted** for search and filtering:
@@ -150,7 +158,7 @@ SKIP_FIELDS = {
     "langgraph_api_url", "langgraph_request_id", "langgraph_auth_user",
     "langgraph_auth_user_id", "langgraph_auth_permissions",
 }
-ENCRYPTED_KEY = "__encrypted__"
+ENCRYPTED_PREFIX = "encrypted:"
 
 
 def _get_fernet(ctx: EncryptionContext) -> Fernet:
@@ -163,23 +171,28 @@ def _get_fernet(ctx: EncryptionContext) -> Fernet:
 @encryption.encrypt.json
 async def encrypt_json(ctx: EncryptionContext, data: dict) -> dict:
     fernet = _get_fernet(ctx)
-    to_encrypt = {k: v for k, v in data.items() if k not in SKIP_FIELDS and v is not None}
-    if not to_encrypt:
-        return data
-    result = {k: v for k, v in data.items() if k in SKIP_FIELDS}
-    result[ENCRYPTED_KEY] = fernet.encrypt(json.dumps(to_encrypt).encode()).decode()
+    result = {}
+    for k, v in data.items():
+        if k in SKIP_FIELDS or v is None:
+            result[k] = v
+        else:
+            value_json = json.dumps(v)
+            encrypted = fernet.encrypt(value_json.encode()).decode()
+            result[k] = ENCRYPTED_PREFIX + encrypted
     return result
 
 
 @encryption.decrypt.json
 async def decrypt_json(ctx: EncryptionContext, data: dict) -> dict:
-    if ENCRYPTED_KEY not in data:
-        return data  # Not encrypted, pass through unchanged
     fernet = _get_fernet(ctx)
-    encrypted_blob = data[ENCRYPTED_KEY]
-    decrypted = json.loads(fernet.decrypt(encrypted_blob.encode()).decode())
-    result = {k: v for k, v in data.items() if k != ENCRYPTED_KEY}
-    result.update(decrypted)
+    result = {}
+    for k, v in data.items():
+        if isinstance(v, str) and v.startswith(ENCRYPTED_PREFIX):
+            encrypted_value = v[len(ENCRYPTED_PREFIX):]
+            decrypted = fernet.decrypt(encrypted_value.encode()).decode()
+            result[k] = json.loads(decrypted)
+        else:
+            result[k] = v
     return result
 ```
 
@@ -324,7 +337,7 @@ SKIP_FIELDS = {
     "langgraph_api_url", "langgraph_request_id", "langgraph_auth_user",
     "langgraph_auth_user_id", "langgraph_auth_permissions",
 }
-ENCRYPTED_KEY = "__encrypted__"
+ENCRYPTED_PREFIX = "encrypted:"
 
 
 @encryption.encrypt.blob
@@ -345,28 +358,31 @@ async def decrypt_blob(ctx: EncryptionContext, data: bytes) -> bytes:
 
 @encryption.encrypt.json
 async def encrypt_json(ctx: EncryptionContext, data: dict) -> dict:
-    to_encrypt = {k: v for k, v in data.items() if k not in SKIP_FIELDS and v is not None}
-    if not to_encrypt:
-        return data
-    ciphertext, _ = client.encrypt(
-        source=json.dumps(to_encrypt).encode(),
-        materials_manager=cmm,
-        encryption_context={"tenant_id": ctx.metadata["tenant_id"]},
-    )
-    result = {k: v for k, v in data.items() if k in SKIP_FIELDS}
-    result[ENCRYPTED_KEY] = base64.b64encode(ciphertext).decode()
+    tenant_id = ctx.metadata["tenant_id"]
+    result = {}
+    for k, v in data.items():
+        if k in SKIP_FIELDS or v is None:
+            result[k] = v
+        else:
+            ciphertext, _ = client.encrypt(
+                source=json.dumps(v).encode(),
+                materials_manager=cmm,
+                encryption_context={"tenant_id": tenant_id},
+            )
+            result[k] = ENCRYPTED_PREFIX + base64.b64encode(ciphertext).decode()
     return result
 
 
 @encryption.decrypt.json
 async def decrypt_json(ctx: EncryptionContext, data: dict) -> dict:
-    if ENCRYPTED_KEY not in data:
-        return data  # Not encrypted, pass through unchanged
-    ciphertext = base64.b64decode(data[ENCRYPTED_KEY])
-    plaintext, _ = client.decrypt(source=ciphertext, key_provider=key_provider)
-    decrypted = json.loads(plaintext.decode())
-    result = {k: v for k, v in data.items() if k != ENCRYPTED_KEY}
-    result.update(decrypted)
+    result = {}
+    for k, v in data.items():
+        if isinstance(v, str) and v.startswith(ENCRYPTED_PREFIX):
+            ciphertext = base64.b64decode(v[len(ENCRYPTED_PREFIX):])
+            plaintext, _ = client.decrypt(source=ciphertext, key_provider=key_provider)
+            result[k] = json.loads(plaintext.decode())
+        else:
+            result[k] = v
     return result
 ```
 
