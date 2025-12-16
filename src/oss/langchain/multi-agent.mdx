@@ -578,8 +578,7 @@ A single agent changes its behavior based on state. Middleware intercepts each m
 
 :::python
 ```python
-from langchain_core.tools import tool
-from langchain.tools import ToolRuntime
+from langchain.tools import ToolRuntime, tool
 from langchain.messages import ToolMessage
 from langgraph.types import Command
 
@@ -828,9 +827,9 @@ This example shows a multi-agent system with separate sales and support agents. 
 ```python
 from typing import Literal
 from langchain.agents import AgentState, create_agent
+from langchain.tools import tool
 from langgraph.graph import StateGraph, START
 from langgraph.types import Command
-from langchain_core.tools import tool
 
 # 1. Define state with active_agent tracker
 class MultiAgentState(AgentState):
