@@ -27,7 +27,7 @@ Here are the main patterns for building multi-agent systems, each suited to diff
 | Pattern | How it works |
 |--------------|--------------|
 | [**Subagents**](#subagents) | A main agent coordinates subagents and background jobs as tools. Centralized control — all routing passes through the main agent. Multiple coordination approaches available. |
-| [**State machine**](#state-machine) | Single agent whose configuration (prompt, tools, capabilities) changes as it moves through different states. Efficient for sequential workflows — one tool call both performs the action and transitions to the next state. |
+| [**State machine (handoffs)**](#state-machine-handoffs) | Behavior changes dynamically based on state. Tool calls update a state variable, and the system adjusts behavior accordingly. Supports both handoffs between distinct agents and dynamic configuration changes. |
 | [**Skills**](#skills) | Specialized prompts loaded on-demand. The main agent stays in control and gains additional context as needed. |
 | [**Router**](#router) | A routing step classifies input and directs it to one or more specialized agents. Results are collected and returned to the user. |
 | [**Custom workflow**](#custom-workflow) | Build bespoke logic with LangGraph, mixing deterministic and agentic steps. Reuse or customize agents as needed. |
@@ -36,15 +36,15 @@ Here are the main patterns for building multi-agent systems, each suited to diff
     You can mix patterns! For example, a **subagents** pattern can manage **workflow** sub-graphs or use the **router** pattern as a tool (querying multiple knowledge bases in parallel, then synthesizing results). A **state machine** can invoke **skills** at specific stages (loading specialized context only when reaching certain steps). The **[one tool for all agents](#one-tool-for-all-agents-spawning)** approach can work within a **custom workflow** to parallelize independent tasks while maintaining deterministic overall structure.
 </Tip>
 
-**Common mechanisms:** These patterns share common mechanisms for coordinating multi-agent behavior. Most rely on **tool calling** as the primary coordination mechanism—tools can invoke subagents ([subagents](#subagents)), update state to trigger routing or behavior changes ([state machine](#state-machine)), load context on-demand ([skills](#skills)), or even invoke entire multi-agent systems (like wrapping a [router](#router) as a tool).
+**Common mechanisms:** These patterns share common mechanisms for coordinating multi-agent behavior. Most rely on **tool calling** as the primary coordination mechanism—tools can invoke sub-agents ([supervisor](#supervisor)), update state to trigger routing or behavior changes ([state machine](#state-machine-handoffs)), load context on-demand ([skills](#skills)), or even invoke entire multi-agent systems (like wrapping a [router](#router) as a tool).
 
 Tools drive dynamic behavior: updating state to route between agents, loading context, changing configuration, or spawning sub-agents. Patterns can also use middleware to modify system prompts or implement deterministic routing ([custom workflows](#custom-workflow)).
 
-**[Progressive disclosure](/oss/langchain/progressive-disclosure-skills)** loads information on-demand, valuable for managing large amounts of context. It combines retrieval with dynamic state updates (registering tools, discovering sub-agents). However, it adds latency through extra tool calls—simpler patterns like [state machine](#state-machine) suffice when context is manageable or sequential constraints are needed.
+**[Progressive disclosure](/oss/langchain/progressive-disclosure-skills)** loads information on-demand, valuable for managing large amounts of context. It combines retrieval with dynamic state updates (registering tools, discovering sub-agents). However, it adds latency through extra tool calls—simpler patterns like [state machine](#state-machine-handoffs) suffice when context is manageable or sequential constraints are needed.
 
 ## Subagents
 
-In the **subagents** architecture, a central main agent coordinates subagents by calling them as tools. The main agent decides which subagent to invoke, what input to provide, and how to combine results. Subagents are stateless—they don't remember past interactions, with all conversation memory maintained by the main agent. This provides context isolation: each subagent invocation works in a clean context window, preventing context bloat in the main conversation.
+In the **subagents** architecture, a central main agent (often referred to as a **supervisor**) coordinates subagents by calling them as tools. The main agent decides which subagent to invoke, what input to provide, and how to combine results. Subagents are stateless—they don't remember past interactions, with all conversation memory maintained by the main agent. This provides context isolation: each subagent invocation works in a clean context window, preventing context bloat in the main conversation.
 
 **Key characteristics:**
 
@@ -61,7 +61,7 @@ Use the subagents pattern when you have multiple distinct domains (e.g., calenda
     href="/oss/langchain/supervisor"
     arrow cta="Learn more"
 >
-    Learn how to build a personal assistant using the subagents pattern, where a central main agent coordinates specialized worker agents.
+    Learn how to build a personal assistant using the subagents pattern, where a central main agent (supervisor) coordinates specialized worker agents.
 </Card>
 
 Main approaches to implementing subagent coordination:
@@ -475,42 +475,41 @@ sequenceDiagram
 **Handling job completion:** When a job finishes, your application needs to notify the user. One approach: surface a notification that, when clicked, sends a `HumanMessage` like "Check job_123 and summarize the results." This prompts the main agent to retrieve and present the findings.
 
 
-## State machine
+## State machine (handoffs)
 
-In the **state machine** architecture, you have a single agent whose behavior (prompt, tools, and capabilities) changes dynamically based on state. The state machine is implemented via [middleware](/oss/langchain/middleware/overview) that performs transitions through tool calls.
+In the **state machine** architecture, behavior changes dynamically based on state. The core mechanism: tools update a state variable (e.g., `current_step` or `active_agent`) that persists across turns, and the system reads this variable to adjust behavior—either applying different configuration (system prompt, tools) or routing to a different agent. This pattern supports both handoffs between distinct agents and dynamic configuration changes within a single agent.
+
+<Tip>
+The term **handoffs** was coined by [OpenAI](https://openai.github.io/openai-agents-python/handoffs/) for using tool calls (e.g., `transfer_to_sales_agent`) to transfer control between agents or states.
+</Tip>
 
 ```mermaid
-stateDiagram-v2
-    [*] --> Triage
-    Triage --> Specialist: record_warranty_status()
-    Specialist --> Resolution: record_issue_type()
-    Resolution --> [*]
+sequenceDiagram
+    participant User
+    participant Agent
+    participant Workflow State
 
-    note right of Triage
-        Step 1: Collect information
-        Tools: [record_warranty_status]
-    end note
+    User->>Agent: "My phone is broken"
+    Note over Agent,Workflow State: Step: Get warranty status<br/>Tools: record_warranty_status
+    Agent-->>User: "Is your device under warranty?"
 
-    note right of Specialist
-        Step 2: Classify the issue
-        Tools: [record_issue_type]
-    end note
+    User->>Agent: "Yes, it's still under warranty"
+    Agent->>Workflow State: record_warranty_status("in_warranty")
+    Note over Agent,Workflow State: Step: Classify issue<br/>Tools: record_issue_type
+    Agent-->>User: "Can you describe the issue?"
 
-    note right of Resolution
-        Step 3: Provide solution
-        Tools: [provide_solution, escalate_to_human]
-    end note
+    User->>Agent: "The screen is cracked"
+    Agent->>Workflow State: record_issue_type("hardware")
+    Note over Agent,Workflow State: Step: Provide resolution<br/>Tools: provide_solution, escalate_to_human
+    Agent-->>User: "Here's the warranty repair process..."
 ```
 
 **Key characteristics:**
 
-* State-driven configuration: A single agent whose prompts and tools change dynamically based on a state variable (e.g., `current_step`)
-* Direct user interaction: Each step's configuration handles user messages directly
+* State-driven behavior: Behavior changes based on a state variable (e.g., `current_step` or `active_agent`)
+* Tool-based transitions: Tools update the state variable to move between states
+* Direct user interaction: Each state's configuration handles user messages directly
 * Persistent state: State survives across conversation turns
-
-<Tip>
-**Alternative to handoffs**: This pattern can be more efficient than handoff-based approaches like [OpenAI's agent handoffs](https://openai.github.io/openai-agents-python/handoffs/) or [LangGraph swarm](https://github.com/langchain-ai/langgraph-swarm-py). Depending on implementation, handoffs may require two tool calls (transfer control, then act) while state machines can combine both. Because it's a single agent switching behaviors rather than distinct agents, it's simpler to streamline the tool calls and manage the conversation context correctly.
-</Tip>
 
 Use the state machine pattern when you need to enforce sequential constraints (unlock capabilities only after preconditions are met), the agent needs to converse directly with the user across different states, or you're building multi-stage conversational flows. This pattern is particularly valuable for customer support scenarios where you need to collect information in a specific sequence — for example, collecting a warranty ID before processing a refund.
 
@@ -523,15 +522,73 @@ Use the state machine pattern when you need to enforce sequential constraints (u
     Learn how to build a customer support agent using the state machine pattern, where a single agent transitions between different configurations.
 </Card>
 
-At the core, the state machine pattern relies on [persistent state](/oss/langchain/short-term-memory) that survives across conversation turns:
+There are two ways to implement state machines: **[single agent with middleware](#single-agent-with-middleware)** (one agent with dynamic configuration) or **[multiple agent subgraphs](#multiple-agent-subgraphs)** (distinct agents as graph nodes).
 
-1. **State variable**: A field in your state schema (e.g., `current_step: str`) tracks which step is currently active.
-2. **State update tool**: The agent uses a tool to change the value of `current_step` when transitioning to the next step.
-3. **Dynamic configuration**: On each turn, middleware reads `current_step` from the persisted state and dynamically configures the appropriate system prompt, tools, and behavior.
+### Single agent with middleware
 
-This pattern creates a state machine where each step represents a distinct state with its own configuration and capabilities.
+A single agent changes its behavior based on state. Middleware intercepts each model call and dynamically adjusts the system prompt and available tools. Tools update the state variable to trigger transitions:
 
-<Accordion title="Building a state machine with middleware">
+:::python
+```python
+from langchain_core.tools import tool
+from langchain.tools import ToolRuntime
+from langchain.messages import ToolMessage
+from langgraph.types import Command
+
+@tool
+def record_warranty_status(
+    status: str,
+    runtime: ToolRuntime[None, SupportState]
+) -> Command:
+    """Record warranty status and transition to next step."""
+    return Command(
+        update={
+            "messages": [
+                ToolMessage(
+                    content=f"Warranty status recorded: {status}",
+                    tool_call_id=runtime.tool_call_id
+                )
+            ],
+            "warranty_status": status,
+            "current_step": "specialist"  # Update state to trigger transition
+        }
+    )
+```
+:::
+:::js
+```typescript
+import { tool } from "@langchain/core/tools";
+import { Command } from "@langchain/langgraph";
+import { ToolMessage } from "@langchain/core/messages";
+import { z } from "zod";
+
+const recordWarrantyStatus = tool(
+  async ({ status }, config) => {
+    return new Command({
+      update: {
+        messages: [
+          new ToolMessage({
+            content: `Warranty status recorded: ${status}`,
+            tool_call_id: config.toolCall?.id!
+          })
+        ],
+        warrantyStatus: status,
+        currentStep: "specialist"  // Update state to trigger transition
+      }
+    });
+  },
+  {
+    name: "record_warranty_status",
+    description: "Record warranty status and transition to next step.",
+    schema: z.object({
+      status: z.string()
+    })
+  }
+);
+```
+:::
+
+<Accordion title="Complete example: Customer support with middleware">
 
 :::python
 ```python
@@ -680,6 +737,249 @@ const agent = createAgent({
 
 </Accordion>
 
+### Multiple agent subgraphs
+
+Multiple distinct agents exist as separate nodes in a graph. Handoff tools navigate between agent nodes using `Command.PARENT` to specify which node to execute next:
+
+:::python
+```python
+@tool
+def transfer_to_sales():
+    """Transfer to the sales agent."""
+    return Command(
+        goto="sales_agent",  # Navigate to the sales agent node
+        update={"active_agent": "sales_agent"},
+        graph=Command.PARENT  # Navigate in parent graph
+    )
+```
+:::
+:::js
+```typescript
+const transferToSales = tool(
+  async () => {
+    return new Command({
+      goto: "sales_agent",  // Navigate to the sales agent node
+      update: { activeAgent: "sales_agent" },
+      graph: Command.PARENT  // Navigate in parent graph
+    });
+  },
+  {
+    name: "transfer_to_sales",
+    description: "Transfer to the sales agent.",
+    schema: z.object({})
+  }
+);
+```
+:::
+
+<Accordion title="Complete example: Sales and support with handoffs">
+
+This example shows a multi-agent system with separate sales and support agents. Each agent is a separate graph node, and handoff tools allow agents to transfer conversations to each other.
+
+:::python
+```python
+from typing import Literal
+from langchain.agents import AgentState, create_agent
+from langgraph.graph import StateGraph, START
+from langgraph.types import Command
+from langchain_core.tools import tool
+
+# 1. Define state with active_agent tracker
+class MultiAgentState(AgentState):
+    active_agent: str = "sales_agent"  # Track which agent is active
+
+# 2. Create handoff tools
+@tool
+def transfer_to_sales():
+    """Transfer to the sales agent."""
+    return Command(
+        goto="sales_agent",
+        update={"active_agent": "sales_agent"},
+        graph=Command.PARENT
+    )
+
+@tool
+def transfer_to_support():
+    """Transfer to the support agent."""
+    return Command(
+        goto="support_agent",
+        update={"active_agent": "support_agent"},
+        graph=Command.PARENT
+    )
+
+# 3. Create agents with handoff tools
+sales_agent = create_agent(
+    model="anthropic:claude-3-5-sonnet-latest",
+    tools=[transfer_to_support],
+    prompt="You are a sales agent. Help with sales inquiries."
+)
+
+support_agent = create_agent(
+    model="anthropic:claude-3-5-sonnet-latest",
+    tools=[transfer_to_sales],
+    prompt="You are a support agent. Help with technical issues."
+)
+
+# 4. Create agent nodes that invoke the agents
+def call_sales_agent(state: MultiAgentState):
+    """Node that calls the sales agent."""
+    response = sales_agent.invoke(state)
+    return response
+
+def call_support_agent(state: MultiAgentState):
+    """Node that calls the support agent."""
+    response = support_agent.invoke(state)
+    return response
+
+# 5. Create router node
+def route_to_agent(state: MultiAgentState) -> Literal["sales_agent", "support_agent"]:
+    """Route to the active agent based on state."""
+    return state["active_agent"]
+
+# 6. Build the graph
+builder = StateGraph(MultiAgentState)
+builder.add_node("sales_agent", call_sales_agent)
+builder.add_node("support_agent", call_support_agent)
+
+# Start with conditional routing based on initial active_agent
+builder.add_conditional_edges(
+    START,
+    route_to_agent,
+    ["sales_agent", "support_agent"]
+)
+
+# After each agent, route to the active agent (enables handoffs)
+builder.add_conditional_edges(
+    "sales_agent",
+    route_to_agent,
+    ["sales_agent", "support_agent"]
+)
+builder.add_conditional_edges(
+    "support_agent",
+    route_to_agent,
+    ["sales_agent", "support_agent"]
+)
+
+graph = builder.compile()
+```
+:::
+
+:::js
+```typescript
+import { StateGraph, START, MessagesAnnotation, Annotation } from "@langchain/langgraph";
+import { createAgent } from "langchain";
+import { tool } from "@langchain/core/tools";
+import { Command } from "@langchain/langgraph";
+import { z } from "zod";
+
+// 1. Define state with active_agent tracker
+const MultiAgentState = Annotation.Root({
+  ...MessagesAnnotation.spec,
+  activeAgent: Annotation<string>({
+    reducer: (x, y) => y ?? x,
+    default: () => "sales_agent"
+  })
+});
+
+// 2. Create handoff tools
+const transferToSales = tool(
+  async () => {
+    return new Command({
+      goto: "sales_agent",
+      update: { activeAgent: "sales_agent" },
+      graph: Command.PARENT
+    });
+  },
+  {
+    name: "transfer_to_sales",
+    description: "Transfer to the sales agent.",
+    schema: z.object({})
+  }
+);
+
+const transferToSupport = tool(
+  async () => {
+    return new Command({
+      goto: "support_agent",
+      update: { activeAgent: "support_agent" },
+      graph: Command.PARENT
+    });
+  },
+  {
+    name: "transfer_to_support",
+    description: "Transfer to the support agent.",
+    schema: z.object({})
+  }
+);
+
+// 3. Create agents with handoff tools
+const salesAgent = createAgent({
+  llm: model,
+  tools: [transferToSupport],
+  prompt: "You are a sales agent. Help with sales inquiries."
+});
+
+const supportAgent = createAgent({
+  llm: model,
+  tools: [transferToSales],
+  prompt: "You are a support agent. Help with technical issues."
+});
+
+// 4. Create agent nodes that invoke the agents
+const callSalesAgent = async (state: typeof MultiAgentState.State) => {
+  const response = await salesAgent.invoke(state);
+  return response;
+};
+
+const callSupportAgent = async (state: typeof MultiAgentState.State) => {
+  const response = await supportAgent.invoke(state);
+  return response;
+};
+
+// 5. Create router function
+const routeToAgent = (state: typeof MultiAgentState.State): string => {
+  return state.activeAgent;
+};
+
+// 6. Build the graph
+const builder = new StateGraph(MultiAgentState)
+  .addNode("sales_agent", callSalesAgent)
+  .addNode("support_agent", callSupportAgent);
+
+// Start with conditional routing based on initial activeAgent
+builder.addConditionalEdges(
+  START,
+  routeToAgent,
+  ["sales_agent", "support_agent"]
+);
+
+// After each agent, route to the active agent (enables handoffs)
+builder.addConditionalEdges(
+  "sales_agent",
+  routeToAgent,
+  ["sales_agent", "support_agent"]
+);
+builder.addConditionalEdges(
+  "support_agent",
+  routeToAgent,
+  ["sales_agent", "support_agent"]
+);
+
+const graph = builder.compile();
+```
+:::
+
+</Accordion>
+
+<Tip>
+Use **single agent with middleware** for most state machine use cases—it's simpler. Only use **multiple agent subgraphs** when you need bespoke agent implementations (e.g., a node that's itself a complex graph with reflection or retrieval steps).
+</Tip>
+
+**Implementation considerations:**
+
+* **Conversation history**: Decide what conversation history each agent/state receives—full history, filtered portions, or summaries.
+* **Tool semantics**: Clarify whether handoff tools only update routing state or also perform actions (e.g., should `transfer_to_sales()` also create a ticket?).
+
 
 ## Skills
 
@@ -814,7 +1114,7 @@ graph LR
 Key characteristics:
 
 * Router decomposes the query
-* One or more specialized agents are invoked in parallel
+* Zero or more specialized agents are invoked in parallel
 * Results are synthesized into a coherent response
 
 Two approaches:
@@ -1130,7 +1430,7 @@ The conversational agent handles memory and context; the router stays stateless.
 If you need the router itself to maintain state, use [persistence](/oss/langchain/short-term-memory) to store message history. When routing to an agent, fetch previous messages from state and selectively include them in the agent's context—this is a lever for [context engineering](/oss/langchain/context-engineering).
 
 <Warning>
-**This is challenging.** Maintaining coherent history across multiple agents is difficult, especially when agents run in parallel. Agents can become confused about context or produce inconsistent responses. Synthesizing results also becomes harder—you need to track which agents have responded and how to combine partial results across turns. Consider the [state machine pattern](#state-machine) or [subagents pattern](#subagents) instead—both are simpler to reason about.
+**Stateful routers require custom history management.** If the router switches between agents across turns, conversations may not feel fluid to end users when agents have different tones or prompts. With parallel invocation, you'll need to maintain history at the router level (inputs and synthesized outputs) and leverage this history in routing logic. Consider the [state machine pattern](#state-machine) or [subagents pattern](#subagents) instead—both provide clearer semantics for multi-turn conversations.
 </Warning>
 
 ## Custom workflow
