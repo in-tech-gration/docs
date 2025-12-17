@@ -1,6 +1,6 @@
 ---
-title: Diagnostic steps for self-hosted deployments
-sidebarTitle: Diagnostics
+title: Troubleshooting for self-hosted deployments
+sidebarTitle: Troubleshooting
 ---
 
 This page provides diagnostic steps to help you troubleshoot issues with self-hosted [LangSmith Deployment](/langsmith/deployments) before reaching out to support. Follow these steps systematically to identify and resolve common deployment issues.
@@ -14,16 +14,22 @@ If you complete these diagnostic steps and still need assistance, refer to [Supp
 Before beginning the diagnostic steps, ensure you have:
 
 - `kubectl` access to your Kubernetes cluster.
-- Appropriate permissions to view pods, deployments, and services.
-- Familiarity with your Helm chart configuration.
+- Appropriate permissions to view pods, deployments, services, etc.
+- Familiarity with your [Helm chart configuration](/langsmith/kubernetes#configure-your-helm-charts:).
 
 ## Step 1. Understand your deployment
 
-After installing the Helm chart(s), verify what was deployed and understand the baseline state of your system. This helps you recognize what normal operation looks like and identify deviations when issues occur.
-
-### List deployed resources
+Verify what was deployed and understand the baseline state of your system. This helps you recognize what normal operation looks like and identify deviations when issues occur.
 
 Run the following commands to view all deployed resources.
+
+<Note>
+Ensure that you're in the correct namespace when you run the commands in this section. Or, specify the namespace explictly with the `-n` flag. For example:
+
+```bash
+kubectl get deployments -n langsmith
+```
+</Note>
 
 List all Kubernetes deployments:
 
@@ -43,7 +49,7 @@ List all services:
 kubectl get services
 ```
 
-List all `lgps` resources (only relevant after creating an [Agent Server](/langsmith/agent-server)):
+List all `lgps` resources (only present after creating an [Agent Server](/langsmith/agent-server)):
 
 ```bash
 kubectl get lgps
@@ -60,29 +66,8 @@ Your deployment includes the following core components:
 - **`langsmith-operator`**: The `lgps` Kubernetes operator that reconciles underlying Kubernetes resources for `lgps` resources. Part of the data plane infrastructure.
 
 <Note>
-This list is not exhaustive. Additional components may be present in your deployment depending on your configuration. For a complete overview, refer to [LangSmith Deployment components](/langsmith/components).
+Additional components may be present in your deployment depending on your configuration. For an overview, refer to [LangSmith Deployment components](/langsmith/components).
 </Note>
-
-### Review application logs
-
-Tail the logs of each pod to understand baseline behavior:
-
-```bash
-kubectl logs -f <pod_name>
-```
-
-#### What to look for in logs
-
-First, enable `DEBUG` level logs (see Step 2 below). Then look for these log lines:
-
-- **`langsmith-listener`**: `Reconciling projects...` (appears every 10 seconds)
-- **`langsmith-operator`**: `Starting reconciliation` (appears periodically)
-
-In a healthy deployment, you should not see any errors. All logs should appear normal and routine.
-
-### Next steps
-
-Once you understand the baseline state, create a deployment from the LangSmith Frontend. This process will create an `lgps` Kubernetes resource that you can monitor.
 
 ## Step 2. Enable debug logging
 
@@ -104,7 +89,7 @@ If the issue is with an individual Agent Server deployment:
 
 1. Navigate to the **Deployments** tab in the [LangSmith UI](https://smith.langchain.com).
 1. On a deployment's view, select **+ New Revision**.
-1. Set the **Environment Variables** to `LOG_LEVEL` and the value to `DEBUG`.
+1. Add a new environment variable `LOG_LEVEL` and set it to `DEBUG`.
 
 <Note>
 You can also find debug logs in the UI on a deployment's view, click on **Server Logs** and select **Debug** for the **Log level: Info** dropdown.
@@ -114,17 +99,31 @@ You can also find debug logs in the UI on a deployment's view, click on **Server
 
 If you are unsure where the issue originates, enable `DEBUG` logging everywhere (control plane, data plane, and all Agent Server deployments).
 
+### Review application logs
+
+Tail the logs of each pod to understand baseline behavior:
+
+```bash
+kubectl logs -f <pod_name>
+```
+
+Then look for these log lines:
+
+- **`langsmith-listener`**: `Reconciling projects...` (appears every 10 seconds)
+- **`langsmith-operator`**: `Starting reconciliation` (appears periodically)
+
+In a healthy deployment, you should not see any errors. All logs should appear normal and routine.
+
 ### Interpret debug logs
 
-Once you have reviewed logs when the system was working correctly to establish what normal behavior looks like, look for the following problem indicators:
+Look for the following problem indicators:
 
 - Exceptions or stack traces.
-- Error messages (the word `"ERROR"` or red-colored text).
+- Error messages (the word `"ERROR"`).
 - Unusual patterns that differ from normal operation.
 
 Based on the errors you find:
 
-- **Infrastructure bug**: If you suspect a bug in the platform infrastructure, raise the issue with LangChain.
 - **Configuration issue**: If you suspect a configuration problem, raise the issue with the person who ran [`helm install`](/langsmith/kubernetes).
 - **User code bug**: If you suspect a bug in user code (for example, the LangGraph OSS graph implementation), raise the issue with the person who created the [`langgraph.json`](/langsmith/application-structure#configuration-file) file.
 
