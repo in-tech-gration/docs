@@ -226,12 +226,10 @@ jobs:
     steps:
       - name: Comment on PR
         uses: actions/github-script@v8
-        env:
-          MINTLIFY_PROJECT_ID: ${{ vars.MINTLIFY_PROJECT_ID }}
         with:
           script: |
             const preview = `${{ needs.create-preview.outputs.preview_branch }}`;
-            const projectId = process.env.MINTLIFY_PROJECT_ID;
+            const projectId = `${{ vars.MINTLIFY_PROJECT_ID }}`;
             const previewUrl = `https://${projectId}-${preview}.mintlify.app`;
             await github.rest.issues.createComment({
               owner: context.repo.owner,
