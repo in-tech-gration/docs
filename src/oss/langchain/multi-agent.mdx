@@ -11,7 +11,6 @@ When developers say they need "multi-agent," they're usually looking for one or 
 - <Icon icon="brain" /> **Context management**: Provide specialized knowledge without overwhelming the model's context window. If context were infinite and latency zero, you could dump all knowledge into a single prompt — but since it's not, you need patterns to selectively surface relevant information.
 - <Icon icon="users" /> **Distributed development**: Allow different teams to develop and maintain capabilities independently, composing them into a larger system with clear boundaries.
 - <Icon icon="code-branch" /> **Parallelization**: Spawn specialized workers for subtasks and execute them concurrently for faster results.
-- <Icon icon="list-ol" /> **Sequential constraints**: Enforce step-by-step workflows, unlocking tools and actions only after preconditions are met.
 
 Multi-agent patterns are particularly valuable when a single agent has too many [tools](/oss/langchain/tools) and makes poor decisions about which to use, when tasks require specialized knowledge with extensive context (long prompts and domain-specific tools), or when you need to enforce sequential constraints that unlock capabilities only after certain conditions are met.
 
@@ -31,22 +30,20 @@ Here are the main patterns for building multi-agent systems, each suited to diff
 | [**Router**](#router) | A routing step classifies input and directs it to one or more specialized agents. Results are synthesized into a combined response. |
 | [**Custom workflow**](#custom-workflow) | Build bespoke execution flows with LangGraph, mixing deterministic logic and agentic behavior. Embed other patterns as nodes in your workflow. |
 
-**Tool calling** is the primary coordination mechanism across all patterns. Tools can:
-- Invoke [subagents](#subagents)
-- Update state to trigger routing or configuration changes ([handoffs](#handoffs))
-- Load context on-demand with ([skills](#skills))
-- Invoke entire multi-agent systems (e.g. wrapping a [router](#router) as a tool)
-
 ### Choosing a pattern
 
 Use this table to match your requirements to the right pattern:
 
-| Pattern | Distributed development | Parallelization | Multi-hop | Direct user interaction |
+<div className="compact-first-col">
+
+| Pattern | Distributed dev | Parallelization | Multi-hop | Direct user interaction |
 |---------|:-----------------------:|:---------------:|:----------:|:-----------------------:|
 | [**Subagents**](#subagents) | ⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐ | — |
 | [**Handoffs**](#handoffs) | — | — | ⭐⭐⭐ | ⭐⭐⭐ |
 | [**Skills**](#skills) | ⭐⭐⭐ | ⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐ |
 | [**Router**](#router) | ⭐⭐ | ⭐⭐⭐ | — | ⭐⭐ |
+
+</div>
 
 - **Distributed development**: Can different teams maintain components independently?
 - **Parallelization**: Can multiple agents execute concurrently?
