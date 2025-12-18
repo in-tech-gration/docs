@@ -61,65 +61,65 @@ Use this table to match your requirements to the right pattern:
   <Tab title="Subagents">
     A main agent coordinates subagents as tools. All routing passes through the main agent.
 
-    ```mermaid
-    graph LR
-        U([User request]) --> M[Main Agent]
-        M --> A[Subagent A]
-        M --> B[Subagent B]
-        M --> C[Subagent C]
-        A --> M
-        B --> M
-        C --> M
-        M --> R([Response])
-    ```
+```mermaid
+graph LR
+    U([User request]) --> M[Main Agent]
+    M --> A[Subagent A]
+    M --> B[Subagent B]
+    M --> C[Subagent C]
+    A --> M
+    B --> M
+    C --> M
+    M --> R([Response])
+```
   </Tab>
 
   <Tab title="Handoffs">
     Agents transfer control to each other via tool calls. Each agent can hand off to others or respond directly to the user.
 
-    ```mermaid
-    graph LR
-        U([User request]) --> A
-        subgraph Agents
-            direction TB
-            A[Agent A] <--> B[Agent B]
-            B <--> C[Agent C]
-            A <--> C
-        end
-        A --> R([Response])
-        B --> R
-        C --> R
-        A ~~~ B ~~~ C
-    ```
+```mermaid
+graph LR
+    U([User request]) --> A
+    subgraph Agents
+        direction TB
+        A[Agent A] <--> B[Agent B]
+        B <--> C[Agent C]
+        A <--> C
+    end
+    A --> R([Response])
+    B --> R
+    C --> R
+    A ~~~ B ~~~ C
+```
   </Tab>
 
   <Tab title="Skills">
     A single agent loads specialized prompts and knowledge on-demand while staying in control.
 
-    ```mermaid
-    graph LR
-        U([User request]) --> A[Agent]
-        A --> S1[Skill A]
-        A --> S2[Skill B]
-        A --> S3[Skill C]
-        A --> R([Response])
-    ```
+```mermaid
+graph LR
+    U([User request]) --> A[Agent]
+    A --> S1[Skill A]
+    A --> S2[Skill B]
+    A --> S3[Skill C]
+    A --> R([Response])
+```
   </Tab>
 
   <Tab title="Router">
     A routing step classifies input and directs it to specialized agents. Results are synthesized.
 
-    ```mermaid
-    graph LR
-        U([User request]) --> R[Router]
-        R --> A[Agent A]
-        R --> B[Agent B]
-        R --> C[Agent C]
-        A --> S[Synthesize]
-        B --> S
-        C --> S
-        S --> O([Response])
-    ```
+```mermaid
+graph LR
+    U([User request]) --> R[Router]
+    R --> A[Agent A]
+    R --> B[Agent B]
+    R --> C[Agent C]
+    A --> S[Synthesize]
+    B --> S
+    C --> S
+    S --> O([Response])
+```
   </Tab>
 </Tabs>
 
