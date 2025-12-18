@@ -72,6 +72,8 @@ Use this table to match your requirements to the right pattern:
         C --> M
         M --> R([Response])
     ```
+
+    The main agent is the only agent that can directly communicate with the user.
   </Tab>
 
   <Tab title="Handoffs">
@@ -91,6 +93,8 @@ Use this table to match your requirements to the right pattern:
         C --> R
         A ~~~ B ~~~ C
     ```
+
+    Any agent can communicate with the user directly.
   </Tab>
 
   <Tab title="Skills">
@@ -104,6 +108,8 @@ Use this table to match your requirements to the right pattern:
         A --> S3[Skill C]
         A --> R([Response])
     ```
+
+    The agent often loads skills via a `load_skill` tool.
   </Tab>
 
   <Tab title="Router">
@@ -120,6 +126,8 @@ Use this table to match your requirements to the right pattern:
         C --> S
         S --> O([Response])
     ```
+
+    All queries run through the router, which decides which agents to call.
   </Tab>
 </Tabs>
 
