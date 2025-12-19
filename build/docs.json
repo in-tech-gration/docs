@@ -1281,6 +1281,7 @@
                         "langsmith/human-in-the-loop-time-travel",
                         "langsmith/server-mcp",
                         "langsmith/server-a2a",
+                        "langsmith/agent-server-distributed-tracing",
                         "langsmith/use-webhooks",
                         {
                           "group": "Double-texting",
