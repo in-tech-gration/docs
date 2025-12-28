@@ -1299,7 +1299,7 @@ for (const interrupt of interrupts) {
   if (actionRequest.name === "send_email") {
     // Edit email
     const editedAction = { ...actionRequest };
-    editedAction.arguments.subject = "Mockups reminder";
+    editedAction.args.subject = "Mockups reminder";
     resume[interrupt.id] = {
       decisions: [{ type: "edit", editedAction }]
     };
